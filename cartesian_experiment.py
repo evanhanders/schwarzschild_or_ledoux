@@ -486,6 +486,7 @@ def run_cartesian_instability(args):
     logger.info('R_rho value: {:.3e}'.format(R_rho))
 
     if args['--plot_model']:
+        kwargs = {'lw' : 4}
         import matplotlib.pyplot as plt
         plt.plot(z_de.flatten(), -T_ad_z['g'][z_slice].squeeze(), c='b', lw=0.5, label=r'$\nabla_{\rm{ad}}$')
         plt.plot(z_de.flatten(), -T_rad_func(flux_of_z['g'], k0['g'])[z_slice].squeeze(), c='r', label=r'$\nabla_{\rm{rad}}$')
@@ -508,21 +509,24 @@ def run_cartesian_instability(args):
         plt.savefig('{:s}/k0_structure.png'.format(data_dir), dpi=400)
 
         plt.figure()
-        plt.plot(z_de.flatten(), mu0['g'][z_slice].squeeze(), c='k', label='mu0')
-        plt.plot(z_de.flatten(), mu0_z['g'][z_slice].squeeze(), c='b', label='mu0_z')
+        plt.plot(z_de.flatten(), mu0['g'][z_slice].squeeze(), c='k', label='mu0', **kwargs)
+#        plt.plot(z_de.flatten(), mu0_z['g'][z_slice].squeeze(), c='b', label='mu0_z')
         plt.xlabel('z')
-        plt.ylabel('mu0')
+        plt.ylabel('composition field')
+        plt.xlim(0, Lz)
         plt.legend()
         plt.savefig('{:s}/mu0_structure.png'.format(data_dir), dpi=400)
 
         plt.figure()
-        plt.plot(z_de.flatten(), N2_composition[z_slice].squeeze(), c='k', label='N2_composition')
-        plt.plot(z_de.flatten(), N2_structure[z_slice].squeeze(), c='b', label='N2_structure')
-        plt.plot(z_de.flatten(), -N2_structure[z_slice].squeeze(), c='b', ls='--')
-        plt.plot(z_de.flatten(), (N2_composition+N2_structure)[z_slice].squeeze(), c='orange', label='N2')
+        plt.plot(z_de.flatten(), N2_composition[z_slice].squeeze(), c='k', label='N2_composition', **kwargs)
+        plt.plot(z_de.flatten(), N2_structure[z_slice].squeeze(), c='b', label='N2_structure', **kwargs)
+        plt.plot(z_de.flatten(), -N2_structure[z_slice].squeeze(), c='b', ls='--', **kwargs)
+        plt.plot(z_de.flatten(), (N2_composition+N2_structure)[z_slice].squeeze(), c='orange', label='N2', **kwargs)
         plt.yscale('log')
         plt.xlabel('z')
         plt.ylabel('N2')
+        plt.xlim(0, Lz)
+        plt.ylim(1e1, 1e4)
         plt.legend()
         plt.savefig('{:s}/N2_structure.png'.format(data_dir), dpi=400)
 
