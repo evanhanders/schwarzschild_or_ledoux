@@ -17,19 +17,19 @@ Usage:
     cartesian_experiment.py <config> [options] 
 
 Options:
-    --Re=<Reynolds>            Freefall reynolds number [default: 1e2]
+    --Re=<Reynolds>            Freefall reynolds number [default: 2e2]
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
     --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-1]
     --S=<stiffness>            The stiffness [default: 1e2]
     --k0_factor=<f>            A factor by which to reduce composition diffusion on the k_perp = 0 mode [default: 1e2]
-    --zeta=<frac>              Fbot = zeta * F_conv [default: 1e-2]
+    --zeta=<frac>              Fbot = zeta * F_conv [default: 1e-1]
     --Lz=<L>                   Depth of domain [default: 3]
     --aspect=<aspect>          Aspect ratio of domain [default: 2]
     --L_cz=<L>                 Height of cz-rz erf step [default: 2]
     --2D                       If flagged, just do a 2D problem
 
     --nz=<nz>                  Vertical resolution   [default: 256]
-    --nx=<nx>                  Horizontal (x) resolution [default: 32]
+    --nx=<nx>                  Horizontal (x) resolution [default: 64]
     --ny=<ny>                  Horizontal (y) resolution (sets to nx by default)
     --RK222                    Use RK222 timestepper (default: RK443)
     --SBDF2                    Use SBDF2 timestepper (default: RK443)
@@ -142,8 +142,8 @@ def set_equations(problem):
                   (True,      kx_n0,  "dx(u) + dy(v) + dz(w) = 0"), #Incompressibility
                   (True,      kx_0,   "p = 0"), #Incompressibility
                   (True,      "True", "dt(u) + (dy(ωz) - dz(ωy))/Re0  + dx(p)                = v*ωz - w*ωy "), #momentum-x
-                  (threeD, "True", "dt(v) + (dz(ωx) - dx(ωz))/Re0  + dy(p)                = w*ωx - u*ωz "), #momentum-x
-                  (True,      kx_n0,  "dt(w) + (dx(ωy) - dy(ωx))/Re0  + dz(p) - T1 - dR*mu1  = u*ωy - v*ωx "), #momentum-z
+                  (threeD,    "True", "dt(v) + (dz(ωx) - dx(ωz))/Re0  + dy(p)                = w*ωx - u*ωz "), #momentum-x
+                  (True,      kx_n0,  "dt(w) + (dx(ωy) - dy(ωx))/Re0  + dz(p) - T1 + dR*mu1  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1) - Lap(T1, T1_z)/Pe0  = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z)"), #energy eqn k != 0
                   (True,      kx_0,  "dt(T1) - dz(k0*T1_z)        = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z) + (Q + dz(k0)*T0_z + k0*T0_zz)"), #energy eqn k = 0
@@ -157,7 +157,6 @@ def set_equations(problem):
 
     no_slip = args['--no_slip']
     stress_free = not(no_slip)
-    print(threeD, no_slip, threeD*no_slip)
 
     boundaries = ( (True,                  " left(T1_z) = 0", "True"),
                    (True,                  "right(T1) = 0", "True"),
@@ -323,16 +322,19 @@ def run_cartesian_instability(args):
             os.makedirs('{:s}'.format(data_dir))
     logger.info("saving run in: {}".format(data_dir))
 
-    mesh = args['--mesh']
-    ncpu = MPI.COMM_WORLD.size
-    if mesh is not None:
-        mesh = mesh.split(',')
-        mesh = [int(mesh[0]), int(mesh[1])]
+    if not twoD:
+        mesh = args['--mesh']
+        ncpu = MPI.COMM_WORLD.size
+        if mesh is not None:
+            mesh = mesh.split(',')
+            mesh = [int(mesh[0]), int(mesh[1])]
+        else:
+            log2 = np.log2(ncpu)
+            if log2 == int(log2):
+                mesh = [int(2**np.ceil(log2/2)),int(2**np.floor(log2/2))]
+            logger.info("running on processor mesh={}".format(mesh))
     else:
-        log2 = np.log2(ncpu)
-        if log2 == int(log2):
-            mesh = [int(2**np.ceil(log2/2)),int(2**np.floor(log2/2))]
-        logger.info("running on processor mesh={}".format(mesh))
+        mesh = None
 
     ########################################################################################
     ### 2. Organize simulation parameters
@@ -428,7 +430,6 @@ def run_cartesian_instability(args):
             f.meta['x']['constant'] = True
         else:
             f.meta['x', 'y']['constant'] = True
-    print(T_ad_z['g'][0,:].shape)
 
     cz_mask['g'] = zero_to_one(z_de, 0.2, width=0.05)*one_to_zero(z_de, L_cz, width=0.05)
 
@@ -463,10 +464,10 @@ def run_cartesian_instability(args):
     T0_z.differentiate('z', out=T0_zz)
 
     #mu0_z increases from 0 to 1 over the top half of the schwarzschild-unstable CZ.
-    mu0_z['g'] = zero_to_one(z_de.flatten(), L_cz/2, width=L_cz/40)
+    mu0_z['g'] = -zero_to_one(z_de.flatten(), L_cz/2, width=L_cz/40)
     mu0_z['g'] *= one_to_zero(z_de.flatten(), L_cz, width=L_cz/40)
     mu0_z['g'] /= (L_cz/2)
-    mu0_z.antidifferentiate('z', ('right', 1), out=mu0)
+    mu0_z.antidifferentiate('z', ('right', 0), out=mu0)
 
     #Check that heating and cooling cancel each other out.
     fH = domain.new_field()
@@ -476,9 +477,13 @@ def run_cartesian_instability(args):
     fH.antidifferentiate('z', ('left', 0), out=fH2)
     logger.info('right(integ(heating - cooling)): {:.3e}'.format(fH2.interpolate(z=Lz)['g'].max()))
 
-    dR = (S - (T_rad_z0 - T_ad_z).evaluate().interpolate(z=0)['g'].max()) * (L_cz/2)
-    N2_composition = dR*mu0_z['g']
+    dR = (S - (T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].max()) * (L_cz/2)
+    N2_composition = -dR*mu0_z['g']
     N2_structure   = T0_z['g'] - T_ad_z['g']
+    logger.info('{:.3e}'.format((T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].max()))
+
+    R_rho = np.abs(dR * (2 / L_cz) / (T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].min())
+    logger.info('R_rho value: {:.3e}'.format(R_rho))
 
     if args['--plot_model']:
         import matplotlib.pyplot as plt
@@ -645,7 +650,7 @@ def run_cartesian_instability(args):
  
     ###########################################################################
     ### 6. Setup output tasks; run main loop.
-    analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=t_ff)
+    analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=0.1*t_ff)
 
     dense_scales = 20
     dense_x_scales = 1#mesh[0]/nx
