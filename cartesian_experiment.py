@@ -17,7 +17,7 @@ Usage:
     cartesian_experiment.py <config> [options] 
 
 Options:
-    --Re=<Reynolds>            Freefall reynolds number [default: 2e2]
+    --Re=<Reynolds>            Freefall reynolds number [default: 5e2]
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
     --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-1]
     --S=<stiffness>            The stiffness [default: 1e2]
@@ -28,8 +28,8 @@ Options:
     --L_cz=<L>                 Height of cz-rz erf step [default: 2]
     --2D                       If flagged, just do a 2D problem
 
-    --nz=<nz>                  Vertical resolution   [default: 256]
-    --nx=<nx>                  Horizontal (x) resolution [default: 64]
+    --nz=<nz>                  Vertical resolution   [default: 512]
+    --nx=<nx>                  Horizontal (x) resolution [default: 256]
     --ny=<ny>                  Horizontal (y) resolution (sets to nx by default)
     --RK222                    Use RK222 timestepper (default: RK443)
     --SBDF2                    Use SBDF2 timestepper (default: RK443)
@@ -383,12 +383,12 @@ def run_cartesian_instability(args):
     ###########################################################################################################3
     ### 3. Setup Dedalus domain, problem, and substitutions/parameters
     x_basis = de.Fourier('x', nx, interval=(0, Lx), dealias=3/2)
-    z_bases = []
-    match_cheby_z = L_cz+0.25*(Lz-L_cz)
-    z_bases.append(de.Chebyshev('z', nz-32, interval=[0,  match_cheby_z], dealias=3/2))
-    z_bases.append(de.Chebyshev('z',    32, interval=[match_cheby_z, Lz], dealias=3/2))
-    z_basis = de.Compound('z', z_bases, dealias=3/2)
-#    z_basis = de.Chebyshev('z', nz, interval=(0,Lz), dealias=3/2)
+#    z_bases = []
+#    match_cheby_z = L_cz+0.25*(Lz-L_cz)
+#    z_bases.append(de.Chebyshev('z', nz-32, interval=[0,  match_cheby_z], dealias=3/2))
+#    z_bases.append(de.Chebyshev('z',    32, interval=[match_cheby_z, Lz], dealias=3/2))
+#    z_basis = de.Compound('z', z_bases, dealias=3/2)
+    z_basis = de.Chebyshev('z', nz, interval=(0,Lz), dealias=3/2)
     if not twoD:
         y_basis = de.Fourier('y', ny, interval=(0, Ly), dealias=3/2)
         bases = [x_basis, y_basis, z_basis]
