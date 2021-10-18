@@ -150,14 +150,14 @@ and the stability criterion is to have $N^2 > 0$.
 \subsection{Nondimensional Equations}
 The nondimensional equations are then (with $\varpi$ the dynamical pressure),
 \begin{align}
-    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d Y)\hat{z} + \frac{1}{\mathrm{Re}_{\mathrm{ff}}}\grad^2 \vec{u},\\
-    \partial_t T - \bm{u}\dot(\grad - \grad_{\mathrm{ad}}) &= - \grad\cdot[k_0 \bar{\grad}] + \chi \grad^2 T' + Q,\\
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d Y)\hat{z} + \frac{1}{\mathrm{Re}}\grad^2 \vec{u},\\
+    \partial_t T - \bm{u}\dot(\grad - \grad_{\mathrm{ad}}) &= - \grad\cdot[k_0 \bar{\grad}] + \frac{1}{\rm{Pe}} \grad^2 T' + Q,\\
     \partial_t \mu + \bm{u}\dot\grad \mu &= \frac{1}{\mathrm{Re}_{\mu,0}}\grad^2 \bar{\mu} + \frac{1}{\mathrm{Re}_{\mu}}\grad^2 \mu'.
 \end{align}
 The nondimensional brunt frequencies are  
 \begin{equation}
     N_{\mathrm{therm}}^2 = (\grad_{\rm{ad}} - \grad), \qquad
-    N_{\mathrm{comp}}^2 =  -\rm{R_d}\grad \mu, \equiv \grad_\mu \qquad
+    N_{\mathrm{comp}}^2 =  -\rm{R}_d\grad \mu, \equiv \grad_\mu \qquad
     N^2 = N_{\mathrm{therm}}^2 + N_{\mathrm{comp}}^2 = (\grad_\mu + \grad_{\rm{ad}} - \grad).
 \end{equation}
 
@@ -169,5 +169,24 @@ We want to set up an experiment where there are three layers, characterized by:
     \item (semiconvection) $\grad = \grad_{\rm{rad}}$, $\grad_{\rm{rad}} - \grad_\mu < \grad_{\rm{ad}}$, $\grad_{\rm{rad}} > \grad_{\rm{ad}}$.
     \item (RZ) $\grad = \grad_{\rm{rad}}$, $\grad_\mu = 0$, $\grad_{\rm{rad}} < \grad_{\rm{ad}}$.
 \end{enumerate}
+
+As in our previous work, we will set the convective flux $F_{\rm{conv}} = Q \delta_H = 0.2$ with $Q = 1$ and $\delta_H = 0.2$.
+We will set the flux entering the bottom of the domain, and thus we will set $k_0$, so that $F_{\rm{bot}} = k_0 \grad_{\rm{ad}} = \eta F_{\rm{conv}}$.
+By our choice of $Q$ and by setting the convective domain size to $L = 1$, we implicitly set $f_{\rm{conv}} \sim 1$.
+To set the stiffness $\mathcal{S}$, we set the value of $N^2 = \grad_{\rm{ad}} - \grad_{\rm{rad}} = \mathcal{S}$ in the RZ.
+We have still not chosen a value of $\grad_{\rm{ad}}$ (just its relation to $\grad_{\rm{rad}}$ in the RZ and $\grad_{\rm{rad}}$, or $k_0$, in the CZ).
+So we will choose a value of the penetration parameter $\mathcal{P}$ that is either realistic of stellar values (1) or which has no penetration ($\ll 1$).
+This parameter is
+\begin{equation}
+    \mathcal{P} = -\frac{k_{\rm{CZ}} (\grad_{\rm{rad}} - \grad_{\rm{ad}})_{\rm{CZ}}}
+    {k_{\rm{RZ}} (\grad_{\rm{rad}} - \grad_{\rm{ad}})_{\rm{RZ}}}.
+\end{equation}
+We furthermore want to set it so that $\Delta \mu = 1$ (that's the magnitude of the $\mu$ decrease over zone 2 above).
+We additionally want to ensure $N^2 > 0$ in zone 2, so $\rm{R}_d$ must be set so that $\grad_\mu > \grad_{\rm{rad}} - \grad_{\rm{ad}}$ in the CZ.
+Under these constraints, we are free to choose whatever values of Re, Re$_\mu$, and Pe we want.
+We want to choose them, probably, so that the semiconvective layer is \emph{not unstable} to any classical semiconvective instabilities.
+We should prove that it is stable to these instabilities using a 1-layer model which just encompasses zone (2) above.
+Once we know it's stable, then we should do the 3-layer model.
+
 
 \end{document}
