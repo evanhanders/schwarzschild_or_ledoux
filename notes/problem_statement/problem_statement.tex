@@ -32,6 +32,7 @@
 \newcommand{\pderiv}[2]{\ensuremath{\frac{\partial #1}{\partial #2}}}
 \newcommand{\xHe}{\ensuremath{X_{\text{He}}}}
 
+\renewcommand{\bar}[1]{\ensuremath{\overline{#1}}}
 \renewcommand{\vec}[1]{\ensuremath{\mathbf{#1}}}
 \renewcommand{\dot}{\ensuremath{\cdot}}
 
@@ -45,7 +46,8 @@ We know the answer to that question: Ledoux.
 The question here is, ``is the Ledoux criterion \emph{fragile}?''
 Or, given time, will a Ledoux-stable (but Schwarzschild-unstable) region which is adjacent to a convection zone remain stable over dynamical timescales?
 
-\section{The dimensional Boussinesq equations of motion}
+\section{The quasi-Boussinesq equations of motion}
+\subsection{Dimensional equations}
 We will solve the Boussinesq equations of motion in the incompressible limit.
 We will solve for the velocity (\vec{u}), the temperature ($T$), and the composition ($\mu$).
 In this limit, density variations are ignored except in the buoyant term in the momentum equation, where they follow
@@ -61,252 +63,111 @@ The Boussinesq momentum equation (in which $\rho$ can only vary on the gravitati
 \end{equation}
 Removing $\rho$ under the Boussinesq approximation, we retrieve our evolution equations,
 \begin{align}
-\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \frac{\grad p}{\rho_0} &= (\alpha T - \beta Y)\vec{g} + \nu \grad^2\vec{u} \\
-\partial_t T + \vec{u}\dot(\grad T - \grad T_{\mathrm{ad}}) &= \frac{1}{\rho_0 c_v}\grad\dot[(1 + Y)\kappa\grad T] + \frac{\epsilon(Y, T)}{c_v} \label{eqn:temperature_eqn} \\
-\partial_t Y + \vec{u}\dot\grad Y &= \chi_Y \grad^2 Y - \frac{1}{\rho_0}\frac{\Delta m_{\mathrm{He}}}{\Delta E}\epsilon(Y, T).
+\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \frac{\grad p}{\rho_0} &= (\alpha T + \beta \mu)\vec{g} + \nu \grad^2\vec{u} \\
+    \partial_t T + \vec{u}\dot(\grad T - \grad T_{\mathrm{ad}}) &= \grad\dot[k_0 \grad \bar{T}] + \chi \grad^2 T' + Q \label{eqn:temperature_eqn} \\
+    \partial_t \mu + \vec{u}\dot\grad \mu &= \chi_{\mu,0} \grad^2 \bar{\mu} + \chi_{\mu} \grad^2 \mu' .
 \end{align}
-Here, $\kappa = \rho_0 c_p \chi$ is the radiative conductivity where $\chi$ is the radiative diffusivity, and $\grad T_{\mathrm{ad}}$ is the gradient of the adiabatic temperature profile (note that $c_p$ and $c_v$ might be a bit meaningless in the Boussinesq limit, but I'm leaving these dimensional parameters in for retrieving estimates from the MESA model).
-Plugging $\kappa$ in and asuming constant $\chi$, the diffusion term in the energy equation becomes 
+Here, $k_0$ and $\chi_{\mu,0}$ are diffusivities which act on the horizontally averaged mode while $\chi$ and $\chi_\mu$ act on the fluctuations; $\nu$ is a viscosity which acts on all flows.
+Assuming that a vertical energy flux $F$ is carried through the system, this allows us to define an adiabatic and radiative gradient,
 \begin{equation}
-\frac{1}{\rho_0 c_v}\grad\dot[(1 + Y)\kappa\grad T] = \chi\frac{c_p}{c_v} \grad\dot[(1 + Y)\grad T],
+    \grad \equiv - \grad T, \qquad
+    \grad_{\rm{ad}} \equiv - \grad T_{\rm{ad}}, \qquad
+    \grad_{\rm{rad}} \equiv \frac{F}{k_0}.
 \end{equation}
-where the $(1 + Y)$ term signifies that radiative conductivity increases with helium concentration.
-Finally, $\epsilon(Y, T)$ is the helium burning function, with cgs units [erg cm$^{-3}$ s$^{-1}$], and $\Delta E / \Delta m_{\mathrm{He}}$ is the energy released per mass of helium burned.
-
 Note that in this system, if you linearize and idealize and solve for the dispersion relation, the squared brunt frequencies (assuming $\vec{g} = - g \hat{z}$) are
 \begin{equation}
-N_{\mathrm{therm}}^2 = -\alpha g (\grad T_0 - \grad_{\mathrm{ad}}), \qquad
-N_{\mathrm{comp}}^2 =  \beta  g \grad Y_0, \qquad
-N^2 = N_{\mathrm{therm}}^2 + N_{\mathrm{comp}}^2,
+    N_{\mathrm{therm}}^2 = \alpha g (\grad - \grad_{\rm{ad}}), \qquad
+    N_{\mathrm{comp}}^2 =  -\beta  g \grad \mu, \qquad
+    N^2 = N_{\mathrm{therm}}^2 + N_{\mathrm{comp}}^2,
 \end{equation}
 and the stability criterion is to have $N^2 > 0$.
 
-\section{Triple-alpha burning}
-The primary nuclear reaction that's occuring is the $3\alpha$ process. 
-Per Eqn.~5-104 in Ch.~5.5 of Clayton 1983, the energy generation rate of the triple alpha reaction is
-\begin{equation}
-\epsilon_{3\alpha} = (3.9 \times 10^{11})\frac{\rho^2 Y^3}{T_8^3} f e^{-42.94/T_8}\,\mathrm{erg}\,\mathrm{g}^{-1}\mathrm{sec}^{-1},
-\end{equation}
-where $T_8$ is the temperature in units of $10^8$ K and the 3$\alpha$ weak-electron-screening formula is roughly
-\begin{equation}
-f \approx e^{(2.76 \times 10^{-3})\rho^{1/2}T_8^{-3/2}}.
-\end{equation}
-Altogether, near $T_8 = 1$, which is the relevant regime for our star,
-\begin{equation}
-\epsilon_{3\alpha} \approx (4.4 \times 10^{-8}) \rho^2 Y^3 f T_8^{40}\,\mathrm{erg}\,\mathrm{g}^{-1}\mathrm{sec}^{-1}.
-\end{equation}
-This means that nuclear burning depends very strongly on temperature and somewhat strongly on the Helium mass fraction.
-In a perfect world, in Eqn.~\ref{eqn:temperature_eqn}, we would set $\epsilon(Y,T) = \epsilon_{3\alpha}$ directly, but the power on $T$ is a bit too strong for that, so we'll make approximations instead.
-
-Finally, as will be important in the mass fraction equation, the energy liberated per reaction is $\Delta E = 7.274\,\mathrm{Mev} = 1.165 \times 10^{-5}$ erg.
-The mass of Helium consumed is that of three alpha particles $\Delta m_{\text{He}} = 3\dot4.0015\,\mathrm{amu}  = 1.993 \times 10^{-23} g$.
-
-
-\section{Nondimensionalization}
-
-\subsection{Basics}
-We now nondimensionalize. 
-We take the length scale, $L$, to be the depth of the RZ, the helium gradient region.
-We take the velocity scale, $u_{\mathrm{ff}}$, to be the freefall velocity of the convection, which in turn sets the timescale.
-We take the magnitude of the temperature, $\Delta T$, to be the magnitude of the \emph{convective temperature pertubations}, which are small compared to the background.
-We take the magnitude of the composition, $\Delta Y$, to be the difference between $Y$ at the top and bottom of the RZ.
-Two of these quantities can be immediately read off of the MESA model, and they are $L = 4.955 \times 10^{8}$ cm and $\Delta Y = 0.3369$.
-Note also that the background density will be taken to be the density at the CZ-RZ interface of $\rho_0 = 9.4 \times 10^3$ g/cm$^3$.
-
-We will next turn our attention to $\Delta T$, $u_{\mathrm{ff}}$, and $\tau$.
-By our choice of nondimensionalization, 
-\begin{equation}
--\frac{\Delta T}{L} = \grad T_0 - \grad_{\mathrm{ad}} = \frac{N_{\mathrm{therm}^2}}{\alpha g}.
-\end{equation}
-From the ideal gas equation of state, $\alpha = - T^{-1}$, and we will take reference values of $T = 9.02 \times 10^7$ K and $g = 6.4 \times 10^6$ cm/s$^2$ at the CZ-RZ interface.
-Furthermore, within the portion of the CZ that we are modeling, $N_{\mathrm{therm}}^2 = -7.43 \times 10^{-12}$ s$^{-2}$.
-Combining these values, we find 
-\begin{align}
-\Delta T &= \frac{L N_{\mathrm{therm}^2}}{\alpha g} = 5.17 \times 10^{-2}\,\mathrm{K},\\
-u_{\mathrm{ff}} &= \sqrt{\alpha g L \Delta T} = 1.35 \times 10^{3}\,\mathrm{cm/s},\\
-\tau &= L/u_{\mathrm{ff}} = 3.67 \times 10^{5} \mathrm{s}.
-\end{align}
-
-
-Next, we need to understand how stable the RZ is compared to the CZ.
-This is commonly quoted through an ``effective density ratio,''
-\begin{equation}
-\mathrm{Ro} = \frac{\alpha \Delta T}{\beta \Delta Y} = \frac{-N_{\mathrm{therm}}^2}{N_{\mathrm{comp}}^2 } = 5.82 \times 10^{-9} \sim \mathrm{Ma}^2,
-\end{equation}
-where I have used $N_{\mathrm{comp}}^2 = 0.128$ as the average value of $N^2$ in the RZ of the MESA model.
-In general, $N_{\mathrm{comp}}^2$ can be arbitrarily large, because the composition gradient can be as large as it needs to be.
-In this problem $N_{\mathrm{comp}}^2$ in the RZ is of order $(c_s/L)^2$ because the composition gradient is generated by tuning $\grad_{\mathrm{rad}}$ to equal $\grad_{\mathrm{ad}}$ (which forces $\partial_r(\mu) \sim -1/L$). 
-So, in this problem, it will be useful to note that there is a direct relationship between Ro and the Mach number of the convection,
-\begin{equation}
-\mathrm{Ro} \approx \mathrm{Ma}^2,
-\end{equation}
-and we will use $\mathrm{Ma}^2$ as our variable going forward.
-
-\subsection{Diffusivities}
-
-Next, we look at diffusivities.
-I went into more detail in this in an old set of notes, but here I'm just going to use the results.
-The thermal diffusivity can be found from the radiative conductivity,
-\begin{equation}
-\chi = \frac{16 \sigma_{SB} T^3}{3 \rho_0^2 c_p \kappa} = 6.55 \times 10^{4} \,\mathrm{cm}^2/\mathrm{s},
-\end{equation}
-where $c_p = 1.17 \times 10^{8}$ erg g$^{-1}$ K${-1}$ at the CZ-RZ interface and the opacity is $\kappa = 0.329$ cm$^2$/g there.
-The viscous diffusivity and molecular diffusivity are a bit more complicated, but referring to my previous document which derived those formulas, and making the caveat that these formulae are for pure-helium fluids, the diffusivities are roughly,
-\begin{align}
-\nu &= (2.2 \times 10^{-15}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho}\left\{23 - \ln 8 - \frac{1}{2}\ln(2 n) +\frac{3}{2}\ln T\right\}^{-1} = 1.106 \,\mathrm{cm}^2/\mathrm{s} \\
-\chi_Y &= (3.75 \times 10^{-16}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho} = 3.083 \mathrm{cm}^2/\mathrm{s}
-\end{align}
-where $T$ and $\rho$ are in cgs units and $n = \rho/(\mu m_p) = 3.36 \times 10^{27}$ cm$^{-3}$ at the CZ-RZ interface.
-From these, we can make various estimates of the turbulence in the flows,
-\begin{equation}
-\mathrm{Re}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\nu} = 6.05 \times 10^{11},\qquad
-\mathrm{Pe}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\chi} = 1.02 \times 10^7,\qquad
-\mathrm{Re}_Y             = \frac{u_{\mathrm{ff}} L}{\chi_Y} = 2.17 \times 10^{11}.
-\end{equation}
-Clearly it's impossible to simulate anything close to those, so it's probably safe to just set $\mathrm{Re}_{\mathrm{ff}} = \mathrm{Pe}_{\mathrm{ff}} = \mathrm{Re}_Y$ and make them as large as possible (or at least modestly large) in our simulations.
-I don't expect the amount of turbulence in the problem to cause big differences, and so this should be fine.
-However, I do expect the magnitude of $\mathrm{Pe}_{\mathrm{ff}}$ to perhaps be important, because this value tells us how quickly heat can diffuse through the stable layer (and thus how effectively energy generated by the excess fuel can escape!).
-
-\subsection{Burning}
-
-Finally, we turn our attention to burning.
-We will determine the value of burning, as a function of $Y$, both at the top of the CZ (where $T_{\mathrm{top}} = 9.02 \times 10^7$ K) and at the bottom of the CZ (where $T_{\mathrm{bot}} = 1.116 \times 10^8$ K).
-We find that
-\begin{equation}
-\bar{\epsilon}(Y, T) = \frac{\epsilon(Y, T)}{c_v} = (4.4 \times 10^{-8})c_v^{-1}\rho_0^2 f(\rho_0, T_8) T_8^{40} Y^3 \,\mathrm{K}\,\mathrm{s}^{-1}
-\end{equation}
-and
-\begin{align}
-\bar{\epsilon}(Y, T_{\mathrm{top}}) = (1.124 \times 10^{-9}) Y^3\,\,\,\,\mathrm{K}\,\mathrm{s}^{-1}, \\
-\bar{\epsilon}(Y, T_{\mathrm{bot}}) = (5.095 \times 10^{-6}) Y^3\,\,\,\,\mathrm{K}\,\mathrm{s}^{-1}.
-\end{align}
-Numerically, we will use a simplified burning function.
-We can represent this burning function in the dimensionless temperature equation as
-\begin{equation}
-\frac{\tau}{\Delta T}\bar{\epsilon} = Q Y T^{n}
-\end{equation}
-where $n$ is some positive integer (say $n = 5$) and where $Q$ sets the magnitude of the burning at the bottom of the CZ,
-\begin{equation}
-Q = \frac{\tau}{\Delta T} \Delta Y (5.095 \times 10^{-6} \mathrm{   K / s}) \approx 12.
-\end{equation}
-And, in the mass fraction equation, we have
-\begin{equation}
-\tau c_v \frac{\Delta m_{\mathrm{He}}}{\Delta E} \bar{\epsilon} = -C_r Y T^n,
-\end{equation}
-where $C_r$ is the consumption rate, whose value at the bottom of the CZ is roughly
-\begin{equation}
-C_r \approx 8 \times 10^{-11},
-\end{equation}
-meaning that it takes very many convective overturn times for the fuel to be consumed.
-This may as well just be $C_r = 0$, and so for simplicitly we will assume in our models that Helium is never consumed.
+%\section{Stellar Parameters}
+%
+%\subsection{Basics}
+%We now nondimensionalize. 
+%We take the length scale, $L$, to be the depth of the RZ, the helium gradient region.
+%We take the velocity scale, $u_{\mathrm{ff}}$, to be the freefall velocity of the convection, which in turn sets the timescale.
+%We take the magnitude of the temperature, $\Delta T$, to be the magnitude of the \emph{convective temperature pertubations}, which are small compared to the background.
+%We take the magnitude of the composition, $\Delta Y$, to be the difference between $Y$ at the top and bottom of the RZ.
+%Two of these quantities can be immediately read off of the MESA model, and they are $L = 4.955 \times 10^{8}$ cm and $\Delta Y = 0.3369$.
+%Note also that the background density will be taken to be the density at the CZ-RZ interface of $\rho_0 = 9.4 \times 10^3$ g/cm$^3$.
+%
+%We will next turn our attention to $\Delta T$, $u_{\mathrm{ff}}$, and $\tau$.
+%By our choice of nondimensionalization, 
+%\begin{equation}
+%-\frac{\Delta T}{L} = \grad T_0 - \grad_{\mathrm{ad}} = \frac{N_{\mathrm{therm}^2}}{\alpha g}.
+%\end{equation}
+%From the ideal gas equation of state, $\alpha = - T^{-1}$, and we will take reference values of $T = 9.02 \times 10^7$ K and $g = 6.4 \times 10^6$ cm/s$^2$ at the CZ-RZ interface.
+%Furthermore, within the portion of the CZ that we are modeling, $N_{\mathrm{therm}}^2 = -7.43 \times 10^{-12}$ s$^{-2}$.
+%Combining these values, we find 
+%\begin{align}
+%\Delta T &= \frac{L N_{\mathrm{therm}^2}}{\alpha g} = 5.17 \times 10^{-2}\,\mathrm{K},\\
+%u_{\mathrm{ff}} &= \sqrt{\alpha g L \Delta T} = 1.35 \times 10^{3}\,\mathrm{cm/s},\\
+%\tau &= L/u_{\mathrm{ff}} = 3.67 \times 10^{5} \mathrm{s}.
+%\end{align}
+%
+%
+%Next, we need to understand how stable the RZ is compared to the CZ.
+%This is commonly quoted through an ``effective density ratio,''
+%\begin{equation}
+%\mathrm{Ro} = \frac{\alpha \Delta T}{\beta \Delta Y} = \frac{-N_{\mathrm{therm}}^2}{N_{\mathrm{comp}}^2 } = 5.82 \times 10^{-9} \sim \mathrm{Ma}^2,
+%\end{equation}
+%where I have used $N_{\mathrm{comp}}^2 = 0.128$ as the average value of $N^2$ in the RZ of the MESA model.
+%In general, $N_{\mathrm{comp}}^2$ can be arbitrarily large, because the composition gradient can be as large as it needs to be.
+%In this problem $N_{\mathrm{comp}}^2$ in the RZ is of order $(c_s/L)^2$ because the composition gradient is generated by tuning $\grad_{\mathrm{rad}}$ to equal $\grad_{\mathrm{ad}}$ (which forces $\partial_r(\mu) \sim -1/L$). 
+%So, in this problem, it will be useful to note that there is a direct relationship between Ro and the Mach number of the convection,
+%\begin{equation}
+%\mathrm{Ro} \approx \mathrm{Ma}^2,
+%\end{equation}
+%and we will use $\mathrm{Ma}^2$ as our variable going forward.
+%
+%\subsection{Diffusivities}
+%
+%Next, we look at diffusivities.
+%I went into more detail in this in an old set of notes, but here I'm just going to use the results.
+%The thermal diffusivity can be found from the radiative conductivity,
+%\begin{equation}
+%\chi = \frac{16 \sigma_{SB} T^3}{3 \rho_0^2 c_p \kappa} = 6.55 \times 10^{4} \,\mathrm{cm}^2/\mathrm{s},
+%\end{equation}
+%where $c_p = 1.17 \times 10^{8}$ erg g$^{-1}$ K${-1}$ at the CZ-RZ interface and the opacity is $\kappa = 0.329$ cm$^2$/g there.
+%The viscous diffusivity and molecular diffusivity are a bit more complicated, but referring to my previous document which derived those formulas, and making the caveat that these formulae are for pure-helium fluids, the diffusivities are roughly,
+%\begin{align}
+%\nu &= (2.2 \times 10^{-15}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho}\left\{23 - \ln 8 - \frac{1}{2}\ln(2 n) +\frac{3}{2}\ln T\right\}^{-1} = 1.106 \,\mathrm{cm}^2/\mathrm{s} \\
+%\chi_Y &= (3.75 \times 10^{-16}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho} = 3.083 \mathrm{cm}^2/\mathrm{s}
+%\end{align}
+%where $T$ and $\rho$ are in cgs units and $n = \rho/(\mu m_p) = 3.36 \times 10^{27}$ cm$^{-3}$ at the CZ-RZ interface.
+%From these, we can make various estimates of the turbulence in the flows,
+%\begin{equation}
+%\mathrm{Re}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\nu} = 6.05 \times 10^{11},\qquad
+%\mathrm{Pe}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\chi} = 1.02 \times 10^7,\qquad
+%\mathrm{Re}_Y             = \frac{u_{\mathrm{ff}} L}{\chi_Y} = 2.17 \times 10^{11}.
+%\end{equation}
+%Clearly it's impossible to simulate anything close to those, so it's probably safe to just set $\mathrm{Re}_{\mathrm{ff}} = \mathrm{Pe}_{\mathrm{ff}} = \mathrm{Re}_Y$ and make them as large as possible (or at least modestly large) in our simulations.
+%I don't expect the amount of turbulence in the problem to cause big differences, and so this should be fine.
+%However, I do expect the magnitude of $\mathrm{Pe}_{\mathrm{ff}}$ to perhaps be important, because this value tells us how quickly heat can diffuse through the stable layer (and thus how effectively energy generated by the excess fuel can escape!).
 
 \subsection{Nondimensional Equations}
 The nondimensional equations are then (with $\varpi$ the dynamical pressure),
 \begin{align}
-\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (T + \mathrm{Ma}^{-2}Y)\hat{z} + \frac{1}{\mathrm{Re}_{\mathrm{ff}}}\grad^2 \vec{u},\\
-\partial_t T + \bm{u}\dot(\grad T - \grad_{\mathrm{ad}}) &= \frac{1}{\mathrm{Pe}_{\mathrm{ff}}}\grad\dot[(1 + Y)\grad T] + Q \xi(Y,T),\\
-\partial_t Y + \bm{u}\dot\grad Y &= \frac{1}{\mathrm{Re}_Y}\grad^2 Y - C_r \xi(Y,T).
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d Y)\hat{z} + \frac{1}{\mathrm{Re}_{\mathrm{ff}}}\grad^2 \vec{u},\\
+    \partial_t T - \bm{u}\dot(\grad - \grad_{\mathrm{ad}}) &= - \grad\cdot[k_0 \bar{\grad}] + \chi \grad^2 T' + Q,\\
+    \partial_t \mu + \bm{u}\dot\grad \mu &= \frac{1}{\mathrm{Re}_{\mu,0}}\grad^2 \bar{\mu} + \frac{1}{\mathrm{Re}_{\mu}}\grad^2 \mu'.
 \end{align}
-In a star, the burning function $\xi(Y,T) \propto Y^3 T^{40}$, but we will use a simpler function in our simulations.
-Stellar values of parameters are:
+The nondimensional brunt frequencies are  
+\begin{equation}
+    N_{\mathrm{therm}}^2 = (\grad_{\rm{ad}} - \grad), \qquad
+    N_{\mathrm{comp}}^2 =  -\rm{R_d}\grad \mu, \equiv \grad_\mu \qquad
+    N^2 = N_{\mathrm{therm}}^2 + N_{\mathrm{comp}}^2 = (\grad_\mu + \grad_{\rm{ad}} - \grad).
+\end{equation}
+
+
+\section{Three-layer experiment}
+We want to set up an experiment where there are three layers, characterized by:
 \begin{enumerate}
-\item $\mathrm{Ma}^2 \approx 6 \times 10^{-9}$,
-\item $\mathrm{Re}_\mathrm{ff} \approx 6 \times 10^{11}$,
-\item $\mathrm{Pe}_\mathrm{ff} \approx 10^7$,
-\item $\mathrm{Re}_Y \approx 2 \times 10^{11}$,
-\item $Q   \approx 12$
-\item $C_r \approx 8 \times 10^{-11}$.
+    \item (CZ) $\grad = \grad_{\rm{ad}}$, $\grad_\mu = 0$, $\grad_{\rm{rad}} > \grad_{\rm{ad}}$.
+    \item (semiconvection) $\grad = \grad_{\rm{rad}}$, $\grad_{\rm{rad}} - \grad_\mu < \grad_{\rm{ad}}$, $\grad_{\rm{rad}} > \grad_{\rm{ad}}$.
+    \item (RZ) $\grad = \grad_{\rm{rad}}$, $\grad_\mu = 0$, $\grad_{\rm{rad}} < \grad_{\rm{ad}}$.
 \end{enumerate}
-
-
-\section{Numerical Model}
-We will set up a numerical model where the O(1) temperature fluctuations of the convection are a factor of Ma$^2$ smaller than the background adiabatic gradient.
-This background state will also also satisfy thermal equilibrium.
-For the Helium mass fraction, we will assume it is zero in the convection zone and it has a constant gradient in the radiative zone.
-An initial state which satisfies these conditions is
-\begin{equation}
-Y_0 = 
-\begin{cases}
-0,	 	&	z < 0 \\
-z, 		& 	0 \leq z \leq 1 \\
-\end{cases},\qquad
-\grad T_0 = -\frac{\mathrm{Ma}^{-2}}{1 + Y_0}, \qquad
-\grad_{\text{ad}} = 
-\begin{cases}
-1 - \mathrm{Ma}^{-2},				& 	\bar{Y} = 0 \\
-\grad T,		&	\bar{Y} \geq 0.02 \\
-\end{cases}.
-\label{eqn:model}
-\end{equation}
-In general, our spectral methods dislike really sharp, piecewise functions like these, so we will take advantage of error functions to build smooth models.
-We define
-\begin{equation}
-E_{1-0}(z, z_0, \delta) = \frac{1}{2}\left[1 - \text{erf}\left(\frac{z - z_0}{\delta}  \right)    \right]
-\qquad\text{and}\qquad
-E_{0-1}(z, z_0, \delta) = 1 - E_{1-0}(z, z_0, \delta),
-\end{equation}
-where $E_{1-0}$ is a function that varies smoothly from 1 to 0, and $E_{0-1}$ varies smoothly from 0 to 1.
-In all of our models, we set $\delta = 0.05$.
-
-We thus construct the $Y$ profile through its derivative by specifying:
-\begin{equation}
-\frac{ \partial Y_0}{\partial z} = E_{0-1}(z, 0, \delta),
-\end{equation}
-and we integrate this under the constraint that $Y_0(z = -1) = 0$ to get the $Y_0$ profile.
-$\partial_z T_0$ is constructed with this integrated $Y_0$ profile, and then integrated to find $T_0$ under the constraint that $T_0 = 0$ at the top of the model.
-An example of the initial $Y_0$ profile in a dedalus simulation is shown in Fig.~\ref{fig:initial_Y}.
-%\begin{figure}
-%\centering
-%\includegraphics[width=0.75\textwidth]{Y_frac_star_and_dedalus.png}
-%\caption{(Top panel) The Helium mass fraction in the star shortly before breathing pulses ($Y_{CZ} \approx 0.14$).
-%		 (Bottom panel) The Helium mass fraction in the initial conditions of the Dedalus simulation.
-%	\label{fig:initial_Y} }
-%\end{figure}
-
-
-Stability is described by the square brunt-vaisaila frequency,
-$$
-N^2 = \grad T - \grad_{\text{ad}} + \mathrm{Ma}^{-2}\grad Y.
-$$
-The stability of the initial conditions are shown in Fig.~\ref{fig:brunt}.
-%\begin{figure}
-%\centering
-%\includegraphics[width=0.75\textwidth]{brunt_star_and_dedalus.png}
-%\caption{(Top panel) The brunt frequency in the star.
-%		 (Bottom panel) The brunt frequency in the Dedalus initial conditions.
-%		 In both panels, a dashed line represents a negative value.
-%		 The weird behavior of the Dedalus thermal brunt shows where the value of $Y_0 \geq 0.02$ (see Eqn.~\ref{eqn:model}).
-%	\label{fig:brunt} }
-%\end{figure}
-
-
-The burning function is defined as
-\begin{equation}
-\xi(Y, T) = 
-\begin{cases}
-0									& T < T_0(z=0)\\
-g(Y, T)								& T \geq T_0(z=0) \,\,\&\,\, g(Y, T) \leq 1 \\
-1									& g(Y, T) > 1
-\end{cases},
-\qquad
-g(Y, T) = Y \left(2\frac{T - T_{0}(z=0)}{T_0(z=-1) - T_0(z=0)}\right)^n.
-\label{eqn:burning}
-\end{equation}
-Here, $n$ is some power that doesn't make the simulations impossible to resolve like $n = 2$.
-The ``2'' in the definition of $g$ makes it so that $\xi$ maxes out at a value of 1 at $z = -0.5$.
-In Fig.~\ref{fig:burning}, the value of $\xi$ is shown, with $n = 2$, for the initial conditions, if the star were to have $Y = 1$ everywhere.
-%\begin{figure}
-%\centering
-%\includegraphics[width=0.75\textwidth]{burning_func_dedalus.png}
-%\caption{The value of $\xi$, defined in Eqn.~\ref{eqn:burning}, for the initial conditions, if the star were to have $Y = 1$ everywhere.
-%	\label{fig:burning} }
-%\end{figure}
-
-
-
-
-
-
-
 
 \end{document}
