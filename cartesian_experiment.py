@@ -12,6 +12,8 @@ There are 6 control parameters:
     Lz      - The height of the box
     aspect  - The aspect ratio (Lx = aspect * Lz)
 
+by default, tau = (kappa composition) / (kappa thermal) is set equal to Pr.
+
 Usage:
     cartesian_experiment.py [options] 
     cartesian_experiment.py <config> [options] 
@@ -19,9 +21,8 @@ Usage:
 Options:
     --Re=<Reynolds>            Freefall reynolds number [default: 5e2]
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
-    --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-1]
+    --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-2]
     --S=<stiffness>            The stiffness [default: 1e2]
-    --k0_factor=<f>            A factor by which to reduce composition diffusion on the k_perp = 0 mode [default: 1e2]
     --zeta=<frac>              Fbot = zeta * F_conv [default: 1e-1]
     --Lz=<L>                   Depth of domain [default: 3]
     --aspect=<aspect>          Aspect ratio of domain [default: 2]
@@ -141,14 +142,16 @@ def set_equations(problem):
                   (not(twoD), "True", "ωz - dx(v) + dy(u) = 0"),
                   (True,      kx_n0,  "dx(u) + dy(v) + dz(w) = 0"), #Incompressibility
                   (True,      kx_0,   "p = 0"), #Incompressibility
-                  (True,      "True", "dt(u) + (dy(ωz) - dz(ωy))/Re0  + dx(p)                = v*ωz - w*ωy "), #momentum-x
-                  (threeD,    "True", "dt(v) + (dz(ωx) - dx(ωz))/Re0  + dy(p)                = w*ωx - u*ωz "), #momentum-x
-                  (True,      kx_n0,  "dt(w) + (dx(ωy) - dy(ωx))/Re0  + dz(p) - T1 + dR*mu1  = u*ωy - v*ωx "), #momentum-z
+                  (True,      kx_n0,  "dt(u) + (dy(ωz) - dz(ωy))/Re0            + dx(p)                = v*ωz - w*ωy "), #momentum-x
+                  (True,      kx_0,   "dt(u) + (dy(ωz) - dz(ωy))/Re0/k0_factor  + dx(p)                = v*ωz - w*ωy "), #momentum-x
+                  (threeD,    kx_n0,  "dt(v) + (dz(ωx) - dx(ωz))/Re0            + dy(p)                = w*ωx - u*ωz "), #momentum-x
+                  (threeD,    kx_0,   "dt(v) + (dz(ωx) - dx(ωz))/Re0/k0_factor  + dy(p)                = w*ωx - u*ωz "), #momentum-x
+                  (True,      kx_n0,  "dt(w) + (dx(ωy) - dy(ωx))/Re0            + dz(p) - T1 + mu1/dR  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1) - Lap(T1, T1_z)/Pe0  = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z)"), #energy eqn k != 0
                   (True,      kx_0,  "dt(T1) - dz(k0*T1_z)        = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z) + (Q + dz(k0)*T0_z + k0*T0_zz)"), #energy eqn k = 0
-                  (True,      kx_n0, "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/Pe0           = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/Pe0/k0_factor = -UdotGrad(mu1, mu1_z)"), #composition eqn k = 0
+                  (True,      kx_n0, "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/De0           = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
+                  (True,      kx_0,  "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/De0/k0_factor = -UdotGrad(mu1, mu1_z)"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
@@ -309,9 +312,9 @@ def run_cartesian_instability(args):
     if args['--ny'] is None: args['--ny'] = args['--nx']
     data_dir = args['--root_dir'] + '/' + sys.argv[0].split('.py')[0]
     if twoD:
-        data_dir += "_Re{}_P{}_zeta{}_S{}_k0{}_Lz{}_Lcz{}_Pr{}_a{}_{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--k0_factor'], args['--Lz'], args['--L_cz'], args['--Pr'], args['--aspect'], args['--nx'], args['--nz'])
+        data_dir += "_Re{}_P{}_zeta{}_S{}_Lz{}_Lcz{}_Pr{}_a{}_{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--Lz'], args['--L_cz'], args['--Pr'], args['--aspect'], args['--nx'], args['--nz'])
     else:
-        data_dir += "_Re{}_P{}_zeta{}_S{}_k0{}_Lz{}_Lcz{}_Pr{}_a{}_{}x{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--k0_factor'], args['--Lz'], args['--L_cz'], args['--Pr'], args['--aspect'], args['--nx'], args['--ny'], args['--nz'])
+        data_dir += "_Re{}_P{}_zeta{}_S{}_Lz{}_Lcz{}_Pr{}_a{}_{}x{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--Lz'], args['--L_cz'], args['--Pr'], args['--aspect'], args['--nx'], args['--ny'], args['--nz'])
     if args['--no_slip']:
         data_dir += '_noslip'
     if args['--label'] is not None:
@@ -346,10 +349,12 @@ def run_cartesian_instability(args):
     S  = float(args['--S'])
     Pr = float(args['--Pr'])
     P = float(args['--P'])
-    k0_factor = float(args['--k0_factor'])
     invP = 1/P
 
+    tau = Pr
+
     Pe0   = Pr*Re0
+    De0   = Pe0/tau #composition diffusion If Pr = tau, De0 = Re0
     L_cz  = float(args['--L_cz'])
     Lz    = float(args['--Lz'])
     Lx    = aspect * Lz
@@ -360,15 +365,20 @@ def run_cartesian_instability(args):
     Fconv = dH * Qmag
     zeta = float(args['--zeta'])
     Fbot = zeta*Fconv
+    N2_factor = 1
 
     #Model values
-    k_rz = dH / (P * S) 
+    k_rz = Fconv / (P * S) 
     k_cz = k_rz * ( zeta / (1 + zeta + invP) )
-    k_ad = k_rz * ( (1 + zeta) / (1 + zeta + invP) )
     delta_k = k_rz - k_cz
-    grad_ad = (Qmag * S * P) * (1 + zeta + invP)
-    grad_rad_top = (Qmag * S * P) * (1 + zeta)
+    grad_ad = (S * P) * (1 + zeta + invP)
+    grad_rad_top = (S * P) * (1 + zeta)
     delta_grad = grad_ad - grad_rad_top
+    N2_semi = N2_factor * S
+    dR = (zeta / (S * P) ) / ( 1 + zeta + invP*( 1 + N2_factor*zeta ) )
+
+    k0_factor = (k_cz * Pe0)**(-1)
+
 
     #Adjust to account for expected velocities.
     Pe0 /= (np.sqrt(Qmag))
@@ -378,6 +388,7 @@ def run_cartesian_instability(args):
     logger.info("   Re = {:.3e}, S = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Re0, S, nx, ny, nz, aspect))
     logger.info("   Pr = {:2g}".format(Pr))
     logger.info("   Re0 = {:.3e}, Pe0 = {:.3e}, Qmag ~ u^2 = {:.3e}".format(Re0, Pe0, Qmag))
+    logger.info("   k0_factor = {:.3e}".format(k0_factor))
 
     
     ###########################################################################################################3
@@ -477,13 +488,11 @@ def run_cartesian_instability(args):
     fH.antidifferentiate('z', ('left', 0), out=fH2)
     logger.info('right(integ(heating - cooling)): {:.3e}'.format(fH2.interpolate(z=Lz)['g'].max()))
 
-    dR = (S - (T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].max()) * (L_cz/2)
-    N2_composition = -dR*mu0_z['g']
+    N2_composition = -mu0_z['g']/dR
     N2_structure   = T0_z['g'] - T_ad_z['g']
     logger.info('{:.3e}'.format((T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].max()))
 
-    R_rho = np.abs(dR * (2 / L_cz) / (T0_z - T_ad_z).evaluate().interpolate(z=3*L_cz/4)['g'].min())
-    logger.info('R_rho value: {:.3e}'.format(R_rho))
+    logger.info('dR^-1 value: {:.3e}'.format(1/dR))
 
     if args['--plot_model']:
         kwargs = {'lw' : 4}
@@ -537,6 +546,7 @@ def run_cartesian_instability(args):
     problem.parameters['dR']        = dR
     problem.parameters['Pe0']       = Pe0
     problem.parameters['Re0']       = Re0
+    problem.parameters['De0']       = De0
     problem.parameters['Lx']        = Lx
     problem.parameters['Ly']        = Ly
     problem.parameters['Lz']        = Lz

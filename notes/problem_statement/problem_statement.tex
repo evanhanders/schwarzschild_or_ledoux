@@ -150,14 +150,14 @@ and the stability criterion is to have $N^2 > 0$.
 \subsection{Nondimensional Equations}
 The nondimensional equations are then (with $\varpi$ the dynamical pressure),
 \begin{align}
-    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d Y)\hat{z} + \frac{1}{\mathrm{Re}}\grad^2 \vec{u},\\
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d^{-1} Y)\hat{z} + \frac{1}{\mathrm{Re}}\grad^2 \vec{u},\\
     \partial_t T - \bm{u}\dot(\grad - \grad_{\mathrm{ad}}) &= - \grad\cdot[k_0 \bar{\grad}] + \frac{1}{\rm{Pe}} \grad^2 T' + Q,\\
     \partial_t \mu + \bm{u}\dot\grad \mu &= \frac{1}{\mathrm{Re}_{\mu,0}}\grad^2 \bar{\mu} + \frac{1}{\mathrm{Re}_{\mu}}\grad^2 \mu'.
 \end{align}
 The nondimensional brunt frequencies are  
 \begin{equation}
     N_{\mathrm{therm}}^2 = (\grad_{\rm{ad}} - \grad), \qquad
-    N_{\mathrm{comp}}^2 =  -\rm{R}_d\grad \mu, \equiv \grad_\mu \qquad
+    N_{\mathrm{comp}}^2 =  -\rm{R}_d^{-1}\grad \mu, \equiv \grad_\mu \qquad
     N^2 = N_{\mathrm{therm}}^2 + N_{\mathrm{comp}}^2 = (\grad_\mu + \grad_{\rm{ad}} - \grad).
 \end{equation}
 
