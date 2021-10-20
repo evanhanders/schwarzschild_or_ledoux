@@ -23,14 +23,14 @@ Options:
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
     --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-2]
     --S=<stiffness>            The stiffness [default: 1e2]
-    --R=<density_ratio>        The effective density ratio [default: 2]
+    --R=<density_ratio>        The effective density ratio [default: 0.75]
     --zeta=<frac>              Fbot = zeta * F_conv [default: 1e-1]
     --Lz=<L>                   Depth of domain [default: 1]
-    --aspect=<aspect>          Aspect ratio of domain [default: 10]
+    --aspect=<aspect>          Aspect ratio of domain [default: 4]
     --2D                       If flagged, just do a 2D problem
 
-    --nz=<nz>                  Vertical resolution   [default: 64]
-    --nx=<nx>                  Horizontal (x) resolution [default: 512]
+    --nz=<nz>                  Vertical resolution   [default: 128]
+    --nx=<nx>                  Horizontal (x) resolution [default: 128]
     --ny=<ny>                  Horizontal (y) resolution (sets to nx by default)
     --RK222                    Use RK222 timestepper (default: RK443)
     --SBDF2                    Use SBDF2 timestepper (default: RK443)
@@ -364,7 +364,7 @@ def run_cartesian_instability(args):
     zeta = float(args['--zeta'])
     Fbot = zeta*Fconv
     Ftot = Fbot + Fconv
-    N2_factor = 1
+#    N2_factor = 1
 
     #Model values
     k_rz = Fconv / (P * S) 
@@ -372,15 +372,18 @@ def run_cartesian_instability(args):
     grad_ad = (S * P) * (1 + zeta + invP)
     grad_rad_top = (S * P) * (1 + zeta)
     delta_grad = grad_ad - grad_rad_top
-    N2_semi = N2_factor * S
 #    dR = (1 + P*(1 + zeta)) / (1 + P*(1 + zeta) + N2_factor * zeta )
-    R_val = (1 + P*(1 + zeta)) / (1 + P*(1 + zeta) + N2_factor * zeta )
+    N2_factor = (1 + P*(1 + zeta)) * (1/R - 1) / zeta
+    R_val = R
+#    R_val = (1 + P*(1 + zeta)) / (1 + P*(1 + zeta) + N2_factor * zeta )
     dR = zeta / (S * (1 + P*(1 + zeta) + N2_factor*zeta) )
+    N2_semi = N2_factor * S
 
     k0_factor = (k_cz * Pe0)**(-1)
     Re0_k0 = k0_factor*Re0
     De0_k0 = k0_factor*De0
 
+    ell = ((1/Re0)*(1/Pe0)/(N2_semi))**(1/4)
 
     logger.info("Running two-layer instability with the following parameters:")
     logger.info("   Re = {:.3e}, S = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Re0, S, nx, ny, nz, aspect))
@@ -388,6 +391,8 @@ def run_cartesian_instability(args):
     logger.info("   Re0 = {:.3e}, Pe0 = {:.3e}".format(Re0, Pe0))
     logger.info("   k0_factor = {:.3e}".format(k0_factor))
     logger.info('   dR^-1 value = {:.3e}, R^-1 value: {:.3e}'.format(1/dR, 1/R_val))
+    logger.info("   N2_factor = {:.3e}".format(N2_factor))
+    logger.info("   ell = {:.3e}".format(ell))
     logger.info("   effective Pr: {:.3e} / m=0: {:.3e}".format(Pe0/Re0, (1/k_cz)/Re0_k0))
     logger.info("   effective tau: {:.3e} / m=0: {:.3e}".format(Pe0/De0, (1/k_cz)/De0_k0))
 
