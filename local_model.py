@@ -1,15 +1,12 @@
 """
-Dedalus script for a two-layer, Boussinesq simulation.
-The bottom of the domain is at z = 0.
-The lower part of the domain is stable; the domain is Schwarzschild stable above z >~ 1.
+Dedalus script for a one-layer double-diffusive convection / semiconvection simulation.
+The domain spans z = [0, 1].
 
 There are 6 control parameters:
-    Re      - The approximate reynolds number = (u / diffusivity) of the evolved flows
+    Pe      - The approximate freefall peclet number of convection (sqrt(Ra*Pr))
     Pr      - The Prandtl number = (viscous diffusivity / thermal diffusivity)
-    P       - The penetration parameter; When P >> 1 there is lots of convective penetration (of order P); when P -> 0 there is none.
-    S       - The stiffness: the characteristic ratio of N^2 (above the penetration region) compared to the square convective frequency.
-    zeta    - The fraction of the convective flux carried by the adiabatic gradient at z = 0 (below the heating layer)
-    Lz      - The height of the box
+    tau     - The diffusivity ratio = (compositional diffusivity / thermal diffusivity)
+    inv_R   - The inverse density ratio - Ledoux stable if inv_R > 1. ODDC unstable if 1 < inv_R < (Pr + 1)/(Pr + tau)
     aspect  - The aspect ratio (Lx = aspect * Lz)
 
 by default, tau = (kappa composition) / (kappa thermal) is set equal to Pr.
@@ -19,13 +16,10 @@ Usage:
     local_model.py <config> [options] 
 
 Options:
-    --Re=<Reynolds>            Freefall reynolds number [default: 5e2]
+    --Pe=<Peclet>              Freefall peclet number [default: 5e2]
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
-    --P=<penetration>          ratio of CZ convective flux / RZ convective flux [default: 1e-2]
-    --S=<stiffness>            The stiffness [default: 1e2]
-    --R=<density_ratio>        The effective density ratio [default: 0.75]
-    --zeta=<frac>              Fbot = zeta * F_conv [default: 1e-1]
-    --Lz=<L>                   Depth of domain [default: 1]
+    --inv_R=<inv_d_ratio>      The inverse effective density ratio [default: 1.5]
+    --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --aspect=<aspect>          Aspect ratio of domain [default: 4]
     --2D                       If flagged, just do a 2D problem
 
@@ -40,7 +34,7 @@ Options:
     --no_slip                  Use no-slip upper and lower boundary (instead of stress-free)
 
     --run_time_wall=<time>     Run time, in hours [default: 119.5]
-    --run_time_ff=<time>       Run time, in freefall times [default: 1.6e3]
+    --run_time_ff=<time>       Run time, in freefall times [default: 1e4]
 
     --restart=<restart_file>   Restart from checkpoint
     --seed=<seed>              RNG seed for initial conditoins [default: 42]
@@ -142,16 +136,16 @@ def set_equations(problem):
                   (not(twoD), "True", "ωz - dx(v) + dy(u) = 0"),
                   (True,      kx_n0,  "dx(u) + dy(v) + dz(w) = 0"), #Incompressibility
                   (True,      kx_0,   "p = 0"), #Incompressibility
-                  (True,      kx_n0,  "dt(u) + (dy(ωz) - dz(ωy))/Re0     + dx(p)                = v*ωz - w*ωy "), #momentum-x
-                  (True,      kx_0,   "dt(u) + (dy(ωz) - dz(ωy))/Re0_k0  + dx(p)                = v*ωz - w*ωy "), #momentum-x
-                  (threeD,    kx_n0,  "dt(v) + (dz(ωx) - dx(ωz))/Re0     + dy(p)                = w*ωx - u*ωz "), #momentum-x
-                  (threeD,    kx_0,   "dt(v) + (dz(ωx) - dx(ωz))/Re0_k0  + dy(p)                = w*ωx - u*ωz "), #momentum-x
-                  (True,      kx_n0,  "dt(w) + (dx(ωy) - dy(ωx))/Re0     + dz(p) - T1 + mu1/dR  = u*ωy - v*ωx "), #momentum-z
+                  (True,      kx_n0,  "dt(u) + (Pr/Pe0)*(dy(ωz) - dz(ωy))     + dx(p)                   = v*ωz - w*ωy "), #momentum-x
+                  (True,      kx_0,   "dt(u) + (Pr/Pe0)*(dy(ωz) - dz(ωy))*f0  + dx(p)                   = v*ωz - w*ωy "), #momentum-x
+                  (threeD,    kx_n0,  "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))     + dy(p)                   = w*ωx - u*ωz "), #momentum-x
+                  (threeD,    kx_0,   "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))*f0  + dy(p)                   = w*ωx - u*ωz "), #momentum-x
+                  (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))     + dz(p) - T1 + inv_R*mu1  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
-                  (True,      kx_n0, "dt(T1) - Lap(T1, T1_z)/Pe0  = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z)"), #energy eqn k != 0
-                  (True,      kx_0,  "dt(T1) - dz(k0*T1_z)        = -UdotGrad(T1, T1_z) - w*(T0_z - T_ad_z) + (Q + dz(k0)*T0_z + k0*T0_zz)"), #energy eqn k = 0
-                  (True,      kx_n0, "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/De0    = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu1) + w*mu0_z - Lap(mu1, mu1_z)/De0_k0 = -UdotGrad(mu1, mu1_z)"), #composition eqn k = 0
+                  (True,      kx_n0, "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*Lap(T1, T1_z) = -UdotGrad(T1, T1_z)"), #energy eqn k != 0
+                  (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (f0/Pe0)*dz(T1_z)     = -UdotGrad(T1, T1_z)"), #energy eqn k = 0
+                  (True,      kx_n0, "dt(mu1) + w*mu0_z - (tau/Pe0)*Lap(mu1, mu1_z)       = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
+                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau/Pe0)*Lap(mu1, mu1_z)*f0    = -UdotGrad(mu1, mu1_z)"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
@@ -201,7 +195,7 @@ def set_subs(problem):
     problem.substitutions['GradAdotGradB(A, B, A_z, B_z)'] = '(dx(A)*dx(B) + dy(A)*dy(B) + A_z*B_z)'
     problem.substitutions['enstrophy'] = '(ωx**2 + ωy**2 + ωz**2)'
     problem.substitutions['vel_rms']   = 'sqrt(u**2 + v**2 + w**2)'
-    problem.substitutions['Re']        = '(Re0*vel_rms)'
+    problem.substitutions['Re']        = '((Pe0/Pr)*vel_rms)'
     problem.substitutions['Pe']        = '(Pe0*vel_rms)'
     problem.substitutions['T_z']       = '(T0_z + T1_z)'
     problem.substitutions['T']         = '(T0 + T1)'
@@ -209,13 +203,13 @@ def set_subs(problem):
     problem.substitutions['mu']        = '(mu0   + mu1)'
 
     problem.substitutions['bruntN2_structure']   = 'T_z - T_ad_z'
-    problem.substitutions['bruntN2_composition'] = 'mu_z/dR' #dR - density ratio
+    problem.substitutions['bruntN2_composition'] = 'mu_z*inv_R' #dR - density ratio
     problem.substitutions['bruntN2']             = 'bruntN2_structure + bruntN2_composition'
 
     #Fluxes
-    problem.substitutions['F_rad']       = '-k0*T_z'
-    problem.substitutions['T_rad_z']     = '-flux_of_z/k0'
-    problem.substitutions['T_rad_z_IH']  = '-right(flux_of_z)/k0'
+    problem.substitutions['F_rad']       = '-(f0/Pe0)*T_z'
+    problem.substitutions['T_rad_z']     = '-flux_of_z/(f0/Pe0)'
+    problem.substitutions['T_rad_z_IH']  = '-right(flux_of_z)/(f0/Pe0)'
     problem.substitutions['F_conv']      = 'w*T'
     problem.substitutions['F_conv_mu']   = 'w*mu'
     problem.substitutions['tot_flux']    = '(F_conv + F_rad)'
@@ -271,7 +265,6 @@ def initialize_output(solver, data_dir, mode='overwrite', output_dt=2, iter=np.i
     profiles.add_task("plane_avg(bruntN2_structure)", name="bruntN2_structure")
     profiles.add_task("plane_avg(bruntN2_composition)", name="bruntN2_composition")
     profiles.add_task("plane_avg(flux_of_z)", name="flux_of_z")
-    profiles.add_task("plane_avg((Q + dz(k0)*T0_z + k0*T0_zz))", name="effective_heating")
     profiles.add_task("plane_avg(T_rad_z)", name="T_rad_z")
     profiles.add_task("plane_avg(T_rad_z)", name="T_rad_z_IH")
     profiles.add_task("plane_avg(T_ad_z)", name="T_ad_z")
@@ -281,9 +274,6 @@ def initialize_output(solver, data_dir, mode='overwrite', output_dt=2, iter=np.i
     profiles.add_task("plane_avg(w * vel_rms**2 / 2)", name="F_KE")
     profiles.add_task("plane_avg(w**3 / 2)", name="F_KE_vert")
     profiles.add_task("plane_avg(w * p)", name="F_KE_p")
-    profiles.add_task("plane_avg(k0)", name="k0")
-    profiles.add_task("plane_avg(dz(k0*T1_z))", name="heat_fluc_rad")
-    profiles.add_task("plane_avg(-dz(F_conv))", name="heat_fluc_conv")
     analysis_tasks['profiles'] = profiles
 
     scalars = solver.evaluator.add_file_handler(data_dir+'scalars', sim_dt=output_dt*5, max_writes=np.inf, mode=mode)
@@ -308,13 +298,16 @@ def initialize_output(solver, data_dir, mode='overwrite', output_dt=2, iter=np.i
 def run_cartesian_instability(args):
     #############################################################################################
     ### 1. Read in command-line args, set up data directory
+    if args['--tau'] is None:
+        args['--tau'] = args['--Pr']
     twoD = args['--2D']
     if args['--ny'] is None: args['--ny'] = args['--nx']
     data_dir = args['--root_dir'] + '/' + sys.argv[0].split('.py')[0]
+    data_dir += "_Pe{}_Pr{}_tau{}_invR{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--inv_R'],  args['--aspect'])
     if twoD:
-        data_dir += "_Re{}_P{}_zeta{}_S{}_R{}_Pr{}_a{}_{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--R'], args['--Pr'], args['--aspect'], args['--nx'], args['--nz'])
+        data_dir += '_{}x{}'.format(args['--nx'], args['--nz'])
     else:
-        data_dir += "_Re{}_P{}_zeta{}_S{}_R{}_Pr{}_a{}_{}x{}x{}".format(args['--Re'], args['--P'], args['--zeta'], args['--S'], args['--R'], args['--Pr'], args['--aspect'], args['--nx'], args['--ny'], args['--nz'])
+        data_dir += '_{}x{}x{}'.format(args['--nx'], args['--ny'], args['--nz'])
     if args['--no_slip']:
         data_dir += '_noslip'
     if args['--label'] is not None:
@@ -345,57 +338,21 @@ def run_cartesian_instability(args):
     nx = int(args['--nx'])
     ny = int(args['--ny'])
     nz = int(args['--nz'])
-    Re0 = float(args['--Re'])
-    S  = float(args['--S'])
-    Pr = float(args['--Pr'])
-    P = float(args['--P'])
-    R = float(args['--R'])
-    invP = 1/P
+    Pe0   = float(args['--Pe'])
+    Pr    = float(args['--Pr'])
+    tau   = float(args['--tau'])
+    inv_R = float(args['--inv_R'])
+    f0    = 1
 
-    tau = Pr
-
-    Pe0   = Pr*Re0
-    De0   = Pe0/tau #composition diffusion If Pr = tau, De0 = Re0
     Lz    = 1
     Lx    = aspect * Lz
     Ly    = Lx
-
-    Fconv = 0.2
-    zeta = float(args['--zeta'])
-    Fbot = zeta*Fconv
-    Ftot = Fbot + Fconv
-#    N2_factor = 1
-
-    #Model values
-    k_rz = Fconv / (P * S) 
-    k_cz = k_rz * ( zeta / (1 + zeta + invP) )
-    grad_ad = (S * P) * (1 + zeta + invP)
-    grad_rad_top = (S * P) * (1 + zeta)
-    delta_grad = grad_ad - grad_rad_top
-#    dR = (1 + P*(1 + zeta)) / (1 + P*(1 + zeta) + N2_factor * zeta )
-    N2_factor = (1 + P*(1 + zeta)) * (1/R - 1) / zeta
-    R_val = R
-#    R_val = (1 + P*(1 + zeta)) / (1 + P*(1 + zeta) + N2_factor * zeta )
-    dR = zeta / (S * (1 + P*(1 + zeta) + N2_factor*zeta) )
-    N2_semi = N2_factor * S
-
-    k0_factor = (k_cz * Pe0)**(-1)
-    Re0_k0 = k0_factor*Re0
-    De0_k0 = k0_factor*De0
-
-    ell = ((1/Re0)*(1/Pe0)/(N2_semi))**(1/4)
+    ell   = ((Pr/Pe0)*(1/Pe0))**(1/4)
 
     logger.info("Running two-layer instability with the following parameters:")
-    logger.info("   Re = {:.3e}, S = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Re0, S, nx, ny, nz, aspect))
-    logger.info("   Pr = {:2g}".format(Pr))
-    logger.info("   Re0 = {:.3e}, Pe0 = {:.3e}".format(Re0, Pe0))
-    logger.info("   k0_factor = {:.3e}".format(k0_factor))
-    logger.info('   dR^-1 value = {:.3e}, R^-1 value: {:.3e}'.format(1/dR, 1/R_val))
-    logger.info("   N2_factor = {:.3e}".format(N2_factor))
-    logger.info("   ell = {:.3e}".format(ell))
-    logger.info("   effective Pr: {:.3e} / m=0: {:.3e}".format(Pe0/Re0, (1/k_cz)/Re0_k0))
-    logger.info("   effective tau: {:.3e} / m=0: {:.3e}".format(Pe0/De0, (1/k_cz)/De0_k0))
-
+    logger.info("   Pe = {:.3e}, inv_R = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Pe0, inv_R, nx, ny, nz, aspect))
+    logger.info("   Pr = {:2g}, tau = {:2g}".format(Pr, tau))
+    logger.info("   f0 = {:.3e}, ell = {:.3e}".format(f0, ell))
     
     ###########################################################################################################3
     ### 3. Setup Dedalus domain, problem, and substitutions/parameters
@@ -430,14 +387,12 @@ def run_cartesian_instability(args):
     T0_zz = domain.new_field()
     T_ad_z = domain.new_field()
     T_rad_z0 = domain.new_field()
-    k0     = domain.new_field()
-    k0_z     = domain.new_field()
     Q = domain.new_field()
     flux_of_z = domain.new_field()
     cz_mask = domain.new_field()
-    for f in [T0, T0_z, T_ad_z, k0, Q, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z]:
+    for f in [T0, T0_z, T_ad_z, Q, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z]:
         f.set_scales(domain.dealias)
-    for f in [T_ad_z, k0, mu0, mu0_z]:
+    for f in [T_ad_z, mu0, mu0_z, T0_z]:
         if twoD:
             f.meta['x']['constant'] = True
         else:
@@ -445,15 +400,11 @@ def run_cartesian_instability(args):
 
     cz_mask['g'] = 1
 
-    k0['g'] = k_cz
-    k0.differentiate('z', out=k0_z)
     Q['g'] = 0
-    Q.antidifferentiate('z', ('left', Fbot + Ftot), out=flux_of_z)
-    flux = Ftot
+    Q.antidifferentiate('z', ('left', f0/Pe0), out=flux_of_z)
 
-    T_ad_z['g'] = -grad_ad
-    T_rad_z0['g'] = -flux / k_cz
-    delta_grad_rad = T_rad_z0['g'] - T_ad_z['g']
+    T_ad_z['g']   = 0
+    T_rad_z0['g'] = -1
 
     #Erf has a width that messes up the transition; bump up T0_zz so it transitions to grad_rad at top.
     T0_z['g'] = T_rad_z0['g']
@@ -463,21 +414,17 @@ def run_cartesian_instability(args):
     mu0_z['g'] = -1
     mu0_z.antidifferentiate('z', ('right', 0), out=mu0)
 
-    max_brunt = N2_semi
-
-    logger.info('felt_R_inv: {}'.format((mu0_z['g']/dR / (T_rad_z0['g'] - T_ad_z['g']))))
+    max_brunt = (inv_R - 1)
 
     #Plug in default parameters
-    problem.parameters['dR']        = dR
+    problem.parameters['inv_R']     = inv_R
     problem.parameters['Pe0']       = Pe0
-    problem.parameters['Re0']       = Re0
-    problem.parameters['De0']       = De0
-    problem.parameters['Re0_k0']       = Re0_k0
-    problem.parameters['De0_k0']       = De0_k0
+    problem.parameters['Pr']        = Pr 
+    problem.parameters['tau']       = tau
+    problem.parameters['f0']        = f0
     problem.parameters['Lx']        = Lx
     problem.parameters['Ly']        = Ly
     problem.parameters['Lz']        = Lz
-    problem.parameters['k0']        = k0
     problem.parameters['mu0']       = mu0
     problem.parameters['mu0_z']     = mu0_z
     problem.parameters['T0']        = T0
@@ -515,7 +462,10 @@ def run_cartesian_instability(args):
             f.set_scales(domain.dealias, keep_data=True)
 
         noise = global_noise(domain, int(args['--seed']))
-        T1['g'] = 1e-3*np.sin(np.pi*z_de)*noise['g']
+        #TT
+#        T1['g'] = 1e-6*np.sin(np.pi*z_de)*noise['g']
+        #FT
+        T1['g'] = 1e-6*np.cos((np.pi/2)*z_de/Lz)*noise['g']
         T1.differentiate('z', out=T1_z)
         dt = None
     else:
@@ -569,7 +519,10 @@ def run_cartesian_instability(args):
     ### 5. Set simulation stop parameters, output, and CFL
     t_ff    = 1
     t_therm = Pe0
-    t_brunt   = np.sqrt(1/max_brunt)
+    if max_brunt > 0:
+        t_brunt   = np.sqrt(1/max_brunt)
+    else:
+        t_brunt = np.inf
     max_dt    = np.min((0.5*t_ff, t_brunt))
     logger.info('buoyancy and brunt times are: {:.2e} / {:.2e}; max_dt: {:.2e}'.format(t_ff, t_brunt, max_dt))
     if dt is None:
@@ -590,7 +543,7 @@ def run_cartesian_instability(args):
  
     ###########################################################################
     ### 6. Setup output tasks; run main loop.
-    analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=0.1*t_ff)
+    analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=t_ff)
 
     dense_scales = 20
     dense_x_scales = 1#mesh[0]/nx
@@ -604,7 +557,6 @@ def run_cartesian_instability(args):
     flow.add_property("Pe", name='Pe')
     flow.properties.add_task("plane_avg(T1_z)", name='mean_T1_z', scales=domain.dealias, layout='g')
     flow.properties.add_task("plane_avg(right(T))", name='right_T', scales=domain.dealias, layout='g')
-    flow.properties.add_task("vol_avg(cz_mask*vel_rms**2/max_brunt)**(-1)", name='stiffness')
 
 
     Hermitian_cadence = 100
@@ -629,7 +581,6 @@ def run_cartesian_instability(args):
                     log_string =  'Iteration: {:7d}, '.format(solver.iteration)
                     log_string += 'Time: {:8.3e} ({:8.3e} therm), dt: {:8.3e}, '.format(solver.sim_time/t_ff, solver.sim_time/Pe0,  dt/t_ff)
                     log_string += 'Pe: {:8.3e}/{:8.3e}, '.format(flow.grid_average('Pe'), flow.max('Pe'))
-                    log_string += 'stiffness: {:.01e}'.format(flow.grid_average('stiffness'))
                     logger.info(log_string)
 
                 dt = CFL.compute_dt()
