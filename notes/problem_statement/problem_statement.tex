@@ -46,33 +46,32 @@ We know the answer to that question: Ledoux.
 The question here is, ``is the Ledoux criterion \emph{fragile}?''
 Or, given time, will a Ledoux-stable (but Schwarzschild-unstable) region which is adjacent to a convection zone remain stable over dynamical timescales?
 
-\section{The quasi-Boussinesq equations of motion}
+\section{The Boussinesq equations of motion}
 \subsection{Dimensional equations}
 We will solve the Boussinesq equations of motion in the incompressible limit.
 We will solve for the velocity (\vec{u}), the temperature ($T$), and the composition ($\mu$).
 In this limit, density variations are ignored except in the buoyant term in the momentum equation, where they follow
 \begin{equation}
-\frac{\rho}{\rho_0} = \alpha T + \beta \mu,\qquad\qquad
-\alpha \equiv \frac{\partial\ln\rho}{\partial T} \qquad\mathrm{and}\qquad
-\beta  \equiv \frac{\partial\ln\rho}{\partial \mu}
+\frac{\rho}{\rho_0} = -\alpha T + \beta \mu,\qquad\qquad
+\alpha \equiv \bigg|\frac{\partial\ln\rho}{\partial T}\bigg| \qquad\mathrm{and}\qquad
+\beta  \equiv \bigg|\frac{\partial\ln\rho}{\partial \mu}\bigg|
 \end{equation}
-We will use values of $\beta > 0$ and $\alpha < 0$ (higher concentration $\rightarrow$ denser, lower temperature $\rightarrow$ denser).
-The Boussinesq momentum equation (in which $\rho$ can only vary on the gravitational term) is,
+By our sign conventions and definitions, $\beta$ and $\alpha$ are positive and density is increased by high concentrations or by low temperatures.
+The Boussinesq equations of motion are
 \begin{equation}
-\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \frac{\grad p}{\rho_0} = \frac{\rho}{\rho_0}\vec{g} + \nu\grad^2\bm{u}.
 \end{equation}
-Removing $\rho$ under the Boussinesq approximation, we retrieve our evolution equations,
+Removing $\rho$ under the Boussinesq approximation, we retrieve our evolution equations in cartesian coordinates,
 \begin{align}
-\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \frac{\grad p}{\rho_0} &= (\alpha T + \beta \mu)\vec{g} + \nu \grad^2\vec{u} \\
-    \partial_t T + \vec{u}\dot(\grad T - \grad T_{\mathrm{ad}}) &= \grad\dot[k_0 \grad \bar{T}] + \chi \grad^2 T' + Q \label{eqn:temperature_eqn} \\
-    \partial_t \mu + \vec{u}\dot\grad \mu &= \chi_{\mu,0} \grad^2 \bar{\mu} + \chi_{\mu} \grad^2 \mu' .
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \frac{\grad p}{\rho_0} &= -\frac{\rho}{\rho_0}g\vec{e}_z + \nu_0\grad^2\bar{\vec{u}}  + \nu \grad^2\vec{u}\\
+    \partial_t T + \vec{u}\dot(\grad T - \grad T_{\mathrm{ad}}) &= \grad\dot[\kappa_{T,0} \grad \bar{T}] + \kappa_T \grad^2 T' \label{eqn:temperature_eqn} \\
+    \partial_t \mu + \vec{u}\dot\grad \mu &= \kappa_{\mu,0} \grad^2 \bar{\mu} + \kappa_{\mu} \grad^2 \mu' .
 \end{align}
-Here, $k_0$ and $\chi_{\mu,0}$ are diffusivities which act on the horizontally averaged mode while $\chi$ and $\chi_\mu$ act on the fluctuations; $\nu$ is a viscosity which acts on all flows.
+Here, $\nu_0$, $\kappa_{T,0}$, and $\kappa_{\mu,0}$ are diffusivities which act on the horizontally averaged mode while $\nu$, $\kappa_T$ and $\kappa_\mu$ act on the fluctuations.
 Assuming that a vertical energy flux $F$ is carried through the system, this allows us to define an adiabatic and radiative gradient,
 \begin{equation}
     \grad \equiv - \grad T, \qquad
     \grad_{\rm{ad}} \equiv - \grad T_{\rm{ad}}, \qquad
-    \grad_{\rm{rad}} \equiv \frac{F}{k_0}.
+    \grad_{\rm{rad}} \equiv \frac{F}{\kappa_{T,0}}.
 \end{equation}
 Note that in this system, if you linearize and idealize and solve for the dispersion relation, the squared brunt frequencies (assuming $\vec{g} = - g \hat{z}$) are
 \begin{equation}
@@ -82,77 +81,29 @@ Note that in this system, if you linearize and idealize and solve for the disper
 \end{equation}
 and the stability criterion is to have $N^2 > 0$.
 
-%\section{Stellar Parameters}
-%
-%\subsection{Basics}
-%We now nondimensionalize. 
-%We take the length scale, $L$, to be the depth of the RZ, the helium gradient region.
-%We take the velocity scale, $u_{\mathrm{ff}}$, to be the freefall velocity of the convection, which in turn sets the timescale.
-%We take the magnitude of the temperature, $\Delta T$, to be the magnitude of the \emph{convective temperature pertubations}, which are small compared to the background.
-%We take the magnitude of the composition, $\Delta Y$, to be the difference between $Y$ at the top and bottom of the RZ.
-%Two of these quantities can be immediately read off of the MESA model, and they are $L = 4.955 \times 10^{8}$ cm and $\Delta Y = 0.3369$.
-%Note also that the background density will be taken to be the density at the CZ-RZ interface of $\rho_0 = 9.4 \times 10^3$ g/cm$^3$.
-%
-%We will next turn our attention to $\Delta T$, $u_{\mathrm{ff}}$, and $\tau$.
-%By our choice of nondimensionalization, 
-%\begin{equation}
-%-\frac{\Delta T}{L} = \grad T_0 - \grad_{\mathrm{ad}} = \frac{N_{\mathrm{therm}^2}}{\alpha g}.
-%\end{equation}
-%From the ideal gas equation of state, $\alpha = - T^{-1}$, and we will take reference values of $T = 9.02 \times 10^7$ K and $g = 6.4 \times 10^6$ cm/s$^2$ at the CZ-RZ interface.
-%Furthermore, within the portion of the CZ that we are modeling, $N_{\mathrm{therm}}^2 = -7.43 \times 10^{-12}$ s$^{-2}$.
-%Combining these values, we find 
-%\begin{align}
-%\Delta T &= \frac{L N_{\mathrm{therm}^2}}{\alpha g} = 5.17 \times 10^{-2}\,\mathrm{K},\\
-%u_{\mathrm{ff}} &= \sqrt{\alpha g L \Delta T} = 1.35 \times 10^{3}\,\mathrm{cm/s},\\
-%\tau &= L/u_{\mathrm{ff}} = 3.67 \times 10^{5} \mathrm{s}.
-%\end{align}
-%
-%
-%Next, we need to understand how stable the RZ is compared to the CZ.
-%This is commonly quoted through an ``effective density ratio,''
-%\begin{equation}
-%\mathrm{Ro} = \frac{\alpha \Delta T}{\beta \Delta Y} = \frac{-N_{\mathrm{therm}}^2}{N_{\mathrm{comp}}^2 } = 5.82 \times 10^{-9} \sim \mathrm{Ma}^2,
-%\end{equation}
-%where I have used $N_{\mathrm{comp}}^2 = 0.128$ as the average value of $N^2$ in the RZ of the MESA model.
-%In general, $N_{\mathrm{comp}}^2$ can be arbitrarily large, because the composition gradient can be as large as it needs to be.
-%In this problem $N_{\mathrm{comp}}^2$ in the RZ is of order $(c_s/L)^2$ because the composition gradient is generated by tuning $\grad_{\mathrm{rad}}$ to equal $\grad_{\mathrm{ad}}$ (which forces $\partial_r(\mu) \sim -1/L$). 
-%So, in this problem, it will be useful to note that there is a direct relationship between Ro and the Mach number of the convection,
-%\begin{equation}
-%\mathrm{Ro} \approx \mathrm{Ma}^2,
-%\end{equation}
-%and we will use $\mathrm{Ma}^2$ as our variable going forward.
-%
-%\subsection{Diffusivities}
-%
-%Next, we look at diffusivities.
-%I went into more detail in this in an old set of notes, but here I'm just going to use the results.
-%The thermal diffusivity can be found from the radiative conductivity,
-%\begin{equation}
-%\chi = \frac{16 \sigma_{SB} T^3}{3 \rho_0^2 c_p \kappa} = 6.55 \times 10^{4} \,\mathrm{cm}^2/\mathrm{s},
-%\end{equation}
-%where $c_p = 1.17 \times 10^{8}$ erg g$^{-1}$ K${-1}$ at the CZ-RZ interface and the opacity is $\kappa = 0.329$ cm$^2$/g there.
-%The viscous diffusivity and molecular diffusivity are a bit more complicated, but referring to my previous document which derived those formulas, and making the caveat that these formulae are for pure-helium fluids, the diffusivities are roughly,
-%\begin{align}
-%\nu &= (2.2 \times 10^{-15}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho}\left\{23 - \ln 8 - \frac{1}{2}\ln(2 n) +\frac{3}{2}\ln T\right\}^{-1} = 1.106 \,\mathrm{cm}^2/\mathrm{s} \\
-%\chi_Y &= (3.75 \times 10^{-16}\mathrm{cm}^2/\mathrm{s})\frac{T^{5/2}}{\rho} = 3.083 \mathrm{cm}^2/\mathrm{s}
-%\end{align}
-%where $T$ and $\rho$ are in cgs units and $n = \rho/(\mu m_p) = 3.36 \times 10^{27}$ cm$^{-3}$ at the CZ-RZ interface.
-%From these, we can make various estimates of the turbulence in the flows,
-%\begin{equation}
-%\mathrm{Re}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\nu} = 6.05 \times 10^{11},\qquad
-%\mathrm{Pe}_{\mathrm{ff}} = \frac{u_{\mathrm{ff}} L}{\chi} = 1.02 \times 10^7,\qquad
-%\mathrm{Re}_Y             = \frac{u_{\mathrm{ff}} L}{\chi_Y} = 2.17 \times 10^{11}.
-%\end{equation}
-%Clearly it's impossible to simulate anything close to those, so it's probably safe to just set $\mathrm{Re}_{\mathrm{ff}} = \mathrm{Pe}_{\mathrm{ff}} = \mathrm{Re}_Y$ and make them as large as possible (or at least modestly large) in our simulations.
-%I don't expect the amount of turbulence in the problem to cause big differences, and so this should be fine.
-%However, I do expect the magnitude of $\mathrm{Pe}_{\mathrm{ff}}$ to perhaps be important, because this value tells us how quickly heat can diffuse through the stable layer (and thus how effectively energy generated by the excess fuel can escape!).
 
-\subsection{Nondimensional Equations}
+\subsection{Nondimensionalization}
+We will nondimensionalize on the length scale of the convective domain, the superadiabaticity of the radiative gradient in the convective domain, the composition gradient, and the timescale of freefall over the convective domain.
+We define the following nondimensional parameters:
+\begin{align}
+    \rm{Pr} = \frac{\nu}{\kappa_T},\qquad
+    \tau    = \frac{\kappa_{\mu}}{\kappa_T},\qquad
+    \rm{Pr}_0 = \frac{\nu_0}{\kappa_{T,0}},\qquad
+    \tau_0    = \frac{\kappa_{\mu,0}}{\kappa_{T,0}},\\
+    \rm{Pe} = \frac{u_{\rm{ff}} L}{\kappa_T},\qquad
+    \rm{R}_0^{-1} = \frac{N_{\rm{comp}}^2}{|N_{\rm{structure}}^2|} = \frac{\beta \Delta \mu}{\alpha \Delta T},\\
+    u_{\rm{ff}} = L/t = \sqrt{\alpha g L \Delta T},\qquad
+    \Delta T = L|\partial_z T - \partial_z T_{\rm{ad}}|,\qquad
+    \Delta \mu = L|\partial_z \mu|,\qquad
+    f = \kappa_{T,0}/\kappa_T
+\end{align}
+
+
 The nondimensional equations are then (with $\varpi$ the dynamical pressure),
 \begin{align}
-    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi  &= (-T + \rm{R}_d^{-1} Y)\hat{z} + \frac{1}{\mathrm{Re}}\grad^2 \vec{u},\\
-    \partial_t T - \bm{u}\dot(\grad - \grad_{\mathrm{ad}}) &= - \grad\cdot[k_0 \bar{\grad}] + \frac{1}{\rm{Pe}} \grad^2 T' + Q,\\
-    \partial_t \mu + \bm{u}\dot\grad \mu &= \frac{1}{\mathrm{Re}_{\mu,0}}\grad^2 \bar{\mu} + \frac{1}{\mathrm{Re}_{\mu}}\grad^2 \mu'.
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi &= (T - \rm{R}_0^{-1})\vec{e}_z + \frac{1}{\text{Pe}} \left(f\,\text{Pr}_0 \grad^2\bar{\vec{u}} + \rm{Pr}\grad^2\vec{u}'\right)\\
+    \partial_t T + \vec{u}\dot(\grad T - \grad T_{\mathrm{ad}}) &= \frac{1}{\rm{Pe}}\left(\grad\dot[f \grad \bar{T}] + \grad^2 T'\right)\label{eqn:temperature_eqn} \\
+    \partial_t \mu + \vec{u}\dot\grad \mu &= \frac{1}{\rm{Pe}}\left(f \, \tau_0 \grad^2 \bar{\mu} + \tau \grad^2 \mu' \right).
 \end{align}
 The nondimensional brunt frequencies are  
 \begin{equation}
@@ -170,23 +121,24 @@ We want to set up an experiment where there are three layers, characterized by:
     \item (RZ) $\grad = \grad_{\rm{rad}}$, $\grad_\mu = 0$, $\grad_{\rm{rad}} < \grad_{\rm{ad}}$.
 \end{enumerate}
 
-As in our previous work, we will set the convective flux $F_{\rm{conv}} = Q \delta_H = 0.2$ with $Q = 1$ and $\delta_H = 0.2$.
-We will set the flux entering the bottom of the domain, and thus we will set $k_0$, so that $F_{\rm{bot}} = k_0 \grad_{\rm{ad}} = \eta F_{\rm{conv}}$.
-By our choice of $Q$ and by setting the convective domain size to $L = 1$, we implicitly set $f_{\rm{conv}} \sim 1$.
-To set the stiffness $\mathcal{S}$, we set the value of $N^2 = \grad_{\rm{ad}} - \grad_{\rm{rad}} = \mathcal{S}$ in the RZ.
-We have still not chosen a value of $\grad_{\rm{ad}}$ (just its relation to $\grad_{\rm{rad}}$ in the RZ and $\grad_{\rm{rad}}$, or $k_0$, in the CZ).
-So we will choose a value of the penetration parameter $\mathcal{P}$ that is either realistic of stellar values (1) or which has no penetration ($\ll 1$).
-This parameter is
+Per the work that Pascale has done, there are three regimes of stability for the region in 2:
+\begin{enumerate}
+    \item (Ledoux unstable) $\rm{R}_0^{-1} < 1$.
+    \item (oscillatory doubly-diffusive convetion [ODDC]) $1 < \rm{R}_0^{-1} < (\rm{Pr} + 1)/(\rm{Pr} + \tau)$.
+    \item (Ledoux stable) $\rm{R}_0^{-1} > (\rm{Pr} + 1)/(\rm{Pr} + \tau)$.
+\end{enumerate}
+We want to set up an experiment where the semiconvection layer is in regime 3, that is, where it is truly Ledoux unstable.
+
+The composition gradient is
 \begin{equation}
-    \mathcal{P} = -\frac{k_{\rm{CZ}} (\grad_{\rm{rad}} - \grad_{\rm{ad}})_{\rm{CZ}}}
-    {k_{\rm{RZ}} (\grad_{\rm{rad}} - \grad_{\rm{ad}})_{\rm{RZ}}}.
+    \frac{\partial \mu}{\partial z} = 
+    \begin{cases}
+    0   & z \in [0, 1] \\
+    -1 & z \in [1, 2] \\
+    0 & z > 2
+    \end{cases},
 \end{equation}
-We furthermore want to set it so that $\Delta \mu = 1$ (that's the magnitude of the $\mu$ decrease over zone 2 above).
-We additionally want to ensure $N^2 > 0$ in zone 2, so $\rm{R}_d$ must be set so that $\grad_\mu > \grad_{\rm{rad}} - \grad_{\rm{ad}}$ in the CZ.
-Under these constraints, we are free to choose whatever values of Re, Re$_\mu$, and Pe we want.
-We want to choose them, probably, so that the semiconvective layer is \emph{not unstable} to any classical semiconvective instabilities.
-We should prove that it is stable to these instabilities using a 1-layer model which just encompasses zone (2) above.
-Once we know it's stable, then we should do the 3-layer model.
+and we set $\mu = 0$ at the upper boundary (so it's 1 in the lower CZ).
 
 
 \end{document}
