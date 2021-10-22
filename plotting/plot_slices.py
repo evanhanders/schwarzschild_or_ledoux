@@ -40,17 +40,13 @@ if root_dir is None:
     sys.exit()
 fig_name   = args['--fig_name']
 
-plotter = SlicePlotter(root_dir, file_dir='slices', fig_name=fig_name, start_file=start_file, n_files=n_files)
-convergence_plotter = SlicePlotter(root_dir, file_dir='slices', fig_name=fig_name, start_file=start_file, n_files=n_files)
+plotter = SlicePlotter(root_dir, file_dir='slices', out_name=fig_name, start_file=start_file, n_files=n_files)
 
-plotter_kwargs = { 'col_in' : int(args['--col_inch']), 'row_in' : int(args['--row_inch']), 'padding' : 100 }
-if int(args['--fig_type']) == 1:
-    plotter.setup_grid(1, 3, **plotter_kwargs)
-    fnames = [  (("T",),         {'remove_x_mean' : True, 'label' : 'T - horiz_avg(T)'}),
-            (('mu',),        {'cmap': 'Greens', 'vmin' : 0, 'vmax' : 1}),
-                (('w',),         {'cmap': 'PuOr_r'})]
-
-for tup in fnames:
-    plotter.add_colormesh(*tup[0], **tup[1])
+plotter_kwargs = { 'col_inch' : int(args['--col_inch']), 'row_inch' : int(args['--row_inch'])}
+plotter.setup_grid(num_rows=1, num_cols=3, **plotter_kwargs)
+bases_kwargs = { 'x_basis' : 'x', 'y_basis' : 'z' }
+plotter.add_colormesh('T', remove_x_mean=True, label='T - horiz_avg(T)', **bases_kwargs)
+plotter.add_colormesh('mu', cmap='Greens', vmin=0, vmax=1, **bases_kwargs)
+plotter.add_colormesh('w', cmap='PuOr_r', **bases_kwargs)
 
 plotter.plot_colormeshes(start_fig=start_fig, dpi=int(args['--dpi']))
