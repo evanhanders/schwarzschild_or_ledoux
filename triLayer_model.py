@@ -21,10 +21,10 @@ Options:
     --inv_R=<inv_d_ratio>      The inverse effective density ratio [default: 1e1]
     --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --aspect=<aspect>          Aspect ratio of domain [default: 4]
-    --f0=<factor>              Factor by which to reduce diffusivity on m=0 mode [default: 1e-2]
+    --f0=<factor>              Factor by which to reduce diffusivity on m=0 mode [default: 1]
     --2D                       If flagged, just do a 2D problem
 
-    --nz=<nz>                  Vertical resolution   [default: 256]
+    --nz=<nz>                  Vertical resolution   [default: 128]
     --nx=<nx>                  Horizontal (x) resolution [default: 128]
     --ny=<ny>                  Horizontal (y) resolution (sets to nx by default)
     --RK222                    Use RK222 timestepper (default: RK443)
@@ -402,22 +402,25 @@ def run_cartesian_instability(args):
         else:
             f.meta['x', 'y']['constant'] = True
 
-    cz_mask['g'] = one_to_zero(z_de, 1, width=0.05)
-
+    grad_ad = 2 * (inv_R - 2)
+    grad_rad_cz = grad_ad + 1
+    grad_rad_rz = grad_ad - inv_R
+    F = grad_rad_cz/Pe0
+    F_conv = (grad_rad_cz - grad_ad)/Pe0
     
-    f_field['g'] = f0 + inv_R*f0*zero_to_one(z_de, 2, width=0.05)
+    T_rad_z0['g'] = - (grad_rad_cz + (grad_rad_rz-grad_rad_cz)*zero_to_one(z_de, 2, width=0.05))
+    T_ad_z['g']   = -grad_ad
+    f_field['g']  = (-Pe0*F/T_rad_z0).evaluate()['g']
+    print(f_field.interpolate(z=2.2)['g'].min(), f_field['g'].min())
 
-    Q['g'] = (5/Pe0)*(1 - f0)*one_to_zero(z_de, 0.3, width=0.05)*zero_to_one(z_de, 0.1, width=0.05)
-    Q.antidifferentiate('z', ('left', (0)), out=flux_of_z)
-#    Q.antidifferentiate('z', ('left', (1/Pe0)), out=flux_of_z)
+    cz_mask['g'] = one_to_zero(z_de, 1, width=0.05)
+    Q['g'] = 0 #(5/Pe0)*(1 - f0)*one_to_zero(z_de, 0.3, width=0.05)*zero_to_one(z_de, 0.1, width=0.05)
+#    Q.antidifferentiate('z', ('left', (0)), out=flux_of_z)
+    Q.antidifferentiate('z', ('left', (F)), out=flux_of_z)
 
-    T_rad_z0['g'] = -((flux_of_z) / (f_field/Pe0)).evaluate()['g']
-    T_ad_z['g']   = T_rad_z0.interpolate(z=0.5)['g'].min() + 1 #(1/f - 1) / (1/f)
     delta_Tz = T_rad_z0['g'] - T_ad_z['g']
-    print(T_rad_z0.interpolate(z=2.2)['g'].min(), T_ad_z['g'].min())
-
     #Erf has a width that messes up the transition; bump up T0_zz so it transitions to grad_rad at top.
-    T0_z['g'] = T_ad_z['g'] + delta_Tz*zero_to_one(z_de, 1, width=0.05)
+    T0_z['g'] = T_rad_z0['g']  # T_ad_z['g'] + delta_Tz*zero_to_one(z_de, 1, width=0.05)
     T0_z.antidifferentiate('z', ('right', 1), out=T0)
     T0_z.differentiate('z', out=T0_zz)
 
