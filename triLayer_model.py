@@ -21,7 +21,7 @@ Options:
     --inv_R=<inv_d_ratio>      The inverse effective density ratio [default: 4]
     --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --tau_k0=<tau>             Diffusivity ratio for k = 0. If not set, tau = Pr
-    --aspect=<aspect>          Aspect ratio of domain [default: 4]
+    --aspect=<aspect>          Aspect ratio of domain [default: 2.5]
     --f0=<factor>              Factor by which to reduce diffusivity on m=0 mode [default: 1]
     --2D                       If flagged, just do a 2D problem
 
@@ -145,9 +145,9 @@ def set_equations(problem):
                   (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))     + dz(p) - T1 + inv_R*mu1  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*Lap(T1, T1_z) = -UdotGrad(T1, T1_z)"), #energy eqn k != 0
-                  (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (f0/Pe0)*dz(T1_z)     = -UdotGrad(T1, T1_z) + Q + (f0/Pe0)*dz(T0_z)"), #energy eqn k = 0
+                  (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*dz(f0*T1_z)     = -UdotGrad(T1, T1_z) + Q + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu1) + w*mu0_z - (tau/Pe0)*Lap(mu1, mu1_z)       = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(mu1, mu1_z)*f0    = -UdotGrad(mu1, mu1_z) + (tau_k0/Pe0)*dz(mu0_z)*f0"), #composition eqn k = 0
+                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(f0*mu1, f0*mu1_z)    = -UdotGrad(mu1, mu1_z) + (tau_k0/Pe0)*dz(f0*mu0_z)"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
