@@ -145,9 +145,9 @@ def set_equations(problem):
                   (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))     + dz(p) - T1 + inv_R*mu1  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*Lap(T1, T1_z) = -UdotGrad(T1, T1_z)"), #energy eqn k != 0
-                  (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (f0/Pe0)*dz(T1_z)     = -UdotGrad(T1, T1_z) + Q"), #energy eqn k = 0
+                  (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (f0/Pe0)*dz(T1_z)     = -UdotGrad(T1, T1_z) + Q + (f0/Pe0)*dz(T0_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu1) + w*mu0_z - (tau/Pe0)*Lap(mu1, mu1_z)       = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(mu1, mu1_z)*f0    = -UdotGrad(mu1, mu1_z)"), #composition eqn k = 0
+                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(mu1, mu1_z)*f0    = -UdotGrad(mu1, mu1_z) + (tau_k0/Pe0)*dz(mu0_z)*f0"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
@@ -159,7 +159,7 @@ def set_equations(problem):
 
     boundaries = ( (True,                  " left(T1_z) = 0", "True"),
                    (True,                  "right(T1) = 0", "True"),
-                   (True,                  " left(mu1_z) = 0", "True"),
+                   (True,                  " left(mu1) = 0", "True"),
                    (True,                  "right(mu1) = 0", "True"),
                    (no_slip,               " left(u) = 0", "True"),
                    (no_slip,               "right(u) = 0", "True"),
@@ -352,7 +352,7 @@ def run_cartesian_instability(args):
     inv_R = float(args['--inv_R'])
     f0    = float(args['--f0'])
 
-    Lz    = 2.5
+    Lz    = 3
     Lx    = aspect * Lz
     Ly    = Lx
     ell   = ((Pr/Pe0)*(1/Pe0))**(1/4)
