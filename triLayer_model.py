@@ -159,8 +159,8 @@ def set_equations(problem):
 
     boundaries = ( (True,                  " left(T1_z) = 0", "True"),
                    (True,                  "right(T1) = 0", "True"),
-                   (True,                  " left(mu1) = 0", "True"),
-                   (True,                  "right(mu1) = 0", "True"),
+                   (True,                  " left(mu1_z) = 0", "True"),
+                   (True,                  "right(mu1_z) = 0", "True"),
                    (no_slip,               " left(u) = 0", "True"),
                    (no_slip,               "right(u) = 0", "True"),
                    (threeD*no_slip,        " left(v) = 0", "True"),
