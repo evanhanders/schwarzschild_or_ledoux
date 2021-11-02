@@ -22,7 +22,6 @@ Options:
     --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --tau_k0=<tau>             Diffusivity ratio for k = 0. If not set, tau = Pr
     --aspect=<aspect>          Aspect ratio of domain [default: 2.5]
-    --f0=<factor>              Factor by which to reduce diffusivity on m=0 mode [default: 1]
     --2D                       If flagged, just do a 2D problem
 
     --nz=<nz>                  Vertical resolution   [default: 128]
@@ -138,16 +137,14 @@ def set_equations(problem):
                   (not(twoD), "True", "ωz - dx(v) + dy(u) = 0"),
                   (True,      kx_n0,  "dx(u) + dy(v) + dz(w) = 0"), #Incompressibility
                   (True,      kx_0,   "p = 0"), #Incompressibility
-                  (True,      kx_n0,  "dt(u) + (Pr/Pe0)*(dy(ωz) - dz(ωy))     + dx(p)                   = v*ωz - w*ωy "), #momentum-x
-                  (True,      kx_0,   "dt(u) + (Pr/Pe0)*(dy(ωz) - dz(ωy))*f0  + dx(p)                   = v*ωz - w*ωy "), #momentum-x
-                  (threeD,    kx_n0,  "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))     + dy(p)                   = w*ωx - u*ωz "), #momentum-x
-                  (threeD,    kx_0,   "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))*f0  + dy(p)                   = w*ωx - u*ωz "), #momentum-x
-                  (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))     + dz(p) - T1 + inv_R*mu1  = u*ωy - v*ωx "), #momentum-z
+                  (True,      "True", "dt(u) + (Pr/Pe0)*(dy(ωz) - dz(ωy))  + dx(p)                   = v*ωz - w*ωy "), #momentum-x
+                  (threeD,    "True", "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))  + dy(p)                   = w*ωx - u*ωz "), #momentum-x
+                  (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))  + dz(p) - T1 + inv_R*mu1  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*Lap(T1, T1_z) = -UdotGrad(T1, T1_z)"), #energy eqn k != 0
                   (True,      kx_0,  "dt(T1)  + w*(T0_z - T_ad_z) - (1/Pe0)*dz(f0*T1_z)     = -UdotGrad(T1, T1_z) + Q + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu1) + w*mu0_z - (tau/Pe0)*Lap(mu1, mu1_z)       = -UdotGrad(mu1, mu1_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(f0*mu1, f0*mu1_z)    = -UdotGrad(mu1, mu1_z) + (tau_k0/Pe0)*dz(f0*mu0_z)"), #composition eqn k = 0
+                  (True,      kx_0,  "dt(mu1) + w*mu0_z - (tau_k0/Pe0)*Lap(mu1, mu1_z)    = -UdotGrad(mu1, mu1_z) + (tau_k0/Pe0)*dz(mu0_z)"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
@@ -210,7 +207,7 @@ def set_subs(problem):
 
     #Fluxes
     problem.substitutions['F_rad']       = '-(f0/Pe0)*T_z'
-    problem.substitutions['F_rad_mu']    = '-(f0*tau_k0/Pe0)*mu_z'
+    problem.substitutions['F_rad_mu']    = '-(tau_k0/Pe0)*mu_z'
     problem.substitutions['T_rad_z']     = '-flux_of_z/(f0/Pe0)'
     problem.substitutions['T_rad_z_IH']  = '-right(flux_of_z)/(f0/Pe0)'
     problem.substitutions['F_conv']      = 'w*T'
@@ -310,7 +307,7 @@ def run_cartesian_instability(args):
     twoD = args['--2D']
     if args['--ny'] is None: args['--ny'] = args['--nx']
     data_dir = args['--root_dir'] + '/' + sys.argv[0].split('.py')[0]
-    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_f{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--f0'],  args['--aspect'])
+    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--aspect'])
     if twoD:
         data_dir += '_{}x{}'.format(args['--nx'], args['--nz'])
     else:
@@ -350,7 +347,6 @@ def run_cartesian_instability(args):
     tau   = float(args['--tau'])
     tau_k0   = float(args['--tau_k0'])
     inv_R = float(args['--inv_R'])
-    f0    = float(args['--f0'])
 
     Lz    = 3
     Lx    = aspect * Lz
@@ -360,7 +356,7 @@ def run_cartesian_instability(args):
     logger.info("Running two-layer instability with the following parameters:")
     logger.info("   Pe = {:.3e}, inv_R = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Pe0, inv_R, nx, ny, nz, aspect))
     logger.info("   Pr = {:2g}, tau = {:2g}".format(Pr, tau))
-    logger.info("   f0 = {:.3e}, ell = {:.3e}".format(f0, ell))
+    logger.info("   ell = {:.3e}".format(ell))
     
     ###########################################################################################################3
     ### 3. Setup Dedalus domain, problem, and substitutions/parameters
@@ -416,7 +412,6 @@ def run_cartesian_instability(args):
     T_rad_z0['g'] = - (grad_rad_cz + (grad_rad_rz-grad_rad_cz)*zero_to_one(z_de, 2, width=0.05))
     T_ad_z['g']   = -grad_ad
     f_field['g']  = (-Pe0*F/T_rad_z0).evaluate()['g']
-    print(f_field.interpolate(z=2.2)['g'].min(), f_field['g'].min())
 
     cz_mask['g'] = one_to_zero(z_de, 1, width=0.05)
     Q['g'] = 0 #(5/Pe0)*(1 - f0)*one_to_zero(z_de, 0.3, width=0.05)*zero_to_one(z_de, 0.1, width=0.05)
