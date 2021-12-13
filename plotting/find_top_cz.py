@@ -34,7 +34,8 @@ logger = logging.getLogger(__name__)
 import dedalus.public as de
 from plotpal.file_reader import SingleTypeReader, match_basis
 
-resolution_regex = re.compile('(.*)x(.*)')
+resolution_regex_2d = re.compile('(.*)x(.*)')
+resolution_regex_3d = re.compile('(.*)x(.*)x(.*)')
 
 from scipy.special import erf
 def one_to_zero(x, x0, width=0.1):
@@ -63,7 +64,10 @@ for string in root_dir.split('_'):
         Pe_in = float(val.split('Pe')[-1])
     elif 'invR' in val:
         inv_R_in = float(val.split('invR')[-1])
-    elif resolution_regex.match(val):
+    elif resolution_regex_3d.match(val):
+        res_strs = val.split('x')
+        nx, ny, nz = [int(s) for s in res_strs]
+    elif resolution_regex_2d.match(val):
         res_strs = val.split('x')
         nx, nz = [int(s) for s in res_strs]
 Lz = 3
