@@ -79,13 +79,15 @@ z_dense = domain.grid(0, scales=dense_scales)
 rolled_reader = SingleTypeReader(root_dir, 'profiles', fig_name, roll_writes=50, start_file=start_file, n_files=n_files, distribution='even-write')
 MPI.COMM_WORLD.barrier()
 readerOne = SingleTypeReader(root_dir, 'profiles', fig_name, start_file=start_file, n_files=n_files, distribution='single', global_comm=MPI.COMM_SELF)
-fig = plt.figure(figsize=(8,4))
-ax1 = fig.add_subplot(2,1,1)
-ax2 = fig.add_subplot(2,1,2)
-axs = [ax1, ax2]
+fig = plt.figure(figsize=(8,6))
+ax1 = fig.add_subplot(3,1,1)
+ax2 = fig.add_subplot(3,1,2)
+ax3 = fig.add_subplot(3,1,3)
+axs = [ax1, ax2, ax3]
 
 data_cube = []
 
+N2_structure_field = domain.new_field()
 grad_field = domain.new_field()
 grad_integ_field = domain.new_field()
 grad_mu_field = domain.new_field()
@@ -94,14 +96,17 @@ grad_ad_field = domain.new_field()
 grad_rad_field = domain.new_field()
 grad_rad_integ_field = domain.new_field()
 delta_grad_field = domain.new_field()
+KE_field = domain.new_field()
+KE_int_field = domain.new_field()
+F_conv_mu_field = domain.new_field()
 dedalus_fields = [grad_field, grad_integ_field, grad_ad_field, grad_rad_field, grad_rad_integ_field, \
-                  grad_mu_field, grad_mu_integ_field, delta_grad_field]
+                  grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field]
 
 tasks, first_tasks = OrderedDict(), OrderedDict()
 
 bases_names = ['z',]
 fields = ['T', 'T_z', 'mu_z', 'bruntN2', 'bruntN2_structure', 'bruntN2_composition',\
-          'F_rad', 'F_conv', 'F_rad_mu', 'F_conv_mu']
+          'F_rad', 'F_conv', 'F_rad_mu', 'F_conv_mu', 'KE']
 first_fields = ['T_rad_z', 'T_ad_z', 'F_rad', 'flux_of_z', 'T_z']
 if not rolled_reader.idle:
     while readerOne.writes_remain():
@@ -144,19 +149,27 @@ if not rolled_reader.idle:
         grad = -T_z[0,:]
         grad_mu = -mu_z[0,:]*inv_R_in
 
-        for f in [grad_field, grad_mu_field]:
+        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field]:
             f.set_scales(1, keep_data=True)
         grad_field['g'] = -T_z
+        N2_structure_field['g'] = -(grad_field['g'] - grad_ad)
         grad_field.antidifferentiate('z', ('left', 0), out=grad_integ_field)
         grad_mu_field['g'] = -mu_z*inv_R_in
         grad_mu_field.antidifferentiate('z', ('left', 0), out=grad_mu_integ_field)
+        KE_field['g'] = tasks['KE']
+        KE_field.antidifferentiate('z', ('left', 0), out=KE_int_field)
+        F_conv_mu_field['g'] = tasks['F_conv_mu'][0,:]
         for f in dedalus_fields:
             f.set_scales(dense_scales, keep_data=True)
+
+        N2_structure = N2_structure_field['g']
+        N2_composition = grad_mu_field['g']
+        N2_tot = N2_structure + N2_composition
 
         #departure from grad_ad: 0.1, 0.5, 0.9
         departures = []
         mu_z_max = grad_mu_field['g'].max()
-        for departure_factor in [0.1, 0.5, 0.98]:
+        for departure_factor in [0.02, 0.5, 0.999]:
             mu_z_departure = grad_mu_field['g'] > departure_factor*mu_z_max
             if np.sum(mu_z_departure) > 0:
                 z_mu_departure = z_dense[mu_z_departure].min()
@@ -164,21 +177,31 @@ if not rolled_reader.idle:
                 z_mu_departure = np.nan
             departures.append(z_mu_departure)
 
-        L_d01 = departures[0]
+        L_d002 = departures[0]
         L_d05 = departures[1]
-        L_d09 = departures[2]
+        L_d0999 = departures[2]
 
-        data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d01, L_d05, L_d09]
+        #Find where RZ switches from thermally stable to compositionally stable
+        N2_switch_height = z_dense[(N2_tot > 0) * (N2_structure > N2_composition) * (z_dense > L_d0999)][0]
+
+        #Find edge of CZ and OZ by a crude measure.
+        mean_cz_KE = KE_int_field['g'][z_dense < L_d002][-1] / L_d002
+        cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
+        oz_bound = z_dense[F_conv_mu_field['g'] > F_conv_mu_field['g'].max()*3e-2][-1]
+
+        data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d002, L_d05, L_d0999]
+        data_list += [N2_switch_height, cz_bound, oz_bound]
         data_cube.append(data_list)
 
         ax1.plot(z,  tasks['bruntN2_structure'][0,:],   c='b', label=r'$N^2_{\rm{structure}}$')
         ax1.plot(z,  tasks['bruntN2_composition'][0,:], c='g', label=r'$N^2_{\rm{composition}}$')
         ax1.plot(z,  tasks['bruntN2'][0,:], c='k', label=r'$N^2$')
         ax1.plot(z, -tasks['bruntN2'][0,:], c='k', ls='--')
+        ax1.plot(z, 2*tasks['KE'][0,:]/L_d05**2, c='orange', label=r'$f_{\rm{conv}}^2$')
         ax1.set_yscale('log')
         ax1.legend(loc='upper left')
         ax1.set_ylabel(r'$N^2$')
-        ax1.set_ylim(1e-2, np.max(tasks['bruntN2'])*2)
+        ax1.set_ylim(1e-4, np.max(tasks['bruntN2'])*2)
 
         ax2.axhline(0, c='k')
         ax2.plot(z, grad - grad_ad,     label=r'$\nabla$', c='b')
@@ -190,12 +213,24 @@ if not rolled_reader.idle:
         ax2.legend(loc='upper right')
         ax2.set_ylabel(r'$\nabla - \nabla_{\rm{ad}}$')
 
+        ax3.axhline(0, c='k')
+        ax3.plot(z, F_conv[0,:], label=r'$F_{\rm{conv}}$', c='orange')
+        ax3.plot(z, F_cond[0,:], label=r'$F_{\rm{cond}}$', c='blue')
+        ax3.plot(z, tasks['F_conv_mu'][0,:], c='green', label=r'$F_{\rm{conv},\mu}$')
+        ax3.legend()
+        ax3.set_yscale('log')
+        ax3.set_ylim(F_cond[0,:].max()/1e6, F_cond[0,:].max()*2)
+        ax3.set_ylabel('Flux')
+
         for ax in axs:
             ax.set_xlabel('z')
             ax.set_xlim(z.min(), z.max())
-            ax.axvline(L_d01, c='red')
+            ax.axvline(L_d002, c='red')
             ax.axvline(L_d05, c='k')
-            ax.axvline(L_d09, c='red')
+            ax.axvline(L_d0999, c='red')
+            ax.axvline(N2_switch_height, c='green')
+            ax.axvline(cz_bound, c='blue', lw=0.5)
+            ax.axvline(oz_bound, c='blue', lw=0.5)
 
         plt.suptitle('sim_time = {:.2f}'.format(time_data['sim_time'][ni]))
 
@@ -232,22 +267,47 @@ if not rolled_reader.idle:
 rolled_reader.reader.global_comm.Allreduce(MPI.IN_PLACE, global_data, op=MPI.SUM)
 times      = global_data[:,0]
 write_nums = global_data[:,1]
-L_d01s     = global_data[:,2]
+L_d002s     = global_data[:,2]
 L_d05s     = global_data[:,3]
-L_d09s     = global_data[:,4]
+L_d0999s     = global_data[:,4]
+N2_switch    = global_data[:,5]
+cz_bound     = global_data[:,6]
+oz_bound     = global_data[:,7]
 
 if rolled_reader.reader.global_comm.rank == 0:
     fig = plt.figure()
-    plt.plot(times, L_d01s - Ls, c='k', label=r'10% of max $\nabla\mu$')
+    plt.plot(times, L_d002s - Ls, c='k', label=r'2% of max $\nabla\mu$')
     plt.plot(times, L_d05s - Ls, c='red', label=r'50% of max $\nabla\mu$')
-    plt.plot(times, L_d09s - Ls, c='k', label=r'98% of max $\nabla\mu$')
+    plt.plot(times, L_d0999s - Ls, c='k', label=r'98.9% of max $\nabla\mu$')
     plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel(r'$\delta_p$')
     fig.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'trace_top_cz'), dpi=400, bbox_inches='tight')
+
+    #kippenhahn fig
+    GREEN  = np.array((27,158,119))/255
+    ORANGE = np.array((217,95,2))/255
+    PURPLE = np.array((117,112,179))/255
+    PINK   = np.array((231,41,138))/255
+    kfig = plt.figure()
+    plt.fill_between(times, np.zeros_like(times), cz_bound, facecolor=ORANGE)
+    plt.fill_between(times, cz_bound, N2_switch, facecolor=GREEN)
+    plt.fill_between(times, cz_bound, oz_bound, facecolor=PINK, alpha=0.5, hatch='/')
+    plt.fill_between(times, N2_switch, Lz*np.ones_like(times), facecolor=PURPLE)
+    plt.plot(times, cz_bound, c='k')
+    plt.plot(times, N2_switch, c='k')
+    plt.plot(times, L_d0999s, c='k', ls='--')
+    plt.xlim(0, times.max())
+    plt.ylim(0, Lz)
+    plt.xlabel('time')
+    plt.ylabel('z')
+    plt.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'kippenhahn'), dpi=400, bbox_inches='tight')
     with h5py.File('{:s}/data_top_cz.h5'.format(rolled_reader.out_dir), 'w') as f:
         f['times'] = times     
         f['write_nums'] = write_nums
-        f['L_d01s'] = L_d01s    
+        f['L_d002s'] = L_d002s    
         f['L_d05s'] = L_d05s    
-        f['L_d09s'] = L_d09s    
+        f['L_d0999s'] = L_d0999s    
+        f['N2_switch'] = N2_switch
+        f['cz_bound'] = cz_bound
+        f['oz_bound'] = oz_bound
