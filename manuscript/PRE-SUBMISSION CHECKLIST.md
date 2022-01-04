@@ -1,0 +1,20 @@
+- [ ] Goals
+  - [ ] Is the research question/goal clearly stated?
+  - [ ] Are the results clearly stated?
+  - [ ] Are the methods clearly stated?
+  - [ ] Is what you did clear even when skimming?
+- [ ] Clarity
+  - [ ] Are there assumptions underlying any cited equations that you should explain/repeat in the text?
+  - [ ] Are all terms used consistently?
+  - [ ] Do all figure captions make sense?
+  - [ ] Would a starting table of symbols be helpful?
+  - [ ] Are any references missing from the introduction?
+- [ ] Understanding
+  - [ ] Are observations/simulations/experiments well-explained? Do you understand them well enough?
+- [ ] Read the paper with a pen in hand.
+  - [ ] Eliminate any jargon that isn't absolutely needed.
+  - [ ] Are all variables defined where they first appear?
+  - [ ] Is every equation a straightforward consequence of the previous one?
+  - [ ] For each section ask: What do I want the reader to take away from this section? Is that clear?
+- [ ] Send a draft to relevant people for comments.
+
