@@ -90,35 +90,11 @@
 %%%% Body of paper
 \input{intro}
 
-%% input other sections
-
+\input{theory}
 
 \input{results}
 
-%\section{Theory}
-%\label{sec:theory}
-%
-%%\begin{align}
-%%&\grad\dot\vec{u} = 0 
-%%\label{eqn:incompressible} \\
-%%&\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} = -\frac{1}{\rho_0}\grad p + \frac{\rho_1}{\rho_0}\vec{g} + \nu\grad^2 \vec{u} 
-%%\label{eqn:momentum} \\
-%%&\partial_t T + \vec{u}\dot\grad T + w \gradad + \grad\dot[-k \grad \overline{T}] = \chi\grad^2 T' + Q
-%%\label{eqn:temperature} \\
-%%&\frac{\rho_1}{\rho_0} = -|\alpha| T.
-%%\label{eqn:boussinesq}
-%%\end{align}
-%
-%\section{Simulation Details}
-%\label{sec:sim_details}
-%
-%\section{Results}
-%\label{sec:results}
-%
-%
-%\section{Discussion}
-%\label{sec:discussion}
-%
+\input{conclusions}
 
 \begin{acknowledgments}
 We thank Meridith Joyce, Anne Thoul, Dominic Bowman, ETC ETC ETC.
@@ -130,6 +106,10 @@ The Flatiron Institute is supported by the Simons Foundation.
 
 
 \appendix
+
+\input{appendix_model}
+
+\input{appendix_simulations}
 
 \input{appendix_table}
 
