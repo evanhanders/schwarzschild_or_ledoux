@@ -99,8 +99,11 @@ delta_grad_field = domain.new_field()
 KE_field = domain.new_field()
 KE_int_field = domain.new_field()
 F_conv_mu_field = domain.new_field()
+dz_buoyancy_field = domain.new_field()
+buoyancy_field = domain.new_field()
 dedalus_fields = [grad_field, grad_integ_field, grad_ad_field, grad_rad_field, grad_rad_integ_field, \
-                  grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field]
+                  grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field, \
+                  dz_buoyancy_field, buoyancy_field]
 
 tasks, first_tasks = OrderedDict(), OrderedDict()
 
@@ -149,7 +152,7 @@ if not rolled_reader.idle:
         grad = -T_z[0,:]
         grad_mu = -mu_z[0,:]*inv_R_in
 
-        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field]:
+        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field]:
             f.set_scales(1, keep_data=True)
         grad_field['g'] = -T_z
         N2_structure_field['g'] = -(grad_field['g'] - grad_ad)
@@ -159,6 +162,8 @@ if not rolled_reader.idle:
         KE_field['g'] = tasks['KE']
         KE_field.antidifferentiate('z', ('left', 0), out=KE_int_field)
         F_conv_mu_field['g'] = tasks['F_conv_mu'][0,:]
+        dz_buoyancy_field['g'] = (T_z - (-grad_ad)) - mu_z * inv_R_in
+        dz_buoyancy_field.antidifferentiate('z', ('left', 0), out=buoyancy_field)
         for f in dedalus_fields:
             f.set_scales(dense_scales, keep_data=True)
 
@@ -184,10 +189,17 @@ if not rolled_reader.idle:
         #Find where RZ switches from thermally stable to compositionally stable
         N2_switch_height = z_dense[(N2_tot > 0) * (N2_structure > N2_composition) * (z_dense > L_d0999)][0]
 
-        #Find edge of CZ and OZ by a crude measure.
+        #Find edge of OZ by a crude measure.
         mean_cz_KE = KE_int_field['g'][z_dense < L_d002][-1] / L_d002
-        cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
-        oz_bound = z_dense[F_conv_mu_field['g'] > F_conv_mu_field['g'].max()*3e-2][-1]
+        oz_bound = z_dense[F_conv_mu_field['g'] > F_conv_mu_field['g'].max()*1e-1][-1]
+
+        #point of neutral buoyancy is CZ edge.
+        try:
+            opt = brentq(interp1d(z_dense, buoyancy_field['g']), z_dense[3], oz_bound)
+            cz_bound = opt
+        except:
+            print('brentq failed to converge')
+            cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
 
         data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d002, L_d05, L_d0999]
         data_list += [N2_switch_height, cz_bound, oz_bound]
@@ -292,7 +304,7 @@ if rolled_reader.reader.global_comm.rank == 0:
     kfig = plt.figure()
     plt.fill_between(times, np.zeros_like(times), cz_bound, facecolor=ORANGE)
     plt.fill_between(times, cz_bound, N2_switch, facecolor=GREEN)
-    plt.fill_between(times, cz_bound, oz_bound, facecolor=PINK, alpha=0.5, hatch='/')
+    plt.fill_between(times, cz_bound, oz_bound, facecolor=PINK, alpha=0.2, hatch='/')
     plt.fill_between(times, N2_switch, Lz*np.ones_like(times), facecolor=PURPLE)
     plt.plot(times, cz_bound, c='k')
     plt.plot(times, N2_switch, c='k')
