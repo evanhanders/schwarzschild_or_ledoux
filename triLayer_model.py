@@ -142,7 +142,7 @@ def set_equations(problem):
                   (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))  + dz(p) - T1 + inv_R*mu  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
                   (True,      kx_n0, "dt(T1)  - (1/Pe0)*Lap(T1, T1_z) = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z)"), #energy eqn k != 0
-                  (True,      kx_0,  "dt(T1)  - (1/Pe0)*dz(f0*T1_z)   = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z) + Q + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
+                  (True,      kx_0,  "dt(T1)  - (1/Pe0)*dz(f0*T1_z)   = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z) + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu) - (tau/Pe0)*Lap(mu, mu_z)       = -UdotGrad(mu, mu_z)"), #composition eqn k != 0
                   (True,      kx_0,  "dt(mu) - (tau_k0/Pe0)*Lap(mu, mu_z)    = -UdotGrad(mu, mu_z) + (tau_k0/Pe0)*dz(mu0_z)"), #composition eqn k = 0
                 )
@@ -400,11 +400,10 @@ def run_cartesian_instability(args):
     T0_zz = domain.new_field()
     T_ad_z = domain.new_field()
     T_rad_z0 = domain.new_field()
-    Q = domain.new_field()
     flux_of_z = domain.new_field()
     cz_mask = domain.new_field()
     f_field = domain.new_field()
-    for f in [T0, T0_z, T_ad_z, Q, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z, f_field]:
+    for f in [T0, T0_z, T_ad_z, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z, f_field]:
         f.set_scales(domain.dealias)
     for f in [T_ad_z, mu0, mu0_z, T0_z, f_field]:
         if twoD:
@@ -423,9 +422,7 @@ def run_cartesian_instability(args):
     f_field['g']  = (-Pe0*F/T_rad_z0).evaluate()['g']
 
     cz_mask['g'] = one_to_zero(z_de, 1, width=0.05)
-    Q['g'] = 0 #(5/Pe0)*(1 - f0)*one_to_zero(z_de, 0.3, width=0.05)*zero_to_one(z_de, 0.1, width=0.05)
-#    Q.antidifferentiate('z', ('left', (0)), out=flux_of_z)
-    Q.antidifferentiate('z', ('left', (F)), out=flux_of_z)
+    flux_of_z['g'] = F
 
     delta_Tz = T_rad_z0['g'] - T_ad_z['g']
     #Erf has a width that messes up the transition; bump up T0_zz so it transitions to grad_rad at top.
@@ -454,7 +451,6 @@ def run_cartesian_instability(args):
     problem.parameters['T0_z']      = T0_z
     problem.parameters['T0_zz']     = T0_zz
     problem.parameters['T_ad_z']    = T_ad_z
-    problem.parameters['Q']         = Q
     problem.parameters['flux_of_z'] = flux_of_z
     problem.parameters['cz_mask']   = cz_mask
     problem.parameters['max_brunt'] = max_brunt
@@ -551,7 +547,7 @@ def run_cartesian_instability(args):
         t_brunt   = np.sqrt(1/max_brunt)
     else:
         t_brunt = np.inf
-    max_dt    = np.min((0.5*t_ff, t_brunt))
+    max_dt    = np.min((0.25*t_ff, t_brunt))
     logger.info('buoyancy and brunt times are: {:.2e} / {:.2e}; max_dt: {:.2e}'.format(t_ff, t_brunt, max_dt))
     if dt is None:
         dt = max_dt
@@ -572,7 +568,7 @@ def run_cartesian_instability(args):
  
     ###########################################################################
     ### 6. Setup output tasks; run main loop.
-    #analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=t_ff)
+    analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=t_ff)
 
     dense_scales = 20
     dense_x_scales = 1#mesh[0]/nx
@@ -631,19 +627,19 @@ def run_cartesian_instability(args):
             logger.info('Run time: {:f} cpu-hr'.format(main_loop_time/60/60*domain.dist.comm_cart.size))
             logger.info('iter/sec: {:f} (main loop only)'.format(n_iter_loop/main_loop_time))
             logger.info('dof-cycles/cpu-sec: {:e}'.format(dof_cycles_per_cpusec))
-#            try:
-#                final_checkpoint = solver.evaluator.add_file_handler(data_dir+'final_checkpoint', wall_dt=np.inf, sim_dt=np.inf, iter=1, max_writes=1)
-#                final_checkpoint.add_system(solver.state, layout = 'c')
-#                solver.step(1e-5*dt) #clean this up in the future...works for now.
-#                post.merge_process_files(data_dir+'/final_checkpoint/', cleanup=False)
-#            except:
-#                raise
-#                print('cannot save final checkpoint')
-#            finally:
-#                logger.info('beginning join operation')
-#                for key, task in analysis_tasks.items():
-#                    logger.info(task.base_path)
-#                    post.merge_analysis(task.base_path)
+            try:
+                final_checkpoint = solver.evaluator.add_file_handler(data_dir+'final_checkpoint', wall_dt=np.inf, sim_dt=np.inf, iter=1, max_writes=1)
+                final_checkpoint.add_system(solver.state, layout = 'c')
+                solver.step(1e-5*dt) #clean this up in the future...works for now.
+                post.merge_process_files(data_dir+'/final_checkpoint/', cleanup=False)
+            except:
+                raise
+                print('cannot save final checkpoint')
+            finally:
+                logger.info('beginning join operation')
+                for key, task in analysis_tasks.items():
+                    logger.info(task.base_path)
+                    post.merge_analysis(task.base_path)
             domain.dist.comm_cart.Barrier()
         return Re_avg
 
