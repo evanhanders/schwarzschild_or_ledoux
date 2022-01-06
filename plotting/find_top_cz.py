@@ -101,9 +101,11 @@ KE_int_field = domain.new_field()
 F_conv_mu_field = domain.new_field()
 dz_buoyancy_field = domain.new_field()
 buoyancy_field = domain.new_field()
+freq2_conv_field = domain.new_field()
+freq2_conv_int_field = domain.new_field()
 dedalus_fields = [grad_field, grad_integ_field, grad_ad_field, grad_rad_field, grad_rad_integ_field, \
                   grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field, \
-                  dz_buoyancy_field, buoyancy_field]
+                  dz_buoyancy_field, buoyancy_field, freq2_conv_field, freq2_conv_int_field]
 
 tasks, first_tasks = OrderedDict(), OrderedDict()
 
@@ -152,7 +154,7 @@ if not rolled_reader.idle:
         grad = -T_z[0,:]
         grad_mu = -mu_z[0,:]*inv_R_in
 
-        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field]:
+        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field, freq2_conv_field]:
             f.set_scales(1, keep_data=True)
         grad_field['g'] = -T_z
         N2_structure_field['g'] = -(grad_field['g'] - grad_ad)
@@ -164,6 +166,8 @@ if not rolled_reader.idle:
         F_conv_mu_field['g'] = tasks['F_conv_mu'][0,:]
         dz_buoyancy_field['g'] = (T_z - (-grad_ad)) - mu_z * inv_R_in
         dz_buoyancy_field.antidifferentiate('z', ('left', 0), out=buoyancy_field)
+        freq2_conv_field['g'] = 2*tasks['KE'][0,:] #need to divide by L_d05^2 later.
+        freq2_conv_field.antidifferentiate('z', ('left', 0), out=freq2_conv_int_field)
         for f in dedalus_fields:
             f.set_scales(dense_scales, keep_data=True)
 
@@ -201,8 +205,16 @@ if not rolled_reader.idle:
             print('brentq failed to converge')
             cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
 
+        #Stiffness
+        freq2_conv_field['g'] /= L_d05**2
+        freq2_conv_int_field['g'] /= L_d05**2
+        fconv2 = freq2_conv_int_field.interpolate(z=L_d05)['g'].min() / L_d05 #take avg.
+        N2max = np.max(N2_tot)
+        S_measured = N2max/fconv2
+
         data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d002, L_d05, L_d0999]
         data_list += [N2_switch_height, cz_bound, oz_bound]
+        data_list += [fconv2, N2max, S_measured]
         data_cube.append(data_list)
 
         ax1.plot(z,  tasks['bruntN2_structure'][0,:],   c='b', label=r'$N^2_{\rm{structure}}$')
@@ -237,12 +249,12 @@ if not rolled_reader.idle:
         for ax in axs:
             ax.set_xlabel('z')
             ax.set_xlim(z.min(), z.max())
-            ax.axvline(L_d002, c='red')
-            ax.axvline(L_d05, c='k')
+#            ax.axvline(L_d002, c='red')
+#            ax.axvline(L_d05, c='k')
             ax.axvline(L_d0999, c='red')
             ax.axvline(N2_switch_height, c='green')
-            ax.axvline(cz_bound, c='blue', lw=0.5)
-            ax.axvline(oz_bound, c='blue', lw=0.5)
+            ax.axvline(cz_bound, c='k')
+            ax.axvline(oz_bound, c='blue')
 
         plt.suptitle('sim_time = {:.2f}'.format(time_data['sim_time'][ni]))
 
@@ -285,6 +297,9 @@ L_d0999s     = global_data[:,4]
 N2_switch    = global_data[:,5]
 cz_bound     = global_data[:,6]
 oz_bound     = global_data[:,7]
+fconv2       = global_data[:,8]
+N2max        = global_data[:,9]
+S_measured   = global_data[:,10]
 
 if rolled_reader.reader.global_comm.rank == 0:
     fig = plt.figure()
@@ -295,6 +310,21 @@ if rolled_reader.reader.global_comm.rank == 0:
     plt.xlabel('time')
     plt.ylabel(r'$\delta_p$')
     fig.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'trace_top_cz'), dpi=400, bbox_inches='tight')
+
+    #stiffness trace
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3,1,1)
+    ax1.plot(times, fconv2)
+    ax1.set_ylabel(r'$f_{\rm{conv}}^2$')
+    ax2 = fig.add_subplot(3,1,2)
+    ax2.plot(times, N2max)
+    ax2.set_ylabel(r'$N_{\rm{max}}^2$')
+    ax3 = fig.add_subplot(3,1,3)
+    ax3.plot(times, S_measured)
+    ax3.set_xlabel('time')
+    ax3.set_ylabel('Stiffness')
+    fig.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'stiffness_trace'), dpi=400, bbox_inches='tight')
+    
 
     #kippenhahn fig
     GREEN  = np.array((27,158,119))/255
@@ -323,3 +353,6 @@ if rolled_reader.reader.global_comm.rank == 0:
         f['N2_switch'] = N2_switch
         f['cz_bound'] = cz_bound
         f['oz_bound'] = oz_bound
+        f['fconv2'] = fconv2
+        f['N2max']  = N2max
+        f['S_measured'] = S_measured
