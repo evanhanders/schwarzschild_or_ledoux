@@ -1,4 +1,93 @@
 \section{Model \& Initial Conditions}
 \label{app:model}
+In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field and a height-varying background radiative conductivity, similar to that used in \citet{fuentes_cumming_2020, anders_etal_2022}.
+These equations are
+\begin{align}
+    &\grad\dot\vec{u} = 0
+        \label{eqn:incompressible_dimensional}, \\
+    &\partial_t \vec{u}\dot\grad\vec{u} = -\frac{1}{\rho_0}\grad p + \frac{\rho_1}{\rho_0}\vec{g} + \nu\grad^2\vec{u}
+        \label{eqn:momentum_dimensional}, \\
+    &\partial_t T + \vec{u}\dot\grad T + w\gradad + \grad\dot[-\kappa_{T,0}\grad\bar{T}] = \kappa_T\grad^2 T'
+        \label{eqn:temperature_dimensional}, \\
+    &\partial_t C + \vec{u}\dot\grad C = \kappa_{C,0}\grad^2\bar{C} + \kappa_C\grad^2 C'
+        \label{eqn:composition_dimensional}, \\
+    &\frac{\rho_1}{\rho_0} = -|\alpha|T + |\beta|C
+        \label{eqn:boussinesq}.
+\end{align}
+Here, $\vec{u}$ is the vector velocity, $T$ is the temperature, $C$ is the composition, $\rho_0$ is the constant background density, $\p$ is the kinematic pressure which enforces Eqn.~\ref{eqn:incompressible_dimensional}, $\rho_1$ are density fluctuations which act only on the buoyant term, and $\alpha$ and $\beta$ are the thermal and compositional expansion coefficients, and $\gradad$ is the adiabatic gradient.
+Diffusive terms are controlled by the kinematic viscosity $\nu$, as well as the thermal diffusivity $\kappa_T$ and compositional diffusivity $\kappa_C$.
+On the horizontally-invariant ($n_x = 0$ and $n_y = 0$) mode, we use a height-depended thermal diffusion coefficient $\kappa_{T,0}$ (which allows $\gradrad$ to vary with height) and a lower compositional diffusivity $\kappa_{C,0} < \kappa_C$ to ensure that the evolution of the mean composition profile is due to advection rather than diffusion.
+
+We nondimensionalize Eqns.~\ref{eqn:incompressible_dimensional}-\ref{eqn:boussinesq} on the length scale of the initial Schwarzschild-unstable convection zone $L_s$, the timescale of freefall across that convection zone 
+
+\begin{equation}
+    \tau_{\rm{ff}} = \left(\frac{L_s}{|\alpha| g \Delta T}\right)^{1/2},
+\end{equation}
+and the temperature scale set by the temperature gradient at the bottom boundary $\Delta T = L_s(\partial_z T)_{\rm{bot}}$; mass is nondimensionalized so that the freefall ram pressure $\rho_0(L_s/\tau_{\rm{ff}})^2 = 1$, and composition is nondimensionalized so that its value is initially 1 in the convection zone and zero in the Schwarzschild-stable radiative zone.
+This nondimensionalization is
+\begin{equation}
+\begin{split}
+    &T^* = (\Delta T)T = (L_s [\partial_z T]_{\rm{bot}}) tQ_0 \tau_{\rm{ff}} T,\qquad
+    C^* = (\Delta C)C,\qquad
+    \partial_{t^*} = \tau_{\rm{ff}}^{-1}\partial_t,\qquad\,\,\,
+    \grad^* = L_s^{-1} \grad,\,\,\,\,\,
+\\
+    &\vec{u}^* = u_{\rm{ff}}\vec{u} = \frac{L_s}{\tau_{\rm{ff}}} \vec{u}, \qquad\qquad
+    p^* = \rho_0 u_{\rm{ff}}^2\varpi,\qquad
+    \kappa_T^* = (L_s^2 \tau_{\rm{ff}}^{-1})$\kappa_T$,\qquad
+    \kappa_C^* = (L_s^2 \tau_{\rm{ff}}^{-1})$\kappa_C$.
+\end{split}
+\end{equation}
+For convenience, here we define quantities with $*$ (e.g., $T^*$) as being the ``dimensionful'' quantities of Eqns.~\ref{eqn:incompressible}-\ref{eqn:boussinesq}.
+Henceforth, quantities without $*$ (e.g., $T$) are dimensionless.
+Within this nondimensionalization, we define the following control parameters for our simulations
+\begin{equation}
+\begin{split}
+    &\mP = \frac{u_{\rm{ff}} L_s}{\kappa_T},\qquad
+    \Ro = \frac{|\alpha|\Delta T}{|\beta|\Delta C},\qquad
+    \Pran = \frac{\nu}{\kappa_T},\qquad
+    \tau = \frac{\kappa_C}{\kappa_T},\qquad
+    \tau_0 = \frac{\kappa_{C,0}}{\kappa_T}
+\end{split}
+\end{equation}
+The dimensionless equations of motion are
+\label{sec:simulation_details}
+\begin{align}
+    &\grad\dot\vec{u} = 0 
+        \label{eqn:incompressible} \\
+    &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} = -\grad \varpi + (T - \Ro^{-1}C) \hat{z} + \frac{\Pran}{\mP}\grad^2 \vec{u}
+        \label{eqn:momentum} \\
+    &\partial_t T + \vec{u}\dot\grad T + w \grad_{\rm{ad}}  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'.
+        \label{eqn:temperature}, \\
+    &\partial_t C + \vec{u}\dot\grad C = -\frac{\tau_0}{\mP}\grad^2\bar{C} + \frac{\tau}{\mP}\grad^2 C',
+        \label{eqn:composition}
+\end{align}
 
 
+
+In this work, we study a three-layer model in $z = [0, 3]$.
+We set
+\begin{equation}
+\gradmu = \begin{cases}
+    0       & z \leq 1 \\
+    \Ro^{-1}       & 1 < z \leq 2 \\
+    0       & 2 < z \\
+\end{cases},\qquad
+\gradrad = \begin{cases}
+    \gradad + 1         & z \leq 2 \\
+    \gradad - \Ro^{-1}  & z > 2
+\end{cases},
+\end{equation}
+where in our simple boussinesq system, we define
+\begin{equation}
+    \gradmu \equiv -\Ro^{-1} \frac{\partial \mu}{\partial z},\qquad
+    \gradT \equiv -\frac{\partial T}{\partial z},\qquad
+    \gradad = 5 [\Ro^{-1} - 2]\,\,\text{(a constant)}.
+\end{equation}
+and $\gradT = \gradrad$ if conduction carries all of the energy flux.
+We fix the flux carried by convection to be
+\begin{equation}
+    \Fconv = \kappa_{T,0},
+\end{equation}
+so the total flux through the system is $F_{\mathrm{tot}} = \Fconv(\gradad + 1)$.
+We set $\gradT = \gradrad$ in the initial state.

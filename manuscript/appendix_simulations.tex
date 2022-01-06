@@ -1,4 +1,25 @@
 \section{Simulation Details \& Data Availability}
 \label{app:simulation_details}
+We time-evolve equations ?? using the Dedalus pseudospectral solver \citep{burns_etal_2020} using timestepper SBDF2 \citep{wang_ruuth_2020} and safety factor 0.3.
+All fields are represented as spectral expansions of $n_z$ Chebyshev coefficients in the vertical ($z$) direction and as ($n_x$, $n_y$) Fourier coefficients in the horizontal ($x$, $y$) directions; our domain is therefore horizontally periodic.
+We use a domain with an aspect ratio of two so that $x \in [0, L_x]$, $y \in [0, L_y]$, and $z \in [0, L_z]$ with $L_x = L_y = 2L_z$.
+The initial convection zone spans initially spans 1/3 of the domain depth and in the evolved state spans 2/3 of the domain depth, so it has an initial aspect ratio of 6 and a final aspect ratio of 3.
+To avoid aliasing errors, we use the 3/2-dealiasing rule in all directions.
+To start our simulations, we add random noise temperature perturbations with a magnitude of $10^{-6}$ to the initial temperature profile (discussed in ??).
 
+Spectral methods with finite coefficient expansions cannot capture true discontinuities.
+In order to approximate discontinuous functions such as Eqns.~\ref{eqn:sim_Q}, \ref{eqn:sim_discontinuous_k}, and \ref{eqn:sim_linear_k}, we must use smooth transitions.
+We therefore define a smooth Heaviside step function,
+\begin{equation}
+H(z; z_0, d_w) = \frac{1}{2}\left(1 + \mathrm{erf}\left[\frac{z - z_0}{d_w}\right]\right).
+\label{eqn:heaviside}
+\end{equation}
+where erf is the error function.
+In the limit that $d_w \rightarrow 0$, this function behaves identically to the classical Heaviside function centered at $z_0$.
+For Eqn.~\ref{eqn:sim_Q} and Eqn.~\ref{eqn:sim_linear_k}, we use $d_w = 0.02$; while for Eqn.~\ref{eqn:sim_discontinuous_k} we use $d_w = 0.075$.
+In all other cases, we use $d_w = 0.05$.
 
+A table describing all of the simulations presented in this work can be found in Appendix~\ref{app:simulation_table}.
+We produce figures ?? and ?? using matplotlib \citep{hunter2007, mpl3.3.4}.
+We produce figure ?? using TODO.
+All of the Python scripts used to run the simulations in this paper and to create the figures in this paper are publicly available in a git repository\footnote{\url{https://github.com/evanhanders/convective_penetration_paper}}, and in a Zenodo repository \citep{supp}.
