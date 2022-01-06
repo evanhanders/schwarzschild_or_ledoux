@@ -144,7 +144,7 @@ def set_equations(problem):
                   (True,      kx_n0, "dt(T1)  - (1/Pe0)*Lap(T1, T1_z) = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z)"), #energy eqn k != 0
                   (True,      kx_0,  "dt(T1)  - (1/Pe0)*dz(f0*T1_z)   = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z) + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu) - (tau/Pe0)*Lap(mu, mu_z)       = -UdotGrad(mu, mu_z)"), #composition eqn k != 0
-                  (True,      kx_0,  "dt(mu) - (tau_k0/Pe0)*Lap(mu, mu_z)    = -UdotGrad(mu, mu_z) + (tau_k0/Pe0)*dz(mu0_z)"), #composition eqn k = 0
+                  (True,      kx_0,  "dt(mu) - (tau_k0/Pe0)*Lap(mu, mu_z)    = -UdotGrad(mu, mu_z)"), #composition eqn k = 0
                 )
     for solve, cond, eqn in equations:
         if solve:
