@@ -8,7 +8,7 @@ To avoid aliasing errors, we use the 3/2-dealiasing rule in all directions.
 To start our simulations, we add random noise temperature perturbations with a magnitude of $10^{-6}$ to the initial temperature profile (discussed in ??).
 
 Spectral methods with finite coefficient expansions cannot capture true discontinuities.
-In order to approximate discontinuous functions such as Eqns.~\ref{eqn:sim_Q}, \ref{eqn:sim_discontinuous_k}, and \ref{eqn:sim_linear_k}, we must use smooth transitions.
+In order to approximate discontinuous functions such as Eqns.~\ref{eqn:initial_brunt}, we must use smooth transitions.
 We therefore define a smooth Heaviside step function,
 \begin{equation}
 H(z; z_0, d_w) = \frac{1}{2}\left(1 + \mathrm{erf}\left[\frac{z - z_0}{d_w}\right]\right).
@@ -16,8 +16,7 @@ H(z; z_0, d_w) = \frac{1}{2}\left(1 + \mathrm{erf}\left[\frac{z - z_0}{d_w}\righ
 \end{equation}
 where erf is the error function.
 In the limit that $d_w \rightarrow 0$, this function behaves identically to the classical Heaviside function centered at $z_0$.
-For Eqn.~\ref{eqn:sim_Q} and Eqn.~\ref{eqn:sim_linear_k}, we use $d_w = 0.02$; while for Eqn.~\ref{eqn:sim_discontinuous_k} we use $d_w = 0.075$.
-In all other cases, we use $d_w = 0.05$.
+Throughout this work, we set $d_w = 0.05$.
 
 A table describing all of the simulations presented in this work can be found in Appendix~\ref{app:simulation_table}.
 We produce figures ?? and ?? using matplotlib \citep{hunter2007, mpl3.3.4}.
