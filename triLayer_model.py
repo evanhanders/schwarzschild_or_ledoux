@@ -141,8 +141,8 @@ def set_equations(problem):
                   (threeD,    "True", "dt(v) + (Pr/Pe0)*(dz(ωx) - dx(ωz))  + dy(p)                   = w*ωx - u*ωz "), #momentum-x
                   (True,      kx_n0,  "dt(w) + (Pr/Pe0)*(dx(ωy) - dy(ωx))  + dz(p) - T1 + inv_R*mu  = u*ωy - v*ωx "), #momentum-z
                   (True,      kx_0,   "w = 0"), #momentum-z
-                  (True,      kx_n0, "dt(T1)  - (1/Pe0)*Lap(T1, T1_z) = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z)"), #energy eqn k != 0
-                  (True,      kx_0,  "dt(T1)  - (1/Pe0)*dz(f0*T1_z)   = -w*(T0_z - T_ad_z) -UdotGrad(T1, T1_z) + (1/Pe0)*dz(f0*T0_z)"), #energy eqn k = 0
+                  (True,      kx_n0, "dt(T1)  - (1/Pe0)*Lap(T1, T1_z) = -w*(T_superad_z0) -UdotGrad(T1, T1_z)"), #energy eqn k != 0
+                  (True,      kx_0,  "dt(T1)  - (1/Pe0)*dz(f0*T1_z)   = -w*(T_superad_z0) -UdotGrad(T1, T1_z)"), #energy eqn k = 0
                   (True,      kx_n0, "dt(mu) - (tau/Pe0)*Lap(mu, mu_z)       = -UdotGrad(mu, mu_z)"), #composition eqn k != 0
                   (True,      kx_0,  "dt(mu) - (tau_k0/Pe0)*Lap(mu, mu_z)    = -UdotGrad(mu, mu_z)"), #composition eqn k = 0
                 )
@@ -400,12 +400,13 @@ def run_cartesian_instability(args):
     T0_zz = domain.new_field()
     T_ad_z = domain.new_field()
     T_rad_z0 = domain.new_field()
+    T_superad_z0 = domain.new_field()
     flux_of_z = domain.new_field()
     cz_mask = domain.new_field()
     f_field = domain.new_field()
-    for f in [T0, T0_z, T_ad_z, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z, f_field]:
+    for f in [T0, T0_z, T_ad_z, flux_of_z, T_rad_z0, cz_mask, mu0, mu0_z, f_field, T_superad_z0]:
         f.set_scales(domain.dealias)
-    for f in [T_ad_z, mu0, mu0_z, T0_z, f_field]:
+    for f in [T_ad_z, mu0, mu0_z, T0_z, f_field, T_superad_z0]:
         if twoD:
             f.meta['x']['constant'] = True
         else:
@@ -435,6 +436,8 @@ def run_cartesian_instability(args):
 
     max_brunt = (inv_R - 1)
 
+    T_superad_z0['g'] = T0_z['g'] - T_ad_z['g']
+
     #Plug in default parameters
     problem.parameters['inv_R']     = inv_R
     problem.parameters['Pe0']       = Pe0
@@ -454,6 +457,7 @@ def run_cartesian_instability(args):
     problem.parameters['flux_of_z'] = flux_of_z
     problem.parameters['cz_mask']   = cz_mask
     problem.parameters['max_brunt'] = max_brunt
+    problem.parameters['T_superad_z0'] = T_superad_z0
 
     problem = set_subs(problem)
     problem = set_equations(problem)
