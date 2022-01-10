@@ -1,16 +1,19 @@
 \section{Theory}
 \label{sec:theory}
-%\begin{figure}[t]
-%\centering
-%\includegraphics[width=\columnwidth]{grad_profiles.pdf}
-%\caption{
-%Horizontally- and temporally-averaged profiles of the thermodynamic gradients from the simulation in Fig.~\ref{fig:vertical_dynamics_panels}.
-%We plot $\justgrad$ (green) compared to $\gradad$ (purple, a constant) and $\gradrad$ (orange); note the extended penetration zone (PZ) where $\justgrad \approx \gradad > \gradrad$.
-%    \editone{
-%        The dashed vertical line denotes the Schwarzschild boundary of the convection zone (CZ), the solid vertical line denotes the bottom of the radiative zone (RZ), and the greyed region denotes the PZ-RZ boundary layer.
-%    }
-%\label{fig:grad_profiles}
-%}
-%\end{figure}
 
+\begin{itemize}
+\item The stability of a convective region can instantaneously be determined using the Schwarzschild criterion,
+\begin{equation}
+    y_S = \gradrad - \gradad,
+\end{equation}
+or the Ledoux criterion,
+\begin{equation}
+y_L = \gradrad - \gradL,
+\end{equation}
+with the unstable convection zone contained within the region where $y < 0$ \citep[see e.g., section 2 of][]{mesa4}.
+\item The \emph{instantaneous} stability changes over the course of many convective freefall times, and stellar evolution timesteps generally span many convective overturn times.
+\item The goal of this work is to find if $y_S$ and $y_L$ evolve toward the same value, and whether they evolve toward the initial boundary as determined by $y_S$ or $y_L$.
+\item We will study a numerical simulation with three layers: a convective layer $y_s < 0$ and $y_L < 0$, a ``semiconvective'' \citep[see section 4 of][]{mesa2} \citep{salaris_cassisi_2017} layer with $y_S < 0$ but $y_L > 0$ \citep[which is stable to ODDC][]{garaud_2018}, and a fully stable layer with $y_L > 0$ and $y_S > 0$.
+\item While ``semiconvective'' layers are often unstable to doubly-diffusive instabilities in stellar regimes \citep{moore_garaud_2016}, our purpose in this work is to demonstrate that regardless of whether these layers are doubly-diffusive unstable, they are entrained and destroyed by neighboring convective zones.
+\end{itemize}
 
