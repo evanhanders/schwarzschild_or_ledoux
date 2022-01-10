@@ -101,17 +101,20 @@ KE_int_field = domain.new_field()
 F_conv_mu_field = domain.new_field()
 dz_buoyancy_field = domain.new_field()
 buoyancy_field = domain.new_field()
+dz_buoyancy_field_schwarz = domain.new_field()
+buoyancy_field_schwarz = domain.new_field()
 freq2_conv_field = domain.new_field()
 freq2_conv_int_field = domain.new_field()
 dedalus_fields = [grad_field, grad_integ_field, grad_ad_field, grad_rad_field, grad_rad_integ_field, \
                   grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field, \
-                  dz_buoyancy_field, buoyancy_field, freq2_conv_field, freq2_conv_int_field]
+                  dz_buoyancy_field, buoyancy_field, freq2_conv_field, freq2_conv_int_field,\
+                  dz_buoyancy_field_schwarz, buoyancy_field_schwarz]
 
 tasks, first_tasks = OrderedDict(), OrderedDict()
 
 bases_names = ['z',]
 fields = ['T', 'T_z', 'mu_z', 'bruntN2', 'bruntN2_structure', 'bruntN2_composition',\
-          'F_rad', 'F_conv', 'F_rad_mu', 'F_conv_mu', 'KE']
+          'F_rad', 'F_conv', 'F_rad_mu', 'F_conv_mu', 'KE', 'enstrophy']
 first_fields = ['T_rad_z', 'T_ad_z', 'F_rad', 'flux_of_z', 'T_z']
 if not rolled_reader.idle:
     while readerOne.writes_remain():
@@ -154,7 +157,7 @@ if not rolled_reader.idle:
         grad = -T_z[0,:]
         grad_mu = -mu_z[0,:]*inv_R_in
 
-        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field, freq2_conv_field]:
+        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field, freq2_conv_field, dz_buoyancy_field_schwarz]:
             f.set_scales(1, keep_data=True)
         grad_field['g'] = -T_z
         N2_structure_field['g'] = -(grad_field['g'] - grad_ad)
@@ -166,6 +169,8 @@ if not rolled_reader.idle:
         F_conv_mu_field['g'] = tasks['F_conv_mu'][0,:]
         dz_buoyancy_field['g'] = (T_z - (-grad_ad)) - mu_z * inv_R_in
         dz_buoyancy_field.antidifferentiate('z', ('left', 0), out=buoyancy_field)
+        dz_buoyancy_field_schwarz['g'] = (T_z - (-grad_ad))
+        dz_buoyancy_field_schwarz.antidifferentiate('z', ('left', 0), out=buoyancy_field_schwarz)
         freq2_conv_field['g'] = 2*tasks['KE'][0,:] #need to divide by L_d05^2 later.
         freq2_conv_field.antidifferentiate('z', ('left', 0), out=freq2_conv_int_field)
         for f in dedalus_fields:
@@ -191,19 +196,26 @@ if not rolled_reader.idle:
         L_d0999 = departures[2]
 
         #Find where RZ switches from thermally stable to compositionally stable
-        N2_switch_height = z_dense[(N2_tot > 0) * (N2_structure > N2_composition) * (z_dense > L_d0999)][0]
+        N2_switch_height = z_dense[N2_structure < 0][-1]
 
         #Find edge of OZ by a crude measure.
         mean_cz_KE = KE_int_field['g'][z_dense < L_d002][-1] / L_d002
-        oz_bound = z_dense[F_conv_mu_field['g'] > F_conv_mu_field['g'].max()*1e-1][-1]
+#        oz_bound = z_dense[F_conv_mu_field['g'] > F_conv_mu_field['g'].max()*1e-1][-1]
+        oz_bound = z_dense[KE_field['g'] > KE_field['g'].max()*1e-1][-1]
 
         #point of neutral buoyancy is CZ edge.
-        try:
-            opt = brentq(interp1d(z_dense, buoyancy_field['g']), z_dense[3], oz_bound)
-            cz_bound = opt
-        except:
-            print('brentq failed to converge')
-            cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
+        cz_bound = z_dense[(z_dense > z_dense[3])*(buoyancy_field['g'] > 0)][0]
+#        try:
+#            opt = brentq(interp1d(z_dense, buoyancy_field['g']), z_dense[3], oz_bound)
+#            cz_bound = opt
+#        except:
+#            print('brentq failed to converge')
+#            cz_bound = z_dense[(z_dense > z_dense[3])*(buoyancy_field['g'] > 0)][0]
+#            cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
+
+        #point of neutral buoyancy is CZ edge. (also get it by schwarz criterion
+        cz_bound_schwarz = z_dense[(z_dense > z_dense[3])*(buoyancy_field_schwarz['g'] > 0)][0]
+
 
         #Stiffness
         freq2_conv_field['g'] /= L_d05**2
@@ -214,7 +226,7 @@ if not rolled_reader.idle:
 
         data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d002, L_d05, L_d0999]
         data_list += [N2_switch_height, cz_bound, oz_bound]
-        data_list += [fconv2, N2max, S_measured]
+        data_list += [fconv2, N2max, S_measured, cz_bound_schwarz]
         data_cube.append(data_list)
 
         ax1.plot(z,  tasks['bruntN2_structure'][0,:],   c='b', label=r'$N^2_{\rm{structure}}$')
@@ -222,6 +234,7 @@ if not rolled_reader.idle:
         ax1.plot(z,  tasks['bruntN2'][0,:], c='k', label=r'$N^2$')
         ax1.plot(z, -tasks['bruntN2'][0,:], c='k', ls='--')
         ax1.plot(z, 2*tasks['KE'][0,:]/L_d05**2, c='orange', label=r'$f_{\rm{conv}}^2$')
+        ax1.plot(z, tasks['enstrophy'][0,:], c='purple', label=r'$\omega^2$')
         ax1.set_yscale('log')
         ax1.legend(loc='upper left')
         ax1.set_ylabel(r'$N^2$')
@@ -239,6 +252,7 @@ if not rolled_reader.idle:
 
         ax3.axhline(0, c='k')
         ax3.plot(z, F_conv[0,:], label=r'$F_{\rm{conv}}$', c='orange')
+        ax3.plot(z, -F_conv[0,:], c='orange', ls='--')
         ax3.plot(z, F_cond[0,:], label=r'$F_{\rm{cond}}$', c='blue')
         ax3.plot(z, tasks['F_conv_mu'][0,:], c='green', label=r'$F_{\rm{conv},\mu}$')
         ax3.legend()
@@ -254,6 +268,7 @@ if not rolled_reader.idle:
             ax.axvline(L_d0999, c='red')
             ax.axvline(N2_switch_height, c='green')
             ax.axvline(cz_bound, c='k')
+            ax.axvline(cz_bound_schwarz, c='k', lw=0.5)
             ax.axvline(oz_bound, c='blue')
 
         plt.suptitle('sim_time = {:.2f}'.format(time_data['sim_time'][ni]))
@@ -300,6 +315,7 @@ oz_bound     = global_data[:,7]
 fconv2       = global_data[:,8]
 N2max        = global_data[:,9]
 S_measured   = global_data[:,10]
+cz_bound_schwarz   = global_data[:,11]
 
 if rolled_reader.reader.global_comm.rank == 0:
     fig = plt.figure()
@@ -332,12 +348,13 @@ if rolled_reader.reader.global_comm.rank == 0:
     PURPLE = np.array((117,112,179))/255
     PINK   = np.array((231,41,138))/255
     kfig = plt.figure()
-    plt.fill_between(times, np.zeros_like(times), cz_bound, facecolor=ORANGE)
-    plt.fill_between(times, cz_bound, N2_switch, facecolor=GREEN)
-    plt.fill_between(times, cz_bound, oz_bound, facecolor=PINK, alpha=0.2, hatch='/')
     plt.fill_between(times, N2_switch, Lz*np.ones_like(times), facecolor=PURPLE)
+    plt.fill_between(times, cz_bound, cz_bound_schwarz, facecolor=GREEN)
+    plt.fill_between(times, np.zeros_like(times), cz_bound, facecolor=ORANGE)
+    plt.fill_between(times, cz_bound, oz_bound, facecolor=PINK, alpha=0.2, hatch='/')
     plt.plot(times, cz_bound, c='k')
-    plt.plot(times, N2_switch, c='k')
+    plt.plot(times, cz_bound_schwarz, c='k')
+#    plt.plot(times, N2_switch, c='k')
     plt.plot(times, L_d0999s, c='k', ls='--')
     plt.xlim(0, times.max())
     plt.ylim(0, Lz)
@@ -352,6 +369,7 @@ if rolled_reader.reader.global_comm.rank == 0:
         f['L_d0999s'] = L_d0999s    
         f['N2_switch'] = N2_switch
         f['cz_bound'] = cz_bound
+        f['cz_bound_schwarz'] = cz_bound_schwarz
         f['oz_bound'] = oz_bound
         f['fconv2'] = fconv2
         f['N2max']  = N2max
