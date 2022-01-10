@@ -64,6 +64,8 @@ for string in root_dir.split('_'):
         Pe_in = float(val.split('Pe')[-1])
     elif 'invR' in val:
         inv_R_in = float(val.split('invR')[-1])
+    elif 'mixedICs' in val:
+        continue
     elif resolution_regex_3d.match(val):
         res_strs = val.split('x')
         nx, ny, nz = [int(s) for s in res_strs]
@@ -105,10 +107,12 @@ dz_buoyancy_field_schwarz = domain.new_field()
 buoyancy_field_schwarz = domain.new_field()
 freq2_conv_field = domain.new_field()
 freq2_conv_int_field = domain.new_field()
+freq2_conv_field_enstrophy = domain.new_field()
+freq2_conv_int_field_enstrophy = domain.new_field()
 dedalus_fields = [grad_field, grad_integ_field, grad_ad_field, grad_rad_field, grad_rad_integ_field, \
                   grad_mu_field, grad_mu_integ_field, delta_grad_field, N2_structure_field, KE_field, KE_int_field, F_conv_mu_field, \
                   dz_buoyancy_field, buoyancy_field, freq2_conv_field, freq2_conv_int_field,\
-                  dz_buoyancy_field_schwarz, buoyancy_field_schwarz]
+                  dz_buoyancy_field_schwarz, buoyancy_field_schwarz, freq2_conv_field_enstrophy, freq2_conv_int_field_enstrophy]
 
 tasks, first_tasks = OrderedDict(), OrderedDict()
 
@@ -157,7 +161,7 @@ if not rolled_reader.idle:
         grad = -T_z[0,:]
         grad_mu = -mu_z[0,:]*inv_R_in
 
-        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field, freq2_conv_field, dz_buoyancy_field_schwarz]:
+        for f in [grad_field, grad_mu_field, N2_structure_field, KE_field, F_conv_mu_field, dz_buoyancy_field, freq2_conv_field, dz_buoyancy_field_schwarz, freq2_conv_field_enstrophy]:
             f.set_scales(1, keep_data=True)
         grad_field['g'] = -T_z
         N2_structure_field['g'] = -(grad_field['g'] - grad_ad)
@@ -173,6 +177,8 @@ if not rolled_reader.idle:
         dz_buoyancy_field_schwarz.antidifferentiate('z', ('left', 0), out=buoyancy_field_schwarz)
         freq2_conv_field['g'] = 2*tasks['KE'][0,:] #need to divide by L_d05^2 later.
         freq2_conv_field.antidifferentiate('z', ('left', 0), out=freq2_conv_int_field)
+        freq2_conv_field_enstrophy['g'] = tasks['enstrophy'][0,:]
+        freq2_conv_field_enstrophy.antidifferentiate('z', ('left', 0), out=freq2_conv_int_field_enstrophy)
         for f in dedalus_fields:
             f.set_scales(dense_scales, keep_data=True)
 
@@ -204,7 +210,7 @@ if not rolled_reader.idle:
         oz_bound = z_dense[KE_field['g'] > KE_field['g'].max()*1e-1][-1]
 
         #point of neutral buoyancy is CZ edge.
-        cz_bound = z_dense[(z_dense > z_dense[3])*(buoyancy_field['g'] > 0)][0]
+        cz_bound = z_dense[(z_dense > z_dense[3])*(buoyancy_field['g'] < 0)][-1]
 #        try:
 #            opt = brentq(interp1d(z_dense, buoyancy_field['g']), z_dense[3], oz_bound)
 #            cz_bound = opt
@@ -214,19 +220,21 @@ if not rolled_reader.idle:
 #            cz_bound = z_dense[KE_field['g'] > mean_cz_KE*5e-1][-1]
 
         #point of neutral buoyancy is CZ edge. (also get it by schwarz criterion
-        cz_bound_schwarz = z_dense[(z_dense > z_dense[3])*(buoyancy_field_schwarz['g'] > 0)][0]
+        cz_bound_schwarz = z_dense[(z_dense > z_dense[3])*(buoyancy_field_schwarz['g'] < 0)][-1]
 
 
         #Stiffness
         freq2_conv_field['g'] /= L_d05**2
         freq2_conv_int_field['g'] /= L_d05**2
         fconv2 = freq2_conv_int_field.interpolate(z=L_d05)['g'].min() / L_d05 #take avg.
+        fconv2_enstrophy = freq2_conv_int_field_enstrophy.interpolate(z=L_d05)['g'].min() / L_d05 #take avg.
         N2max = np.max(N2_tot)
         S_measured = N2max/fconv2
+        S_measured_enstrophy = N2max/fconv2_enstrophy
 
         data_list = [time_data['sim_time'][ni], time_data['write_number'][ni], L_d002, L_d05, L_d0999]
         data_list += [N2_switch_height, cz_bound, oz_bound]
-        data_list += [fconv2, N2max, S_measured, cz_bound_schwarz]
+        data_list += [fconv2, N2max, S_measured, cz_bound_schwarz, fconv2_enstrophy, S_measured_enstrophy]
         data_cube.append(data_list)
 
         ax1.plot(z,  tasks['bruntN2_structure'][0,:],   c='b', label=r'$N^2_{\rm{structure}}$')
@@ -316,6 +324,8 @@ fconv2       = global_data[:,8]
 N2max        = global_data[:,9]
 S_measured   = global_data[:,10]
 cz_bound_schwarz   = global_data[:,11]
+fconv2_enstrophy       = global_data[:,12]
+S_measured_enstrophy   = global_data[:,13]
 
 if rolled_reader.reader.global_comm.rank == 0:
     fig = plt.figure()
@@ -328,17 +338,25 @@ if rolled_reader.reader.global_comm.rank == 0:
     fig.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'trace_top_cz'), dpi=400, bbox_inches='tight')
 
     #stiffness trace
-    fig = plt.figure()
-    ax1 = fig.add_subplot(3,1,1)
+    fig = plt.figure(figsize=(9, 5))
+    ax1 = fig.add_subplot(1,3,1)
     ax1.plot(times, fconv2)
+    ax1.plot(times, fconv2_enstrophy, label='enstrophy', c='indigo')
+    ax1.legend()
     ax1.set_ylabel(r'$f_{\rm{conv}}^2$')
-    ax2 = fig.add_subplot(3,1,2)
+    ax1.set_yscale('log')
+    ax1.grid()
+    ax2 = fig.add_subplot(1,3,2)
     ax2.plot(times, N2max)
     ax2.set_ylabel(r'$N_{\rm{max}}^2$')
-    ax3 = fig.add_subplot(3,1,3)
+    ax3 = fig.add_subplot(1,3,3)
     ax3.plot(times, S_measured)
+    ax3.plot(times, S_measured_enstrophy, label='enstrophy', c='indigo')
+    ax3.legend()
     ax3.set_xlabel('time')
     ax3.set_ylabel('Stiffness')
+    ax3.grid()
+    ax3.set_yscale('log')
     fig.savefig('{:s}/{:s}.png'.format(rolled_reader.out_dir, 'stiffness_trace'), dpi=400, bbox_inches='tight')
     
 
