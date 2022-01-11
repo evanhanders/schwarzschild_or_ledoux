@@ -1,6 +1,6 @@
 \section{Simulation Details \& Data Availability}
 \label{app:simulation_details}
-We time-evolve equations ?? using the Dedalus pseudospectral solver \citep{burns_etal_2020} using timestepper SBDF2 \citep{wang_ruuth_2020} and safety factor 0.3.
+We time-evolve equations ?? using the Dedalus pseudospectral solver \citep{burns_etal_2020} using timestepper SBDF2 \citep{wang_ruuth_2008} and safety factor 0.3.
 All fields are represented as spectral expansions of $n_z$ Chebyshev coefficients in the vertical ($z$) direction and as ($n_x$, $n_y$) Fourier coefficients in the horizontal ($x$, $y$) directions; our domain is therefore horizontally periodic.
 We use a domain with an aspect ratio of two so that $x \in [0, L_x]$, $y \in [0, L_y]$, and $z \in [0, L_z]$ with $L_x = L_y = 2L_z$.
 The initial convection zone spans initially spans 1/3 of the domain depth and in the evolved state spans 2/3 of the domain depth, so it has an initial aspect ratio of 6 and a final aspect ratio of 3.
