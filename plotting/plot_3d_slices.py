@@ -43,10 +43,17 @@ fig_name   = args['--fig_name']
 plotter = SlicePlotter(root_dir, file_dir='slices', out_name=fig_name, start_file=start_file, n_files=n_files)
 
 plotter_kwargs = { 'col_inch' : int(args['--col_inch']), 'row_inch' : int(args['--row_inch'])}
-plotter.setup_grid(num_rows=1, num_cols=3, **plotter_kwargs)
+plotter.setup_grid(num_rows=2, num_cols=2, **plotter_kwargs)
 bases_kwargs = { 'x_basis' : 'x', 'y_basis' : 'z' }
+horiz_bases_kwargs = { 'x_basis' : 'x', 'y_basis' : 'y' }
 plotter.add_colormesh('T_y_mid', remove_x_mean=True, label='T - horiz_avg(T)', **bases_kwargs)
-plotter.add_colormesh('mu_y_mid', cmap='Greens', vmin=0, vmax=1, **bases_kwargs)
+plotter.add_colormesh('mu_y_mid', cmap='PiYG_r', label='mu - horiz-avg(mu)', remove_x_mean=True, **bases_kwargs)
+#plotter.add_colormesh('mu_y_mid', cmap='Greens', vmin=0, vmax=1, **bases_kwargs)
 plotter.add_colormesh('w_y_mid', cmap='PuOr_r', **bases_kwargs)
+plotter.add_colormesh('enstrophy_y_mid', cmap='Purples_r', pos_def=True, **bases_kwargs)
+#plotter.add_colormesh('T_z_0.5', remove_mean=True, label='T - horiz_avg(T)', **horiz_bases_kwargs)
+#plotter.add_colormesh('mu_z_0.5', cmap='Greens', vmin=0, vmax=1, **horiz_bases_kwargs)
+#plotter.add_colormesh('mu_z_0.5', cmap='PiYG_r', label='mu - horiz-avg(mu)', remove_mean=True, **horiz_bases_kwargs)
+#plotter.add_colormesh('w_z_0.5', cmap='PuOr_r', **horiz_bases_kwargs)
 
 plotter.plot_colormeshes(start_fig=start_fig, dpi=int(args['--dpi']))
