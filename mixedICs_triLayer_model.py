@@ -19,6 +19,7 @@ Options:
     --Pe=<Peclet>              Freefall peclet number [default: 1e3]
     --Pr=<Prandtl>             Prandtl number = nu/kappa [default: 0.5]
     --inv_R=<inv_d_ratio>      The inverse effective density ratio [default: 4]
+    --RZ_N2_boost=<B>          Boost factor on N^2 in schwarzschild RZ [default: 1]
     --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --tau_k0=<tau>             Diffusivity ratio for k = 0. If not set, tau = Pr
     --aspect=<aspect>          Aspect ratio of domain [default: 2.5]
@@ -302,7 +303,7 @@ def run_cartesian_instability(args):
     twoD = args['--2D']
     if args['--ny'] is None: args['--ny'] = args['--nx']
     data_dir = args['--root_dir'] + '/' + sys.argv[0].split('.py')[0]
-    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--aspect'])
+    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_N2B{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--RZ_N2_boost'], args['--aspect'])
     if twoD:
         data_dir += '_{}x{}'.format(args['--nx'], args['--nz'])
     else:
@@ -342,6 +343,7 @@ def run_cartesian_instability(args):
     tau   = float(args['--tau'])
     tau_k0   = float(args['--tau_k0'])
     inv_R = float(args['--inv_R'])
+    RZ_N2_boost = float(args['--RZ_N2_boost'])
 
     Lz    = 3
     Lx    = aspect * Lz
@@ -352,6 +354,7 @@ def run_cartesian_instability(args):
     logger.info("   Pe = {:.3e}, inv_R = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Pe0, inv_R, nx, ny, nz, aspect))
     logger.info("   Pr = {:2g}, tau = {:2g}".format(Pr, tau))
     logger.info("   ell = {:.3e}".format(ell))
+    logger.info("   RZ N2 boost = {}".format(RZ_N2_boost))
     
     ###########################################################################################################3
     ### 3. Setup Dedalus domain, problem, and substitutions/parameters
@@ -398,9 +401,9 @@ def run_cartesian_instability(args):
         else:
             f.meta['x', 'y']['constant'] = True
 
-    grad_ad = 5 * (inv_R - 2)
+    grad_ad = (RZ_N2_boost*inv_R + 1)
     grad_rad_cz = grad_ad + 1
-    grad_rad_rz = grad_ad - inv_R
+    grad_rad_rz = grad_ad - RZ_N2_boost*inv_R
     F = grad_rad_cz/Pe0
     F_conv = (grad_rad_cz - grad_ad)/Pe0
     
@@ -426,7 +429,8 @@ def run_cartesian_instability(args):
     mu0['g'] *= integ_comp/new_integ_comp
     mu0.differentiate('z', out=mu0_z)
 
-    max_brunt = (inv_R - 1)
+    brunt = ((T0_z - T_ad_z) - mu0_z*inv_R).evaluate()
+    max_brunt =    reducer.reduce_scalar(brunt['g'].max(), MPI.MAX)
 
     T_superad_z0['g'] = T0_z['g'] - T_ad_z['g']
 
@@ -576,7 +580,7 @@ def run_cartesian_instability(args):
     flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
     flow.add_property("Re", name='Re')
     flow.add_property("Pe", name='Pe')
-    flow.add_property("cz_mask*sqrt(vel_rms**2)/(inv_R-1)", name='inv_stiffness')
+    flow.add_property("cz_mask*sqrt(vel_rms**2)/(max_brunt)", name='inv_stiffness')
     flow.properties.add_task("plane_avg(T1_z)", name='mean_T1_z', scales=domain.dealias, layout='g')
     flow.properties.add_task("plane_avg(right(T))", name='right_T', scales=domain.dealias, layout='g')
 
