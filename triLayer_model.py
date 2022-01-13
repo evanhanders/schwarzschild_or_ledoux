@@ -431,7 +431,10 @@ def run_cartesian_instability(args):
     mu0_z.antidifferentiate('z', ('right', 0), out=mu0)
 
     brunt = ((T0_z - T_ad_z) - mu0_z*inv_R).evaluate()
-    max_brunt =    reducer.reduce_scalar(brunt['g'].max(), MPI.MAX)
+    if np.prod(brunt['g'].shape) > 0:
+        max_brunt =    reducer.reduce_scalar(brunt['g'].max(), MPI.MAX)
+    else:
+        max_brunt =    reducer.reduce_scalar(0, MPI.MAX)
 
     T_superad_z0['g'] = T0_z['g'] - T_ad_z['g']
 
