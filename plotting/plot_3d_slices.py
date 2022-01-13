@@ -15,10 +15,6 @@ Options:
 
     --col_inch=<in>                     Number of inches / column [default: 4]
     --row_inch=<in>                     Number of inches / row [default: 2]
-
-    --fig_type=<fig_type>               Type of figure to plot
-                                            1 - T - horiz_avg(T), w
-                                        [default: 1]
 """
 import numpy as np
 from docopt import docopt
@@ -48,12 +44,7 @@ bases_kwargs = { 'x_basis' : 'x', 'y_basis' : 'z' }
 horiz_bases_kwargs = { 'x_basis' : 'x', 'y_basis' : 'y' }
 plotter.add_colormesh('T_y_mid', remove_x_mean=True, label='T - horiz_avg(T)', **bases_kwargs)
 plotter.add_colormesh('mu_y_mid', cmap='PiYG_r', label='mu - horiz-avg(mu)', remove_x_mean=True, **bases_kwargs)
-#plotter.add_colormesh('mu_y_mid', cmap='Greens', vmin=0, vmax=1, **bases_kwargs)
 plotter.add_colormesh('w_y_mid', cmap='PuOr_r', **bases_kwargs)
 plotter.add_colormesh('enstrophy_y_mid', cmap='Purples_r', pos_def=True, **bases_kwargs)
-#plotter.add_colormesh('T_z_0.5', remove_mean=True, label='T - horiz_avg(T)', **horiz_bases_kwargs)
-#plotter.add_colormesh('mu_z_0.5', cmap='Greens', vmin=0, vmax=1, **horiz_bases_kwargs)
-#plotter.add_colormesh('mu_z_0.5', cmap='PiYG_r', label='mu - horiz-avg(mu)', remove_mean=True, **horiz_bases_kwargs)
-#plotter.add_colormesh('w_z_0.5', cmap='PuOr_r', **horiz_bases_kwargs)
 
 plotter.plot_colormeshes(start_fig=start_fig, dpi=int(args['--dpi']))

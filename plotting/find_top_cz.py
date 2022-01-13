@@ -36,6 +36,7 @@ from plotpal.file_reader import SingleTypeReader, match_basis
 
 resolution_regex_2d = re.compile('(.*)x(.*)')
 resolution_regex_3d = re.compile('(.*)x(.*)x(.*)')
+resolution_regex_3d_compound = re.compile('(.*)x(.*)x(.*)-(.*)')
 
 from scipy.special import erf
 def one_to_zero(x, x0, width=0.1):
@@ -58,6 +59,7 @@ fig_name   = args['--fig_name']
 logger.info("reading data from {}".format(root_dir))
 
 #therm_mach2 = float(root_dir.split("Ma2t")[-1].split("_")[0])
+nz_top = None
 for string in root_dir.split('_'):
     val = string.split('/')[0]
     if 'Pe' in val:
@@ -66,6 +68,13 @@ for string in root_dir.split('_'):
         inv_R_in = float(val.split('invR')[-1])
     elif 'mixedICs' in val:
         continue
+    elif 'Lx' in val:
+        continue
+    elif resolution_regex_3d_compound.match(val):
+        res_strs = val.split('x')
+        nx = int(res_strs[0])
+        ny = int(res_strs[1])
+        nz, nz_top = [int(s) for s in res_strs[2].split('-')]
     elif resolution_regex_3d.match(val):
         res_strs = val.split('x')
         nx, ny, nz = [int(s) for s in res_strs]
@@ -73,7 +82,12 @@ for string in root_dir.split('_'):
         res_strs = val.split('x')
         nx, nz = [int(s) for s in res_strs]
 Lz = 3
-z_basis = de.Chebyshev('z', nz, interval=(0,Lz), dealias=1)
+if nz_top is None:
+    z_basis = de.Chebyshev('z', nz, interval=(0,Lz), dealias=1)
+else:
+    z_basis1 = de.Chebyshev('z', nz, interval=(0, 2.2), dealias=1)
+    z_basis2 = de.Chebyshev('z', nz_top, interval=(2.2, Lz), dealias=1)
+    z_basis = de.Compound('z', [z_basis1, z_basis2], dealias=1)
 domain = de.Domain([z_basis,], grid_dtype=np.float64, mesh=None, comm=MPI.COMM_SELF)
 dense_scales=20
 z_dense = domain.grid(0, scales=dense_scales)
