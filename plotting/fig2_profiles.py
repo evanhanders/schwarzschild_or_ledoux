@@ -226,7 +226,9 @@ def plot_fields(tasks, ax1, ax2, ax3):
     max_x = L_d0999
     max_y = y_ledoux[z_dense > max_x][0]
     transformed = ax2.transLimits.transform((max_x, np.log10(max_y)))
-    ax2.text(transformed[0]-0.1, transformed[1] - 0.05, r'$y_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+    ax2.text(transformed[0]-0.075, transformed[1] - 0.05, r'$y_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+
+    y_L_max_x = max_x
 
 
 
@@ -239,10 +241,10 @@ def plot_fields(tasks, ax1, ax2, ax3):
     ax3.plot(z_dense, freq2_conv_field['g'], c=colors[1], label=r'$f_{\rm{conv}}^2$')
 
     #Add N^2 label
-    maxbrunt_x = z_dense[N2_tot < 0][-1]
-    maxbrunt_y = N2_tot[z_dense > maxbrunt_x + 0.05][0]
+    maxbrunt_x = y_L_max_x
+    maxbrunt_y = N2_tot[(z_dense > maxbrunt_x)*(z_dense < maxbrunt_x + 0.25)].max()
     transformed = ax3.transLimits.transform((maxbrunt_x, np.log10(maxbrunt_y)))
-    ax3.text(transformed[0]-0.04, transformed[1]+0.02, r'$N^2$', color=colors[0], transform=ax3.transAxes)
+    ax3.text(transformed[0]-0.075, transformed[1]-0.1, r'$N^2$', color=colors[0], transform=ax3.transAxes)
 
     #Add f_conv^2 label
     if freq2_conv_field['g'].max() > 0:
@@ -251,8 +253,6 @@ def plot_fields(tasks, ax1, ax2, ax3):
         transformed = ax3.transLimits.transform((maxf2_x, np.log10(maxf2_y)))
         ax3.text(transformed[0]+0.01, transformed[1]+0.01, r'$f_{\rm{conv}}^2$', color=colors[1], transform=ax3.transAxes)
 #    ax3.legend(loc='upper left')
-
-
     
     colors = bqual.Accent_5.mpl_colors
 #        ax.axvline(L_d0999, c=colors[0])
