@@ -11,7 +11,7 @@ There are 6 control parameters:
     tau     - The diffusivity ratio = (compositional diffusivity / thermal diffusivity)
     inv_R   - The inverse density ratio - Ledoux stable if inv_R > 1. 
               The semiconvection zone is ODDC unstable if 1 < inv_R < (Pr + 1)/(Pr + tau)
-    aspect  - The aspect ratio (Lx = aspect * Lz)
+    Lx      - The Horizontal domain width (aspect ratio = Lx / Lz with Lz = 3)
     RZ_N2_boost - A factor by which N^2 in the Schwarzschild-stable radiative zone 
                   is greater than it is in the Ledoux-stable semiconvection zone
 
@@ -28,11 +28,12 @@ Options:
     --RZ_N2_boost=<B>          Boost factor on N^2 in schwarzschild RZ [default: 1]
     --tau=<tau>                Diffusivity ratio. If not set, tau = Pr
     --tau_k0=<tau>             Diffusivity ratio for k = 0. If not set, tau = Pr
-    --aspect=<aspect>          Aspect ratio of domain [default: 2.5]
+    --Lx=<Lx>                  Horizontal domain width [default: 4]
     --2D                       If flagged, just do a 2D problem
     --initial_bl=<bl>          Depth of initial thermal boundary layer [default: 0.1]
 
     --nz=<nz>                  Vertical resolution   [default: 128]
+    --nz_up=<nz>               Vertical resolution for z = (2.2, 3) [default: 32]
     --nx=<nx>                  Horizontal (x) resolution [default: 128]
     --ny=<ny>                  Horizontal (y) resolution (sets to nx by default)
     --RK222                    Use RK222 timestepper (default: SBDF2)
@@ -310,11 +311,11 @@ def run_cartesian_instability(args):
     twoD = args['--2D']
     if args['--ny'] is None: args['--ny'] = args['--nx']
     data_dir = args['--root_dir'] + '/' + sys.argv[0].split('.py')[0]
-    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_N2B{}_a{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--RZ_N2_boost'], args['--aspect'])
+    data_dir += "_Pe{}_Pr{}_tau{}_tauk0{}_invR{}_N2B{}_Lx{}".format(args['--Pe'], args['--Pr'], args['--tau'], args['--tau_k0'], args['--inv_R'], args['--RZ_N2_boost'], args['--Lx'])
     if twoD:
-        data_dir += '_{}x{}'.format(args['--nx'], args['--nz'])
+        data_dir += '_{}x{}-{}'.format(args['--nx'], args['--nz'], args['--nz_up'])
     else:
-        data_dir += '_{}x{}x{}'.format(args['--nx'], args['--ny'], args['--nz'])
+        data_dir += '_{}x{}x{}-{}'.format(args['--nx'], args['--ny'], args['--nz'], args['--nz_up'])
     if args['--no_slip']:
         data_dir += '_noslip'
     if args['--label'] is not None:
@@ -341,10 +342,11 @@ def run_cartesian_instability(args):
 
     ########################################################################################
     ### 2. Organize simulation parameters
-    aspect   = float(args['--aspect'])
+    Lx = float(args['--Lx'])
     nx = int(args['--nx'])
     ny = int(args['--ny'])
     nz = int(args['--nz'])
+    nz_up = int(args['--nz_up'])
     Pe0   = float(args['--Pe'])
     Pr    = float(args['--Pr'])
     tau   = float(args['--tau'])
@@ -353,20 +355,20 @@ def run_cartesian_instability(args):
     RZ_N2_boost = float(args['--RZ_N2_boost'])
 
     Lz    = 3
-    Lx    = aspect * Lz
+    aspect = Lx/Lz
     Ly    = Lx
-    ell   = ((Pr/Pe0)*(1/Pe0))**(1/4)
 
     logger.info("Running two-layer instability with the following parameters:")
-    logger.info("   Pe = {:.3e}, inv_R = {:.3e}, resolution = {}x{}x{}, aspect = {}".format(Pe0, inv_R, nx, ny, nz, aspect))
+    logger.info("   Pe = {:.3e}, inv_R = {:.3e}, resolution = {}x{}x{} (nz_up {}), aspect = {}".format(Pe0, inv_R, nx, ny, nz, nz_up, aspect))
     logger.info("   Pr = {:2g}, tau = {:2g}".format(Pr, tau))
-    logger.info("   ell = {:.3e}".format(ell))
     logger.info("   RZ N2 boost = {}".format(RZ_N2_boost))
     
     ###########################################################################################################3
     ### 3. Setup Dedalus domain, problem, and substitutions/parameters
     x_basis = de.Fourier('x', nx, interval=(0, Lx), dealias=3/2)
-    z_basis = de.Chebyshev('z', nz, interval=(0,Lz), dealias=3/2)
+    z_basis_1 = de.Chebyshev('z', nz, interval=(0,2.2), dealias=3/2)
+    z_basis_2 = de.Chebyshev('z', nz_up, interval=(2.2,Lz), dealias=3/2)
+    z_basis = de.Compound('z', [z_basis_1, z_basis_2], dealias=3/2)
     if not twoD:
         y_basis = de.Fourier('y', ny, interval=(0, Ly), dealias=3/2)
         bases = [x_basis, y_basis, z_basis]
@@ -579,15 +581,14 @@ def run_cartesian_instability(args):
     ### 6. Setup output tasks; run main loop.
     analysis_tasks = initialize_output(solver, data_dir, mode=mode, output_dt=t_ff)
 
-    dense_scales = 20
-    dense_x_scales = 1#mesh[0]/nx
-    dense_y_scales = 1#mesh[1]/ny
-    z_dense = domain.grid(-1, scales=dense_scales)
-    dense_handler = solver.evaluator.add_dictionary_handler(sim_dt=1, iter=np.inf)
-    dense_handler.add_task("plane_avg(-T_z)", name='grad', scales=(dense_x_scales, dense_y_scales, dense_scales), layout='g')
+#    dense_scales = 20
+#    dense_x_scales = 1#mesh[0]/nx
+#    dense_y_scales = 1#mesh[1]/ny
+#    z_dense = domain.grid(-1, scales=dense_scales)
+#    dense_handler = solver.evaluator.add_dictionary_handler(sim_dt=1, iter=np.inf)
+#    dense_handler.add_task("plane_avg(-T_z)", name='grad', scales=(dense_x_scales, dense_y_scales, dense_scales), layout='g')
 
     flow = flow_tools.GlobalFlowProperty(solver, cadence=1)
-    flow.add_property("cz_mask*Re", name='Re')
     flow.add_property("cz_mask*Pe", name='Pe')
     flow.add_property("cz_mask*sqrt(vel_rms**2)/(max_brunt)", name='inv_stiffness')
     flow.properties.add_task("plane_avg(T1_z)", name='mean_T1_z', scales=domain.dealias, layout='g')
@@ -597,12 +598,12 @@ def run_cartesian_instability(args):
     Hermitian_cadence = 100
 
     def main_loop(dt):
-        Re_avg = 0
+        Pe_avg = 0
         try:
             logger.info('Starting loop')
             start_iter = solver.iteration
             start_time = time.time()
-            while solver.ok and np.isfinite(Re_avg):
+            while solver.ok and np.isfinite(Pe_avg):
                 effective_iter = solver.iteration - start_iter
                 solver.step(dt)
 
@@ -611,7 +612,7 @@ def run_cartesian_instability(args):
                         f.require_grid_space()
 
                 if effective_iter % 10 == 0:
-                    Re_avg = flow.grid_average('Re')
+                    Pe_avg = flow.grid_average('Pe')
 
                     log_string =  'Iteration: {:7d}, '.format(solver.iteration)
                     log_string += 'Time: {:8.3e} ({:8.3e} therm), dt: {:8.3e}, '.format(solver.sim_time/t_ff, solver.sim_time/Pe0,  dt/t_ff)
@@ -650,10 +651,10 @@ def run_cartesian_instability(args):
                     logger.info(task.base_path)
                     post.merge_analysis(task.base_path)
             domain.dist.comm_cart.Barrier()
-        return Re_avg
+        return Pe_avg
 
-    Re_avg = main_loop(dt)
-    if np.isnan(Re_avg):
+    Pe_avg = main_loop(dt)
+    if np.isnan(Pe_avg):
         return False, data_dir
     else:
         return True, data_dir
@@ -661,5 +662,5 @@ def run_cartesian_instability(args):
 if __name__ == "__main__":
     ended_well, data_dir = run_cartesian_instability(args)
     if MPI.COMM_WORLD.rank == 0:
-        print('ended with finite Re? : ', ended_well)
+        print('ended with finite Pe? : ', ended_well)
         print('data is in ', data_dir)
