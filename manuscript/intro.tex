@@ -1,27 +1,35 @@
 
 \section{Introduction}
 \label{sec:introduction}
+Observations tell us we don't understand the mixing at convective boundaries.
+For example, models and observations disagree about the sizes of convective cores \citep{claret_torres_2018, viani_basu_2020, pedersen_etal_20201}, lithium abundances in solar-type stars \citep{pinsonneault_1997, sestito_randich_2005, carlos_etal_2019, dumont_etal_2021}, and there is a well-known acoustic glitch in helioseismology at the base of the convection zone \citep[see][Sec.~7.2.1]{basu_2016}.
+Improperly calculating the size of a convection zone can have important impacts across astrophysics such as setting the mass of stellar remnants \citep{farmer_etal_2019, mehta_etal_2022} and affecting the inferred radii of exoplanets \citep{basu_etal_2012, morrell_2020}.
 
-\begin{enumerate}
-    \item Observations tell us we don't understand the mixing at convective boundaries (core CZ sizes, Lithium abundances, Acoustic glitch). Also, here's why this might affect your corner of astrophysics (BH mass gap, exoplanet radii, something else?)
-    \item While there are many undercertainties in convective boundary mixing (CBM), the most fundamental question is what sets the nominal boundary of the CZ? (define schwarzschild and ledoux criterion in words)
-    \item The differences between these choices have been recapped previously (cite), and the current state of the field is discussed there.
-    \item past simulations have shown that convection zones entrain compositionally-stable regions but have not shown whether that entrainment stops.
-    \item here we present a simple 3D hydro simulation that demonstrates that convection entrains material at its boundary until the Schwarzschild and Ledoux criteria are equivalent. Therefore, <something about how when $t_{evol} \sim t_{therm}$, if ledoux != schwarzschild you're doing it wrong)
-\end{enumerate}
+While there are many undercertainties in convective boundary mixing (CBM), the most fundamental question is: what sets the nominal boundary of the CZ? 
+One way of answering this question is by evaluating the \emph{Schwarzschild criterion}, which determines where the temperature and pressure stratification within a star are stable or unstable.
+The other answer is the \emph{Ledoux criterion}, which accounts for stability or instability due to the composition \citep[e.g., the variation of helium abundance with pressure; see][chapter 3, for a nice review of these criteria]{salaris_cassisi_2017}.
+Recent work states that these criteria are logically equivalent at a convective boundary in the mixing length formalism \citep{gabriel_etal_2014, mesa4, mesa5}, but they are not always implemented to be that way \citep[as in early versions of the MESA instrument,][]{mesa2}.
 
-\begin{itemize}
-    \item Section II of \citet{kaiser_etal_2020} contains an excellent description of the difference between schwarzschild and ledoux criteria, mentions the fact that simulations that start at ledoux evolve towards schwarzschild.
-        They note that the long-term behavior is understood, but short-timescale behavior needs more work.
-        They also note that the stability criterion used noticeably changes e.g., the mass coordinate at which hydrogen shell burning occurs.
-    \item \citet{georgy_etal_2021} compute models using the Schwarzschild and Ledoux criterion; they find that both criterion produce similar results on the main sequence but noticeably different tracks on the post-MS, and that the Ledoux criterion tracks are a somewhat better fit than the Schwarzschild.    
-    \item Naive implementation e.g., in \citet{mesa2} run into problems in the context of MLT logic.
-    \item These naive implementations also are at odds with simulations: high entrainment rates (citations), and entrainment theories suggest that ledoux-stable but schwarzschild-unstable regions should be fully mixed \citep{fuentes_cumming_2020}, more citations.
-    \item Furthermore, \citet{gabriel_etal_2014} point out that a naive use of the Ledoux criterion is logically inconsistent within the framework of mixing length theory.
-    \item New algorithms \citep{mesa4, mesa5} have been developed which handle boundaries self-consistently and essentially make Schwarzschild and Ledoux criterion the same.
-    \item This theoretical discussion has occurred in the context of theoretical arguments and 1D models, but convection is a three-dimensional process.
-    \item Fundamental, simple experiments which demonstrate the efficacy of these new algorithms, and whether convection prefers the Schwarzschild or Ledoux stability criterion, are lacking.
-    \item Many high-resolution simulations of convection in stellar contexts have measured instantaneous entrainment rates achieved in 1D-motivated setups \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, andrassy_etal_2020}, but these simulations generally do not run for enough convective overturn times (hundreds or thousands) to detect appreciable changes in the location of the convective boundary due to entrainment.
-        These simulations have also shown the convective boundary moving beyond the initial Ledoux boundary, but generally do not show the final state of this evolution.
-\end{itemize}
+Modern studies still have not reached a consensus of which criterion to employ \citep[see][chapter 2, for a brief discussion]{kaiser_etal_2020}.
+Multi-dimensional simulations have demonstrated that convection zones with Ledoux-stable boundaries expand by entraining compositionally-stable regions \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, fuentes_cumming_2020, andrassy_etal_2020, andrassy_etal_2021}.
+However, it is unclear from past 3D simulations whether that entrainment should stop at a Schwarzschild-stable boundary, leading to uncertainty in how to model entrainment in 1D models \citep{staritsin_2013, scott_etal_2021}.
 
+In this work, we present a simple 3D hydrodynamical simulation that demonstrates that convection zones with Ledoux-stable but Schwarzschild-unstable boundaries will entrain material over roughly a thermal timescale until both the Ledoux and Schwarzschild criteria are equivalent at the convective boundary.
+Therefore, in 1D stellar evolution models, when the evolution time is greater than or roughly equal to the thermal time \citep[such as on the main sequence, see][]{georgy_etal_2021}, these criteria should be implemented so that either one produces the same evolution.
+We briefly discuss these criteria in Sec.~\ref{sec:theory}, display our simulations in Sec.~\ref{sec:results}, and provide a brief discussion in Sec.~\ref{sec:conclusions}.
+
+%\begin{itemize}
+%%    \item Section II of \citet{kaiser_etal_2020} contains an excellent description of the difference between schwarzschild and ledoux criteria, mentions the fact that simulations that start at ledoux evolve towards schwarzschild.
+%%        They note that the long-term behavior is understood, but short-timescale behavior needs more work.
+%%        They also note that the stability criterion used noticeably changes e.g., the mass coordinate at which hydrogen shell burning occurs.
+%%    \item \citet{georgy_etal_2021} compute models using the Schwarzschild and Ledoux criterion; they find that both criterion produce similar results on the main sequence but noticeably different tracks on the post-MS, and that the Ledoux criterion tracks are a somewhat better fit than the Schwarzschild.    
+%%    \item Naive implementation e.g., in \citet{mesa2} run into problems in the context of MLT logic.
+%%    \item These naive implementations also are at odds with simulations: high entrainment rates (citations), and entrainment theories suggest that ledoux-stable but schwarzschild-unstable regions should be fully mixed \citep{fuentes_cumming_2020}, more citations.
+%%    \item Furthermore, \citet{gabriel_etal_2014} point out that a naive use of the Ledoux criterion is logically inconsistent within the framework of mixing length theory.
+%%    \item New algorithms \citep{mesa4, mesa5} have been developed which handle boundaries self-consistently and essentially make Schwarzschild and Ledoux criterion the same.
+%%    \item This theoretical discussion has occurred in the context of theoretical arguments and 1D models, but convection is a three-dimensional process.
+%%    \item Fundamental, simple experiments which demonstrate the efficacy of these new algorithms, and whether convection prefers the Schwarzschild or Ledoux stability criterion, are lacking.
+%    \item Many high-resolution simulations of convection in stellar contexts have measured instantaneous entrainment rates achieved in 1D-motivated setups \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, andrassy_etal_2020}, but these simulations generally do not run for enough convective overturn times (hundreds or thousands) to detect appreciable changes in the location of the convective boundary due to entrainment.
+%        These simulations have also shown the convective boundary moving beyond the initial Ledoux boundary, but generally do not show the final state of this evolution.
+%\end{itemize}
+%
