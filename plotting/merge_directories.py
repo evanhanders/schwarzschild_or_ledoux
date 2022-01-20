@@ -9,6 +9,7 @@ import os
 import glob
 import shutil
 
+import h5py
 import numpy as np
 from mpi4py import MPI
 from docopt import docopt
@@ -41,6 +42,7 @@ if MPI.COMM_WORLD.rank == 0:
             os.mkdir('{:s}'.format(curr_out_dir))
 
         global_file_nums = []
+        global_write_nums = 0
         for root_dir in dirs:
             files = glob.glob('{}/{}/{}_s*.h5'.format(root_dir, sub_dir, sub_dir))
             if len(files) == 0:
@@ -62,3 +64,13 @@ if MPI.COMM_WORLD.rank == 0:
             for fi, fo in zip(sorted_files, sorted_files_out):
                 print('{} -> {}'.format(fi, fo))
                 shutil.copyfile(fi, fo)
+
+                with h5py.File(fo, 'r+') as f:
+                    data = f['scales/write_number']
+                    if data[0] < global_write_nums:
+                        curr_data = data[()]
+                        curr_data -= curr_data[0]
+                        curr_data += global_write_nums + 1
+                        data[...] = curr_data
+                    global_write_nums += data[()].shape[0]
+                    print(data[()])
