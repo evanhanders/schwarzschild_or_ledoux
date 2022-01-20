@@ -292,12 +292,12 @@ def initialize_output(solver, data_dir, mode='overwrite', output_dt=2, iter=np.i
     checkpoint.add_system(solver.state, layout = 'c')
     analysis_tasks['checkpoint'] = checkpoint
 
-    if not twoD:
-        volumes = solver.evaluator.add_file_handler(data_dir+'volumes', sim_dt=100*output_dt, max_writes=5, mode=mode, iter=iter)
-        volumes.add_task("w")
-        volumes.add_task("T1")
-        volumes.add_task("enstrophy")
-        analysis_tasks['volumes'] = volumes
+#    if not twoD:
+#        volumes = solver.evaluator.add_file_handler(data_dir+'volumes', sim_dt=100*output_dt, max_writes=5, mode=mode, iter=iter)
+#        volumes.add_task("w")
+#        volumes.add_task("T1")
+#        volumes.add_task("enstrophy")
+#        analysis_tasks['volumes'] = volumes
 
     return analysis_tasks
 
@@ -640,7 +640,7 @@ def run_cartesian_instability(args):
             try:
                 final_checkpoint = solver.evaluator.add_file_handler(data_dir+'final_checkpoint', wall_dt=np.inf, sim_dt=np.inf, iter=1, max_writes=1)
                 final_checkpoint.add_system(solver.state, layout = 'c')
-                solver.step(1e-5*dt) #clean this up in the future...works for now.
+                solver.step(dt) #clean this up in the future...works for now.
                 post.merge_process_files(data_dir+'/final_checkpoint/', cleanup=False)
             except:
                 raise
