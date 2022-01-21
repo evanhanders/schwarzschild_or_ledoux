@@ -1,6 +1,16 @@
 \section{Results}
 \label{sec:result}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig2_profiles.pdf}
+\caption{
+\label{fig:profiles}
+}
+\end{figure*}
+
+
+
 \begin{itemize}
 \item We simulate a three-layer system with X properties using the Dedalus pseudospectral solver.
 We refer the reader to appendices~\ref{app:model} and \ref{app:simulation_details} for details of the model assumptions, setup, and numerical methods.
@@ -16,17 +26,12 @@ The line at the top of the orange region determines the boundary of the convecti
 While these lines start at different heights, convection entrains low-composition fluid according to a classic $\sqrt{t}$ entrainment law until these criteria are the same.
 \end{itemize}
 
-%\begin{figure}[t]
-%\centering
-%\includegraphics[width=\columnwidth]{grad_profiles.pdf}
-%\caption{
-%Horizontally- and temporally-averaged profiles of the thermodynamic gradients from the simulation in Fig.~\ref{fig:vertical_dynamics_panels}.
-%We plot $\justgrad$ (green) compared to $\gradad$ (purple, a constant) and $\gradrad$ (orange); note the extended penetration zone (PZ) where $\justgrad \approx \gradad > \gradrad$.
-%    \editone{
-%        The dashed vertical line denotes the Schwarzschild boundary of the convection zone (CZ), the solid vertical line denotes the bottom of the radiative zone (RZ), and the greyed region denotes the PZ-RZ boundary layer.
-%    }
-%\label{fig:grad_profiles}
-%}
-%\end{figure}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{kippenhahn.pdf}
+\caption{
+\label{fig:kippenhahn}
+}
+\end{figure}
 
 
