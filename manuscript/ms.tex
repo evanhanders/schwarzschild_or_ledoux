@@ -101,29 +101,47 @@
 \centering
 \includegraphics[width=\textwidth]{dynamics_figure.pdf}
 \caption{
+    Volume renderings of the composition field in our simulations at early times (left) and late times (right); while our simulation domain spans $z = [0, 3]$, we only plot $z = [0, 2.5]$ here.
+    We exaggerate the colorbar scaling in the convection zone (purple to yellow) to make convective mixing apparent.
+    The purple gradient above the convection zone denotes the stable composition gradient, and the solid purple line denotes the bottom of the Schwarzschild stable region.
+    Note that the evolved convection zone boundary (right) corresponds with the height of Schwarzschild stability.
+    {\color{blue} Note: this is currently evolving further so that the last sentence isn't a lie.}
 \label{fig:dynamics}
 }
 \end{figure*}
 
-
 \input{theory}
-
-
-
-\input{results}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig2_profiles.pdf}
 \caption{
+    Horizontally-averaged profiles are shown for the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2$ and the convective frequency $f_{\rm{conv}}^2 = |\vec{u}|^2/L_{\rm{conv}}$ (bottom), where $\vec{u}$ is the velocity and $L_{\rm{conv}}$ is the depth of the convection zone.
+    Positive values are shown as solid lines and negative values are shown as dashed lines.
+    The initial conditions are shown on the left.
+    The evolved state is shown on the right, where the profiles are averaged over 100 simulation time units.
+    The background is colored so that orange regions are below the zero of $\yL$, green is between the zeros of $\yL$ and $\yS$, and purple is above both zeros.
+    While there is a green region in the initial state (Schwarzschild unstable but Ledoux stable), there is no green region in the right state, and the zeros of  $\yL$ and $\yS$ coincide.
+    {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}
 \label{fig:profiles}
 }
 \end{figure*}
+
+
+
+\input{results}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{kippenhahn.pdf}
 \caption{
+    A kippenhahn-like plot of the evolution of our simulation is shown.
+    The orange line traces the Ledoux convective boundary where $\yL = 0$, and regions below that are colored orange.
+    The green line traces the Schwarzschild convective boundary where $\yS = 0$ and regions below that but above the $\yL = 0$ line are colored green.
+    Regions above both lines are colored purple and are stable by both criteria.
+    The black line denotes the location where the kinetic energy falls below 10\% of its bulk CZ value; the hashed region below that is an ``overshoot zone.''
+    We note that there are two distinct phases in the simulation: an ``entrainment phase'' when $\yL$ advances upwards, and an ``overshoot'' phase, when $\yL$ and $\yS$ are steady and convective motions overshoot past them at a constant amount.
+    {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}
 \label{fig:kippenhahn}
 }
 \end{figure}
