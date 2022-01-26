@@ -113,26 +113,28 @@ def generate_custom_colorbar():
     return my_scale, purples
 
 color_scale, purples = generate_custom_colorbar()
-out_dir = 'tmp'
 
-file1 = '../pleiades_tests/publication_quality/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64/slices_s4.h5'
-files = (file1,)
-prof_file1 = '../pleiades_tests/publication_quality/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64/profiles_s4.h5'
-prof_files = (prof_file1,)
+
+in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
+fig_name = 'plotly3D'
+
+slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
+prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
+
+
 stretch_factors = [0.988,] #for colorbar
 cbar_edge_pad = 0.94
-
-fields = ['mu']
-field_names = ['mu']*len(files)
+data_field = 'mu'
+field_names = [data_field]
 
 px_base = 1000
 fontsize = int(16 * px_base/500)
-x_pix, y_pix = px_base*len(files), px_base*len(fields)
+x_pix, y_pix = px_base, px_base
 cmaps = [color_scale]
 colorbar_x = [0.9]
 colorbar_dict=dict(lenmode='fraction', thicknessmode = 'fraction', len=0.25, thickness=0.02)
 fig = go.Figure(layout={'width': x_pix, 'height': y_pix})
-fig = make_subplots(rows=len(fields), cols=len(files), specs=[[{'is_3d': True},]*len(files)]*len(fields), subplot_titles=field_names, horizontal_spacing=0.025)
+fig = make_subplots(rows=1, cols=1, specs=[[{'is_3d': True},]], subplot_titles=field_names, horizontal_spacing=0.025)
 scene_dict = {          'xaxis': {'showbackground':False, 'tickvals':[], 'title':''},
                         'yaxis': {'showbackground':False, 'tickvals':[], 'title':''},
                         'zaxis': {'showbackground':False, 'tickvals':[], 'title':''} }
@@ -141,169 +143,173 @@ fig.update_layout(scene = scene_dict,
                       font={'size' : fontsize, 'family' : 'Times New Roman'},
                       annotations={'font' : {'size' : fontsize, 'family' : 'Times New Roman'}})
 
-with h5py.File(files[0], 'r') as inf:
-    x = match_basis(inf['tasks']['w_z_2.5'], 'x')
-    y = match_basis(inf['tasks']['w_z_2.5'], 'y')
-    z = match_basis(inf['tasks']['w_x_side'], 'z')
-    for i, count in enumerate(inf['scales']['write_number'][()]):
-        print('plotting count {}'.format(count))
-        prof_file = prof_files[0]
-        plot_ind = i
+field_bases = ['{}_x_side', '{}_x_mid', '{}_y_side', '{}_y_mid', '{}_z_2.5', '{}_z_0.5']
+fields = [st.format(data_field) for st in field_bases]
+
+if not slice_reader.idle:
+    while slice_reader.writes_remain() and prof_reader.writes_remain():
+        slice_dsets, plot_ind = slice_reader.get_dsets(fields)
+        prof_dsets, prof_ind = prof_reader.get_dsets([data_field,])
+        x = match_basis(slice_dsets[fields[-1]], 'x')
+        y = match_basis(slice_dsets[fields[-1]], 'y')
+        z = match_basis(slice_dsets[fields[0]], 'z')
+        time_data = slice_dsets[fields[0]].dims[0]
         stretch_factor = stretch_factors[0]
-        for ind, field in enumerate(fields):
-            yz_side_data=inf['tasks']['{}_x_side'.format(field)][plot_ind,:].squeeze()
-            yz_mid_data= inf['tasks']['{}_x_mid'.format(field)][plot_ind,:].squeeze()
-            xz_side_data=inf['tasks']['{}_y_side'.format(field)][plot_ind,:].squeeze()
-            xz_mid_data= inf['tasks']['{}_y_mid'.format(field)][plot_ind,:].squeeze()
-            xy_side_data=inf['tasks']['{}_z_2.5'.format(field)][plot_ind,:].squeeze()
-            xy_mid_data= inf['tasks']['{}_z_0.5'.format(field)][plot_ind,:].squeeze()
+
+        yz_side_data=slice_dsets['{}_x_side'.format(data_field)][plot_ind,:].squeeze()
+        yz_mid_data= slice_dsets['{}_x_mid'.format(data_field)][plot_ind,:].squeeze()
+        xz_side_data=slice_dsets['{}_y_side'.format(data_field)][plot_ind,:].squeeze()
+        xz_mid_data= slice_dsets['{}_y_mid'.format(data_field)][plot_ind,:].squeeze()
+        xy_side_data=slice_dsets['{}_z_2.5'.format(data_field)][plot_ind,:].squeeze()
+        xy_mid_data= slice_dsets['{}_z_0.5'.format(data_field)][plot_ind,:].squeeze()
+
+        z_profile = prof_dsets[data_field][prof_ind,:].squeeze()
+        profile_func = interp1d(z, z_profile)
+
+        x_max, x_mid, x_min = (x.max(), x[int(len(x)/2)], x.min())
+        y_max, y_mid, y_min = (y.max(), y[int(len(y)/2)], y.min())
+        z_max, z_mid, z_min = (2.5, 0.5, z.min())
+
+        x_mid_off = x[x > x_mid][0]
+        y_mid_off = y[y > y_mid][0]
+        z_mid_off = z[z > z_mid][0]
+
+        #Construct 1D outline lines
+        lines = []
+        constX_xvals = (x_min, x_max, x_mid, x_max, x_max, x_mid_off)
+        constX_zvals = (z_max, z_max, z_max, z_min, z_mid, z_mid_off)
+        constX_ybounds = ([y_min, y_max], [y_min, y_mid], [y_mid, y_max], [0, y_max], [y_mid, y_max], [y_mid, y_max])
+        for x_val, y_bounds, z_val in zip(constX_xvals, constX_ybounds, constX_zvals):
+            lines.append(OrderedDict())
+            lines[-1]['y'] = np.linspace(*tuple(y_bounds), 2)
+            lines[-1]['x'] = x_val*np.ones_like(lines[-1]['y'])
+            lines[-1]['z'] = z_val*np.ones_like(lines[-1]['y'])
+
+        constY_yvals = (y_min, y_max, y_mid, y_max, y_max, y_mid_off)
+        constY_zvals = (z_max, z_max, z_max, z_min, z_mid, z_mid_off)
+        constY_xbounds = ([x_min, x_max], [x_min, x_mid], [x_mid, x_max], [x_min, x_max], [x_mid, x_max], [x_mid, x_max])
+        for x_bounds, y_val, z_val in zip(constY_xbounds, constY_yvals, constY_zvals):
+            lines.append(OrderedDict())
+            lines[-1]['x'] = np.linspace(*tuple(x_bounds), 2)
+            lines[-1]['y'] = y_val*np.ones_like(lines[-1]['x'])
+            lines[-1]['z'] = z_val*np.ones_like(lines[-1]['x'])
+
+        constZ_xvals = (x_min, x_max, x_mid_off, x_mid, x_max)
+        constZ_yvals = (y_max, y_min, y_mid_off, y_max, y_mid)
+        constZ_zbounds = ([z_min, z_max], [z_min, z_max], [z_mid_off, z_max], [z_mid, z_max], [z_mid, z_max])
+        for x_val, y_val, z_bounds in zip(constZ_xvals, constZ_yvals, constZ_zbounds):
+            lines.append(OrderedDict())
+            lines[-1]['z'] = np.linspace(*tuple(z_bounds), 2)
+            lines[-1]['x'] = x_val*np.ones_like(lines[-1]['z'])
+            lines[-1]['y'] = y_val*np.ones_like(lines[-1]['z'])
 
 
-            with h5py.File(prof_file, 'r') as f:
-                z_profile = f['tasks'][field][plot_ind,:].squeeze()
-            profile_func = interp1d(z, z_profile)
+        #Construct top-ledoux lines
+        top_ledoux_lines = []
+        constX_xvals = (x_max, x_mid_off)
+        constX_zvals = (2, 2)
+        constX_ybounds = ([y_min, y_mid_off], [y_mid_off, y_max])
+        line_width = (10, 5)
+        for x_val, y_bounds, z_val, width in zip(constX_xvals, constX_ybounds, constX_zvals, line_width):
+            top_ledoux_lines.append(OrderedDict())
+            top_ledoux_lines[-1]['y'] = np.linspace(*tuple(y_bounds), 2)
+            top_ledoux_lines[-1]['x'] = x_val*np.ones_like(lines[-1]['y'])
+            top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['y'])
+            top_ledoux_lines[-1]['line'] = {'color':purples[-2], 'width' : width}
 
+        constY_yvals = (y_max, y_mid_off)
+        constY_zvals = (2, 2)
+        constY_xbounds = ([x_min, x_mid_off], [x_mid_off, x_max])
+        line_width = (10, 5)
+        for x_bounds, y_val, z_val, width in zip(constY_xbounds, constY_yvals, constY_zvals, line_width):
+            top_ledoux_lines.append(OrderedDict())
+            top_ledoux_lines[-1]['x'] = np.linspace(*tuple(x_bounds), 2)
+            top_ledoux_lines[-1]['y'] = y_val*np.ones_like(lines[-1]['x'])
+            top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['x'])
+            top_ledoux_lines[-1]['line'] = {'color':purples[-2], 'width' : width}
 
-            x_max, x_mid, x_min = (x.max(), x[int(len(x)/2)], x.min())
-            y_max, y_mid, y_min = (y.max(), y[int(len(y)/2)], y.min())
-            z_max, z_mid, z_min = (2.5, 0.5, z.min())
+        xy_side = construct_surface_dict(x, y, z_max, xy_side_data, x_bounds=(x_min, x_mid), y_bounds=(y_min, y_mid))
+        xz_side = construct_surface_dict(x, y_max, z, xz_side_data, x_bounds=(x_min, x_mid), z_bounds=(z_min, z_mid))
+        yz_side = construct_surface_dict(x_max, y, z, yz_side_data, y_bounds=(y_min, y_mid), z_bounds=(z_min, z_mid))
 
-            x_mid_off = x[x > x_mid][0]
-            y_mid_off = y[y > y_mid][0]
-            z_mid_off = z[z > z_mid][0]
+        yz_mid = construct_surface_dict(x_mid, y, z, yz_mid_data, y_bounds=(y_mid, y_max), z_bounds=(z_mid, z_max), bool_function=np.logical_and)
+        xy_mid = construct_surface_dict(x, y, z_mid, xy_mid_data, x_bounds=(x_mid, x_max), y_bounds=(y_mid, y_max), bool_function=np.logical_and)
+        xz_mid = construct_surface_dict(x, y_mid, z, xz_mid_data, x_bounds=(x_mid, x_max), z_bounds=(z_mid, z_max), bool_function=np.logical_and)
 
-            #Construct 1D outline lines
-            lines = []
-            constX_xvals = (x_min, x_max, x_mid, x_max, x_max, x_mid_off)
-            constX_zvals = (z_max, z_max, z_max, z_min, z_mid, z_mid_off)
-            constX_ybounds = ([y_min, y_max], [y_min, y_mid], [y_mid, y_max], [0, y_max], [y_mid, y_max], [y_mid, y_max])
-            for x_val, y_bounds, z_val in zip(constX_xvals, constX_ybounds, constX_zvals):
-                lines.append(OrderedDict())
-                lines[-1]['y'] = np.linspace(*tuple(y_bounds), 2)
-                lines[-1]['x'] = x_val*np.ones_like(lines[-1]['y'])
-                lines[-1]['z'] = z_val*np.ones_like(lines[-1]['y'])
+        for d in [xz_side, xz_mid, yz_side, yz_mid]:
+            for key in ['x', 'y', 'surfacecolor', 'z']:
+                d[key][d['z'] > z_max] = np.nan
+        surface_dicts = [xz_side, yz_side, yz_mid, xz_mid, xy_mid, xy_side]
 
-            constY_yvals = (y_min, y_max, y_mid, y_max, y_max, y_mid_off)
-            constY_zvals = (z_max, z_max, z_max, z_min, z_mid, z_mid_off)
-            constY_xbounds = ([x_min, x_max], [x_min, x_mid], [x_mid, x_max], [x_min, x_max], [x_mid, x_max], [x_mid, x_max])
-            for x_bounds, y_val, z_val in zip(constY_xbounds, constY_yvals, constY_zvals):
-                lines.append(OrderedDict())
-                lines[-1]['x'] = np.linspace(*tuple(x_bounds), 2)
-                lines[-1]['y'] = y_val*np.ones_like(lines[-1]['x'])
-                lines[-1]['z'] = z_val*np.ones_like(lines[-1]['x'])
-
-            constZ_xvals = (x_min, x_max, x_mid_off, x_mid, x_max)
-            constZ_yvals = (y_max, y_min, y_mid_off, y_max, y_mid)
-            constZ_zbounds = ([z_min, z_max], [z_min, z_max], [z_mid_off, z_max], [z_mid, z_max], [z_mid, z_max])
-            for x_val, y_val, z_bounds in zip(constZ_xvals, constZ_yvals, constZ_zbounds):
-                lines.append(OrderedDict())
-                lines[-1]['z'] = np.linspace(*tuple(z_bounds), 2)
-                lines[-1]['x'] = x_val*np.ones_like(lines[-1]['z'])
-                lines[-1]['y'] = y_val*np.ones_like(lines[-1]['z'])
-
-
-            #Construct top-ledoux lines
-            top_ledoux_lines = []
-            constX_xvals = (x_max, x_mid_off)
-            constX_zvals = (2, 2)
-            constX_ybounds = ([y_min, y_mid_off], [y_mid_off, y_max])
-            for x_val, y_bounds, z_val in zip(constX_xvals, constX_ybounds, constX_zvals):
-                top_ledoux_lines.append(OrderedDict())
-                top_ledoux_lines[-1]['y'] = np.linspace(*tuple(y_bounds), 2)
-                top_ledoux_lines[-1]['x'] = x_val*np.ones_like(lines[-1]['y'])
-                top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['y'])
-
-            constY_yvals = (y_max, y_mid_off)
-            constY_zvals = (2, 2)
-            constY_xbounds = ([x_min, x_mid_off], [x_mid_off, x_max])
-            for x_bounds, y_val, z_val in zip(constY_xbounds, constY_yvals, constY_zvals):
-                top_ledoux_lines.append(OrderedDict())
-                top_ledoux_lines[-1]['x'] = np.linspace(*tuple(x_bounds), 2)
-                top_ledoux_lines[-1]['y'] = y_val*np.ones_like(lines[-1]['x'])
-                top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['x'])
-
-            xy_side = construct_surface_dict(x, y, z_max, xy_side_data, x_bounds=(x_min, x_mid), y_bounds=(y_min, y_mid))
-            xz_side = construct_surface_dict(x, y_max, z, xz_side_data, x_bounds=(x_min, x_mid), z_bounds=(z_min, z_mid))
-            yz_side = construct_surface_dict(x_max, y, z, yz_side_data, y_bounds=(y_min, y_mid), z_bounds=(z_min, z_mid))
-
-            yz_mid = construct_surface_dict(x_mid, y, z, yz_mid_data, y_bounds=(y_mid, y_max), z_bounds=(z_mid, z_max), bool_function=np.logical_and)
-            xy_mid = construct_surface_dict(x, y, z_mid, xy_mid_data, x_bounds=(x_mid, x_max), y_bounds=(y_mid, y_max), bool_function=np.logical_and)
-            xz_mid = construct_surface_dict(x, y_mid, z, xz_mid_data, x_bounds=(x_mid, x_max), z_bounds=(z_mid, z_max), bool_function=np.logical_and)
-
-            for d in [xz_side, xz_mid, yz_side, yz_mid]:
-                for key in ['x', 'y', 'surfacecolor', 'z']:
-                    d[key][d['z'] > z_max] = np.nan
-            surface_dicts = [xz_side, yz_side, yz_mid, xz_mid, xy_mid, xy_side]
-
-            tickvals = ticktext = None
-            if field == 'mu':
-                cmin = 0
-                cmax = profile_func(0.01)
-                global_max = 0
-                #Figure out gloal scale factor of perturbations
-                for d in surface_dicts:
-                    edit = d['surfacecolor']
-                    edit_points = edit[edit > stretch_factor*cmax]
-                    if len(edit_points) == 0:
-                        d['surfacecolor'] += 0.01
-                        continue
-                    edit_points -= stretch_factor*cmax
-                    if np.nanmax(edit_points) > global_max:
-                        global_max = np.nanmax(edit_points)
-                #Rescale perturbations
-                new_global_max = 0
-                for d in surface_dicts:
-                    edit = d['surfacecolor']
-                    edit_points = edit[edit > stretch_factor*cmax]
-                    if len(edit_points) == 0:
-                        d['surfacecolor'] += 0.01
-                        continue
-                    edit_points -= stretch_factor*cmax
-                    edit_points /= global_max
-                    edit_points *= (cmax*stretch_factor - cmin)
-                    edit_points += stretch_factor*cmax
-                    d['surfacecolor'][edit > stretch_factor*cmax] = edit_points
-                    if np.nanmax(d['surfacecolor']) > new_global_max:
-                        new_global_max = np.nanmax(d['surfacecolor'])
-                for d in surface_dicts:
-                    d['surfacecolor'] /= (new_global_max * cbar_edge_pad)
-                    #print(np.nanmax(d['surfacecolor']), np.nanmin(d['surfacecolor']))
-                tickvals = [0, 0.5, cmax]
-                ticktext = ['{:.3f}'.format(t) for t in [0, stretch_factor*cmax, cmax]]
-                cmax = 1
-                #print(np.nanmin(xz_side['surfacecolor']), np.nanmax(xz_side['surfacecolor']))
-
-
-            colorbar_dict['tickvals'] = tickvals
-            colorbar_dict['ticktext'] = ticktext
-            colorbar_dict['outlinecolor'] = 'black'
-            colorbar_dict['xanchor'] = 'center'
-            colorbar_dict['x'] = colorbar_x[0]
-            colorbar_dict['y'] = 0.5
-            colorbar_dict['tickfont'] = {'family' : "Times New Roman"}
-            colorbar_dict['outlinecolor'] = 'black'
-            colorbar_dict['outlinewidth'] = 3
+        tickvals = ticktext = None
+        if data_field == 'mu':
+            cmin = 0
+            cmax = profile_func(0.01)
+            global_max = 0
+            #Figure out gloal scale factor of perturbations
             for d in surface_dicts:
-                d['cmin'] = cmin
-                d['cmax'] = cmax
-                d['colorbar'] = colorbar_dict
-                d['colorscale'] = cmaps[ind]
-                d['showscale'] = False
-                d['lighting'] = {'ambient' : 1}
+                edit = d['surfacecolor']
+                edit_points = edit[edit > stretch_factor*cmax]
+                if len(edit_points) == 0:
+                    d['surfacecolor'] += 0.01
+                    continue
+                edit_points -= stretch_factor*cmax
+                if np.nanmax(edit_points) > global_max:
+                    global_max = np.nanmax(edit_points)
+            #Rescale perturbations
+            new_global_max = 0
+            for d in surface_dicts:
+                edit = d['surfacecolor']
+                edit_points = edit[edit > stretch_factor*cmax]
+                if len(edit_points) == 0:
+                    d['surfacecolor'] += 0.01
+                    continue
+                edit_points -= stretch_factor*cmax
+                edit_points /= global_max
+                edit_points *= (cmax*stretch_factor - cmin)
+                edit_points += stretch_factor*cmax
+                d['surfacecolor'][edit > stretch_factor*cmax] = edit_points
+                if np.nanmax(d['surfacecolor']) > new_global_max:
+                    new_global_max = np.nanmax(d['surfacecolor'])
+            for d in surface_dicts:
+                d['surfacecolor'] /= (new_global_max * cbar_edge_pad)
+                #print(np.nanmax(d['surfacecolor']), np.nanmin(d['surfacecolor']))
+            tickvals = [0, 0.5, cmax]
+            ticktext = ['{:.3f}'.format(t) for t in [0, stretch_factor*cmax, cmax]]
+            cmax = 1
+            #print(np.nanmin(xz_side['surfacecolor']), np.nanmax(xz_side['surfacecolor']))
 
-            xy_side['showscale'] = True
 
-            for surface_dict in surface_dicts:
-                good_vals = surface_dict['surfacecolor'][surface_dict['z'] > 2.25]
-    #            if good_vals.shape[0] != 0:
-    #                print(np.nanmax(good_vals), np.nanmin(good_vals))
-                fig.add_trace(go.Surface(**surface_dict),  ind+1, 0+1)
+        colorbar_dict['tickvals'] = tickvals
+        colorbar_dict['ticktext'] = ticktext
+        colorbar_dict['outlinecolor'] = 'black'
+        colorbar_dict['xanchor'] = 'center'
+        colorbar_dict['x'] = colorbar_x[0]
+        colorbar_dict['y'] = 0.5
+        colorbar_dict['tickfont'] = {'family' : "Times New Roman"}
+        colorbar_dict['outlinecolor'] = 'black'
+        colorbar_dict['outlinewidth'] = 3
+        for d in surface_dicts:
+            d['cmin'] = cmin
+            d['cmax'] = cmax
+            d['colorbar'] = colorbar_dict
+            d['colorscale'] = cmaps[0]
+            d['showscale'] = False
+            d['lighting'] = {'ambient' : 1}
 
-            for line_dict in lines:
-                fig.add_trace(go.Scatter3d(**line_dict, mode='lines', line={'color':'black'}, showlegend=False), ind+1, 0+1)
+        xy_side['showscale'] = True
 
-            for line_dict in top_ledoux_lines:
-                fig.add_trace(go.Scatter3d(**line_dict, mode='lines', line={'color':purples[-2], 'width' : 5}, showlegend=False), ind+1, 0+1)
+        for surface_dict in surface_dicts:
+            good_vals = surface_dict['surfacecolor'][surface_dict['z'] > 2.25]
+#            if good_vals.shape[0] != 0:
+#                print(np.nanmax(good_vals), np.nanmin(good_vals))
+            fig.add_trace(go.Surface(**surface_dict), 1, 1)
+
+        for line_dict in lines:
+            fig.add_trace(go.Scatter3d(**line_dict, mode='lines', line={'color':'black'}, showlegend=False), 1, 1)
+
+        for line_dict in top_ledoux_lines:
+            fig.add_trace(go.Scatter3d(**line_dict, mode='lines', showlegend=False), 1, 1)
 
     #        break
     #    break
@@ -328,7 +334,7 @@ with h5py.File(files[0], 'r') as inf:
                 )
 
         title_xvals = [0.5]
-        labels = ['sim time = {:.3e}'.format(inf['scales']['sim_time'][plot_ind]),]
+        labels = ['sim time = {:.3e}'.format(time_data['sim_time'][plot_ind]),]
         for xv, label in zip(title_xvals, labels):
             fig.add_annotation(
                 x=xv,
@@ -347,5 +353,5 @@ with h5py.File(files[0], 'r') as inf:
         viewpoint = {'camera_eye' : {'x' : 2*1.1, 'y': 0.4*1.1, 'z' : 0.5*1.1}
                     }
         fig.update_layout(scene = viewpoint)
-        pio.write_image(fig, './{}/plotly_test_{:06d}.png'.format(out_dir, count), width=x_pix, height=y_pix, format='png', engine='kaleido')
+        pio.write_image(fig, '{}/{}_{:06d}.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), width=x_pix, height=y_pix, format='png', engine='kaleido')
         fig.data = []
