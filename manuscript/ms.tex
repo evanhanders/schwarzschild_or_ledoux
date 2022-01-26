@@ -1,6 +1,6 @@
 % Preamble
-%\documentclass[twocolumn, linenumbers]{aastex631}
-\documentclass[twocolumn]{aastex631}
+\documentclass[twocolumn, linenumbers]{aastex631}
+%\documentclass[twocolumn]{aastex631}
 \usepackage{natbib}
 \usepackage{latexsym}
 \usepackage{graphicx}
@@ -14,9 +14,11 @@
 %%%% Custom commands
 \newcommand{\yL}{\ensuremath{\mathcal{Y}_{\rm{L}}}}
 \newcommand{\yS}{\ensuremath{\mathcal{Y}_{\rm{S}}}}
+\newcommand{\justgrad}{\ensuremath{\nabla}}
 \newcommand{\gradrad}{\ensuremath{\nabla_{\rm{rad}}}}
 \newcommand{\gradad}{\ensuremath{\nabla_{\rm{ad}}}}
 \newcommand{\gradC}{\ensuremath{\nabla_{\mathrm{C}}}}
+\newcommand{\gradmu}{\ensuremath{\nabla_{\mu}}}
 \newcommand{\gradL}{\ensuremath{\nabla_{\mathrm{L}}}}
 \newcommand{\gradT}{\ensuremath{\nabla_{\mathrm{T}}}}
 \newcommand{\Ro}{\ensuremath{\mathrm{R}_{0}}}
@@ -95,14 +97,43 @@
 %%%% Body of paper
 \input{intro}
 
+\begin{figure*}[t!]
+\centering
+\includegraphics[width=\textwidth]{dynamics_figure.pdf}
+\caption{
+\label{fig:dynamics}
+}
+\end{figure*}
+
+
 \input{theory}
 
+
+
 \input{results}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig2_profiles.pdf}
+\caption{
+\label{fig:profiles}
+}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{kippenhahn.pdf}
+\caption{
+\label{fig:kippenhahn}
+}
+\end{figure}
+
+
 
 \input{conclusions}
 
 \begin{acknowledgments}
-We thank Meridith Joyce, Anne Thoul, Dominic Bowman, ETC ETC ETC.
+We thank Meridith Joyce, Anne Thoul, Dominic Bowman, Jared Goldberg, Tim Cunningham, Falk Herwig, Kyle Augustson, (OTHERS?) for useful discussions which helped improve our understanding.
 EHA is funded as a CIERA Postdoctoral fellow and would like to thank CIERA and Northwestern University. 
 This research was supported in part by the National Science Foundation under Grant No. PHY-1748958, and we acknowledge the hospitality of KITP during the Probes of Transport in Stars Program.
 Computations were conducted with support from the NASA High End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Center on Pleiades with allocation GID s2276.
