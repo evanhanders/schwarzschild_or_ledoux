@@ -1,33 +1,35 @@
-\section{Theory}
+\section{Theory \& Experiment}
 \label{sec:theory}
 The stability of a convective region can instantaneously be determined using the Schwarzschild criterion,
 \begin{equation}
     \yS = \gradrad - \gradad,
+    \label{eqn:yS}
 \end{equation}
 or the Ledoux criterion,
 \begin{equation}
-    \yL = \gradrad - \gradL.
+    \yL = \yS +  \frac{\chi_\mu}{\chi_T}\gradmu
+    \label{eqn:yL}
 \end{equation}
-Here, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4} or superadiabaticity.
-In stellar structure codes, it is assumed that regions with $\mathcal{Y} < 0$ are convection zones (CZs) while reagions with $\mathcal{Y} > 0$ are radiative zones (RZs).
+Here, the temperature gradient $\justgrad \equiv d \ln P / d \ln T$ has a value of $\gradad$ for an adiabatic stratification and $\gradrad$ if all flux is carried through radiative conductivity.
+The composition gradient $\gradmu = d\ln\mu/d\ln P$ is multiplied by the ratio of $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$, where $\rho$ is the density, $T$ is the temperature, $P$ is the pressure, and $\mu$ is the mean molecular weight.
 
-When both stability criteria are considered, more interesting behavior can occur in certain physical regimes.
-A region is a CZ when both $\yS < 0$ and $\yL < 0$, and a region is an RZ when both $\yS > 0$ and $\yL \geq \yS$.
-However, a ``semiconvective'' region is one that is Schwarzschild unstable ($\yS < 0$) and Ledoux stable ($\yL > 0$), and these regions can either be linearly stable or can exhibit overstable doubly-diffusive convection \citep[ODDC, see][chapter 2]{garaud_2018}. CITES
-In this paper, we construct our initial conditions in our simulations so that the semiconvective regions are stable to ODDC, so that we can study the growth of convection zones through entrainment.
-Some RZs with $\yS > \yL$ (stable regions with unstable composition gradients) are also unstable to thermohaline or fingering convection \citep[see][chapter 3]{garaud_2018} CITE, but we do not study these regimes in this work.
+In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4}, related to the superadiabaticity.
+In stellar structure codes, convective boundaries are assumed to coincide with sign changes in the discriminant.
+The various stability regimes which can occur in stars are well-described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but we will briefly recap four important regimes:
+\begin{enumerate}
+    \item Convection Zones (CZs): If $\yS > 0$ and $\yL \geq \yS$, a region's stratification is convectively unstable.
+    \item Radiative Zones (RZs): If both $\yS < 0$ and $\yL < \yS$, a region's stratification is stable to convection.
+    \item ``Semiconvection'' zone: If $\yS > 0$ but $\yL < 0$, a stable composition gradient stabilizes an unstable thermal stratification.
+        These regions can be linearly unstable to overstable doubly diffusive convection \citep[ODDC, see][chapter 2]{garaud_2018}, or they can be stable RZs.
+    \item ``Thermohaline'' zone: If $\yS < 0$ and $\yL > \yS$, a stable thermal stratification stabilizes an unstable composition gradient.
+        These regions can be linearly unstable to thermohaline mixing or fingering convection \citep[see][chapter 3]{garaud_2018}, or they can be stable RZs.
+\end{enumerate}
+In this paper, we study 3D simulations of a linearly-stable semiconvection zone (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
+We examine how the boundary of the CZ evolves through entrainment.
+In particular, we are interested in seeing if $\yS$ and $\yL$ evolve towards the same height due to entrainment.
+Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
 
-In this work, we solve the simplest possible convective system.
-We utilize the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
+In this work, we utilize a simplified 3D model which employs the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
 Since we are studying thin regions near convective boundaries, this assumption is OK.
 The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $C$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.
-
-
-\begin{itemize}
-\item The \emph{instantaneous} stability changes over the course of many convective freefall times, and stellar evolution timesteps generally span many convective overturn times.
-\item The goal of this work is to find if $y_S$ and $y_L$ evolve toward the same value, and whether they evolve toward the initial boundary as determined by $y_S$ or $y_L$.
-\item We will study a numerical simulation with three layers: a convective layer $y_s < 0$ and $y_L < 0$, a ``semiconvective'' \citep[see section 4 of][]{mesa2} \citep{salaris_cassisi_2017} layer with $y_S < 0$ but $y_L > 0$ \citep[which is stable to ODDC][]{garaud_2018}, and a fully stable layer with $y_L > 0$ and $y_S > 0$.
-\item While ``semiconvective'' layers are often unstable to doubly-diffusive instabilities in stellar regimes \citep{moore_garaud_2016}, our purpose in this work is to demonstrate that regardless of whether these layers are doubly-diffusive unstable, they are entrained and destroyed by neighboring convective zones.
-\end{itemize}
-

@@ -1,37 +1,45 @@
 \section{Results}
 \label{sec:result}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{fig2_profiles.pdf}
-\caption{
-\label{fig:profiles}
-}
-\end{figure*}
+
+Volume visualizations of simulation dynamics are shown near the initial state (left) and evolved state (right) in Fig.~\ref{fig:dynamics}.
+Buoyancy perturbations normalized by the vertical profile of buoyancy standard deviations are shown in the top two panels.
+Vertical velocity is shown in the bottom two panels.
+In the initial state, convection occurs in the bottom $\sim1/3$ of the simulation domain; the middle $\sim1/3$ of the domain is stabilized by a composition gradient, and the top $\sim1/3$ is stabilized by a thermal gradient.
+The convection excites gravity waves in the stable layers.
+The \brunt$\,$ frequency is higher by a factor of 10 in the thermal layer than in the semiconvection layer, so the vertical velocity signature of motions there is smaller than in the semiconvection layer.
+Describe overhoot.
+
+The most obvious difference between the panels on the left and the right is that the convection zone has grown in size from $\sim 1/3$ of the simulation domain to $\sim 2/3$ of the simulation domain.
+Through continuous overshoot, convection entrained stable, low-composition fluid from the upper region into the convection zone.
+This process eroded the composition gradient until the Schwarzschild and Ledoux boundaries of the convection zone were identical.
+In other words, the \emph{thermal} stability of the upper zone is sufficient to halt expansion of the convection zone via entrainment, but compositional stability is not.
+We see negligible convective penetration (mixing of the bouyancy or entropy profile beyond the sign change in $mathcal{Y}$), but this is expected and part of our experimental design (see appendix).
+
+Figure \ref{fig:profiles} displays vertical profiles that have been averaged horizontally and in time.
+Profiles on the left show initial conditions, while profiles on the right show the evolved state.
+We show the composition (top panels), the Schwarzschild and Ledoux discriminants (middle panels), and the square \brunt$\,$ and convective frequencies.
+
+In the initial state, we see that the composition is uniform in the CZ ($z \leq 1$) and RZ ($z \geq 2$), but varies linearly in $z \in [1, 2]$ and provides stability.
+We also see that the sign change in $\yL$ occurs at $z \sim 1$ while that in $\yS$ occurs at $z \sim 2$.
+Finally, we see that $f_{\rm{conv}} = 0$ because we initialize the simulation without any convective velocity.
+However, the \brunt$\,$ frequency $N^2$ is negative in a boundary layer at the base of the CZ which drives the instability, and $N^2$ is stable above $z = 1$ (and is more stable by a factor of 10 above $z \sim 2$).
+
+The final state (right) is attained after convection entrains and mixes through the initial composition gradient.
+We see that the composition profile (top) is constant in the convection zone, and approximates a step function above the CZ at the top of the overshoot zone. (TODO: Add overshoot to this figure).
+In this evolved state, the sign changes in the discriminants $\yL$ and $\yS$ coincide (middle panel).
+In the bottom panel, we see that the convective frequency is roughly constant, and see that $N^2 \lesssim 0$ in the bulk CZ.
+We can compute the ``stiffness'' $\mS = N^2 / f_{\rm{conv}}^2$ of the radiative-convective boundary by comparing the average CZ value of $f_{\rm{conv}}^2 \sim 10^{-2}$ to the RZ value of $N^2 \sim 10^2$, so $\mS \approx 10^4$.
+Boundaries with a low stiffness $\mS \lesssim 10$ easily deform in the presence of convective flows, but convective boundaries in stars often have $\mS \gtrsim 10^6$.
+The value of $\mS$ achieved in these simulations is therefore in the right regime to tell us about stars, but these simulations still exhibit more mechanical overshoot than we would expect stars to.
 
 
-
-\begin{itemize}
-\item We simulate a three-layer system with X properties using the Dedalus pseudospectral solver.
-We refer the reader to appendices~\ref{app:model} and \ref{app:simulation_details} for details of the model assumptions, setup, and numerical methods.
-\item In figure \ref{fig:dynamics} we show volume visualizations of instantaneous dynamics near the beginning, during the entrainment phase, and in the evolved state of one of these simulations.
-Here is a description of the things to look for in these visualizations.
-I should write this before I decide which things to put into this figure.
-\item In figure \ref{fig:profiles} we show horizontally- and time-averaged profiles of the initial state of the simulation, during the entrainment phase, and in the evolved state.
-Here's an in-depth description of what's plotted.
-Here's what you should take away from each panel of the plots.
-\item In figure \ref{fig:kippenhahn}, we plot a Kippenhahn-like diagram of the simulation.
-The orange region is the convection zone, the green region is Ledoux-stable but Schwarzschild-unstable, and the purple region is both Schwarzschild and Ledoux stable.
-The line at the top of the orange region determines the boundary of the convection zone according to $y_L$, and the line at the bottom of the purple region determines the CZ boundary according to $y_S$.
-While these lines start at different heights, convection entrains low-composition fluid according to a classic $\sqrt{t}$ entrainment law until these criteria are the same.
-\end{itemize}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{kippenhahn.pdf}
-\caption{
-\label{fig:kippenhahn}
-}
-\end{figure}
+Finally, In figure \ref{fig:kippenhahn}, we plot a Kippenhahn-like diagram of the simulation.
+The CZ is shown in orange and is the region below the sign change of both $\mY$ and $\mS$.
+The semiconvection zone is shown in green and is the region below the sign changes of $\mY$ and $\mS$.
+The RZ is shown in purple and is the region above the sign change of both $\mY$ and $\mS$.
+Convection overshoot roughly above the $\yL = 0$ line up to the black line, denoted by a hashed region.
+The height of the black line traces out the region where the vertical profile of the convective kinetic energy falls below 10\% of its value in the bulk CZ; this line roughly coincides with the extremum of the composition gradient through the simulation evolution.
+Importantly, while the orange line that traces out $\yL = 0$ and the green line tracing out $\yS = 0$ start at different heights, 3D convective motions make these lines converge on long timescales.
 
 
