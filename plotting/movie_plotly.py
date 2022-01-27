@@ -1,9 +1,11 @@
+import queue
 from collections import OrderedDict
 import h5py
 import numpy as np
 import plotly
 import plotly.graph_objects as go
 import plotly.io as pio
+from mpi4py import MPI
 from plotly.subplots import make_subplots
 from plotly.offline import plot_mpl
 from plotpal.file_reader import SingleTypeReader, match_basis
@@ -115,15 +117,14 @@ def generate_custom_colorbar():
 color_scale, purples = generate_custom_colorbar()
 
 
-in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
+in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64/'
 fig_name = 'plotly3D'
 
 slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 
-
-stretch_factors = [0.988,] #for colorbar
-cbar_edge_pad = 0.94
+stretch_min_queue = queue.Queue(maxsize=20)
+stretch_max_queue = queue.Queue(maxsize=20)
 data_field = 'mu'
 field_names = [data_field]
 
@@ -146,15 +147,59 @@ fig.update_layout(scene = scene_dict,
 field_bases = ['{}_x_side', '{}_x_mid', '{}_y_side', '{}_y_mid', '{}_z_2.5', '{}_z_0.5']
 fields = [st.format(data_field) for st in field_bases]
 
+with h5py.File('{}/top_cz/data_top_cz.h5'.format(in_dir), 'r') as f:
+    entrain_times = f['times'][()]
+    entrain_heights = f['L_d05s'][()] - 0.7*(f['L_d05s'][()] - f['L_d002s'][()])
+
+stretch_min_vals = np.zeros_like(entrain_times)
+stretch_max_vals = np.zeros_like(entrain_times)
+stretch_min_roll = np.zeros_like(entrain_times)
+stretch_max_roll = np.zeros_like(entrain_times)
+    
+        
+
 if not slice_reader.idle:
-    while slice_reader.writes_remain() and prof_reader.writes_remain():
-        slice_dsets, plot_ind = slice_reader.get_dsets(fields)
+
+    #use profiles for colorbar limits
+    while prof_reader.writes_remain():
         prof_dsets, prof_ind = prof_reader.get_dsets([data_field,])
+        z_profile = prof_dsets[data_field][prof_ind,:].squeeze()
+        z = match_basis(prof_dsets[data_field], 'z')
+        time_data = prof_dsets[data_field].dims[0]
+        profile_func = interp1d(z, z_profile, bounds_error=False, fill_value='extrapolate')
+        ind = time_data['write_number'][prof_ind] - 1
+        top_cz = entrain_heights[entrain_times == time_data['sim_time'][prof_ind]][0]
+        bot_cz = entrain_heights[entrain_times == time_data['sim_time'][prof_ind]][0]/5
+        stretch_min_vals[ind] = profile_func(top_cz)
+        stretch_max_vals[ind] = profile_func(bot_cz)
+    prof_reader.comm.Allreduce(MPI.IN_PLACE, stretch_min_vals, MPI.SUM)
+    prof_reader.comm.Allreduce(MPI.IN_PLACE, stretch_max_vals, MPI.SUM)
+    #roll
+    n_roll = 4
+    for i in range(n_roll):
+        lasti = stretch_min_vals.shape[0] - i - 1
+        stretch_min_roll[i]     = np.round(np.mean(stretch_min_vals[:i+int(n_roll/2)]), 4)
+        stretch_max_roll[i]     = np.round(np.mean(stretch_max_vals[:i+int(n_roll/2)]), 4)
+        stretch_min_roll[lasti] = np.round(np.mean(stretch_min_vals[-int(n_roll/2)+lasti:]), 4)
+        stretch_max_roll[lasti] = np.round(np.mean(stretch_max_vals[-int(n_roll/2)+lasti:]), 4)
+
+    for i in range(stretch_min_vals.shape[0] - 2*n_roll):
+        ind = i + n_roll
+        stretch_min_roll[ind] = np.round(np.mean(stretch_min_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
+        stretch_max_roll[ind] = np.round(np.mean(stretch_max_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
+    if prof_reader.comm.rank == 0:
+        for i in range(stretch_min_vals.shape[0]):
+            print(stretch_min_roll[i], stretch_max_roll[i])
+
+
+#    print(stretch_min_roll, stretch_max_roll)
+
+    while slice_reader.writes_remain():
+        slice_dsets, plot_ind = slice_reader.get_dsets(fields)
         x = match_basis(slice_dsets[fields[-1]], 'x')
         y = match_basis(slice_dsets[fields[-1]], 'y')
         z = match_basis(slice_dsets[fields[0]], 'z')
         time_data = slice_dsets[fields[0]].dims[0]
-        stretch_factor = stretch_factors[0]
 
         yz_side_data=slice_dsets['{}_x_side'.format(data_field)][plot_ind,:].squeeze()
         yz_mid_data= slice_dsets['{}_x_mid'.format(data_field)][plot_ind,:].squeeze()
@@ -163,8 +208,6 @@ if not slice_reader.idle:
         xy_side_data=slice_dsets['{}_z_2.5'.format(data_field)][plot_ind,:].squeeze()
         xy_mid_data= slice_dsets['{}_z_0.5'.format(data_field)][plot_ind,:].squeeze()
 
-        z_profile = prof_dsets[data_field][prof_ind,:].squeeze()
-        profile_func = interp1d(z, z_profile)
 
         x_max, x_mid, x_min = (x.max(), x[int(len(x)/2)], x.min())
         y_max, y_mid, y_min = (y.max(), y[int(len(y)/2)], y.min())
@@ -244,41 +287,28 @@ if not slice_reader.idle:
         tickvals = ticktext = None
         if data_field == 'mu':
             cmin = 0
-            cmax = profile_func(0.01)
-            global_max = 0
+            ind = time_data['write_number'][plot_ind] - 1
+            stretch_min = stretch_min_roll[ind]
+            stretch_max = stretch_max_roll[ind]
+
             #Figure out gloal scale factor of perturbations
             for d in surface_dicts:
                 edit = d['surfacecolor']
-                edit_points = edit[edit > stretch_factor*cmax]
+                edit_bool = edit >= stretch_min
+                edit_points = edit[edit_bool]
                 if len(edit_points) == 0:
-                    d['surfacecolor'] += 0.01
                     continue
-                edit_points -= stretch_factor*cmax
-                if np.nanmax(edit_points) > global_max:
-                    global_max = np.nanmax(edit_points)
-            #Rescale perturbations
-            new_global_max = 0
+                edit_points -= stretch_min
+                edit_points /= (stretch_max - stretch_min)
+                edit_points *= (stretch_min - cmin)
+                edit_points += stretch_min
+                d['surfacecolor'][edit_bool] = edit_points
             for d in surface_dicts:
-                edit = d['surfacecolor']
-                edit_points = edit[edit > stretch_factor*cmax]
-                if len(edit_points) == 0:
-                    d['surfacecolor'] += 0.01
-                    continue
-                edit_points -= stretch_factor*cmax
-                edit_points /= global_max
-                edit_points *= (cmax*stretch_factor - cmin)
-                edit_points += stretch_factor*cmax
-                d['surfacecolor'][edit > stretch_factor*cmax] = edit_points
-                if np.nanmax(d['surfacecolor']) > new_global_max:
-                    new_global_max = np.nanmax(d['surfacecolor'])
-            for d in surface_dicts:
-                d['surfacecolor'] /= (new_global_max * cbar_edge_pad)
+                d['surfacecolor'] /= 2*stretch_min
                 #print(np.nanmax(d['surfacecolor']), np.nanmin(d['surfacecolor']))
-            tickvals = [0, 0.5, cmax]
-            ticktext = ['{:.3f}'.format(t) for t in [0, stretch_factor*cmax, cmax]]
+            tickvals = [0, 0.5, 1]
+            ticktext = ['{:.3f}'.format(t) for t in [0, stretch_min, stretch_max]]
             cmax = 1
-            #print(np.nanmin(xz_side['surfacecolor']), np.nanmax(xz_side['surfacecolor']))
-
 
         colorbar_dict['tickvals'] = tickvals
         colorbar_dict['ticktext'] = ticktext
