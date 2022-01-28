@@ -1,112 +1,59 @@
 \section{Model \& Initial Conditions}
 \label{app:model}
-In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field and a height-varying background radiative conductivity, similar to that used in \citet{fuentes_cumming_2020, anders_etal_2022}.
+In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field and a height-varying background radiative conductivity, similar to that used in \citet{fuentes_cumming_2020} and \citet{anders_etal_2022}.
 These equations are
-\begin{align}
-    &\grad\dot\vec{u} = 0
-        \label{eqn:incompressible_dimensional}, \\
-    &\partial_t \vec{u}\dot\grad\vec{u} = -\frac{1}{\rho_0}\grad p + \frac{\rho_1}{\rho_0}\vec{g} + \nu\grad^2\vec{u}
-        \label{eqn:momentum_dimensional}, \\
-    &\partial_t T + \vec{u}\dot\grad T + w\gradad + \grad\dot[-\kappa_{T,0}\grad\bar{T}] = \kappa_T\grad^2 T'
-        \label{eqn:temperature_dimensional}, \\
-    &\partial_t C + \vec{u}\dot\grad C = \kappa_{C,0}\grad^2\bar{C} + \kappa_C\grad^2 C'
-        \label{eqn:composition_dimensional}, \\
-    &\frac{\rho_1}{\rho_0} = -|\alpha|T + |\beta|C
-        \label{eqn:boussinesq}.
-\end{align}
-Here, $\vec{u}$ is the vector velocity, $T$ is the temperature, $C$ is the composition, $\rho_0$ is the constant background density, $p$ is the kinematic pressure which enforces Eqn.~\ref{eqn:incompressible_dimensional}, $\rho_1$ are density fluctuations which act only on the buoyant term, and $\alpha$ and $\beta$ are the thermal and compositional expansion coefficients, and $\gradad$ is the adiabatic gradient.
-Diffusive terms are controlled by the kinematic viscosity $\nu$, as well as the thermal diffusivity $\kappa_T$ and compositional diffusivity $\kappa_C$.
-On the horizontally-invariant ($n_x = 0$ and $n_y = 0$) mode, we use a height-depended thermal diffusion coefficient $\kappa_{T,0}$ (which allows $\gradrad$ to vary with height) and a lower compositional diffusivity $\kappa_{C,0} < \kappa_C$ to ensure that the evolution of the mean composition profile is due to advection rather than diffusion.
-
-We nondimensionalize Eqns.~\ref{eqn:incompressible_dimensional}-\ref{eqn:boussinesq} according to
-\begin{equation}
-\begin{split}
-    &T^* = (\Delta T)T,\qquad
-    C^* = (\Delta C)C,\qquad
-    \partial_{t^*} = \tau_{\rm{ff}}^{-1}\partial_t,\qquad\,\,\,
-    \grad^* = L_s^{-1} \grad,\qquad
-    p^* = \rho_0 u_{\rm{ff}}^2\varpi,
-\\
-    &\vec{u}^* = u_{\rm{ff}}\vec{u} = \frac{L_s}{\tau_{\rm{ff}}} \vec{u}, \qquad\qquad
-    \tau_{\rm{ff}} = \left(\frac{L_s}{|\alpha| g \Delta T}\right)^{1/2}, \qquad\qquad
-    \kappa_{T,0}^* = (L_s^2 \tau_{\rm{ff}}^{-1})\kappa_{T,0}.
-%    \kappa_T^* = (L_s^2 \tau_{\rm{ff}}^{-1})$\kappa_T$,\qquad
-%    \kappa_C^* = (L_s^2 \tau_{\rm{ff}}^{-1})$\kappa_C$.
-\end{split}
-\end{equation}
-For convenience, here we define quantities with $*$ (e.g., $T^*$) as being the ``dimensionful'' quantities of Eqns.~\ref{eqn:incompressible_dimensional}-\ref{eqn:boussinesq}.
-Henceforth, quantities without $*$ (e.g., $T$) are dimensionless.
-Here, $L_s$ is the length scale of the initial Schwarzschild-unstable convection zone and $\tau_ff$ is the buoyant freefall timescale.
-The temperature and composition are set by the destabilizing radiative temperature gradient $\Delta T = L_s (\partial_z T + \grad_{\rm{ad}})$ and the stabilizing composition gradient ($\Delta C = L_s \partial_z C$).
-Within this nondimensionalization, the dynamical control parameters are
-\begin{equation}
-\begin{split}
-    &\mP = \frac{u_{\rm{ff}} L_s}{\kappa_T},\qquad
-    \Ro = \frac{|\alpha|\Delta T}{|\beta|\Delta C},\qquad
-    \Pran = \frac{\nu}{\kappa_T},\qquad
-    \tau = \frac{\kappa_C}{\kappa_T},\qquad
-    \tau_0 = \frac{\kappa_{C,0}}{\kappa_T}
-\end{split}
-\end{equation}
-The dimensionless equations of motion are
-\label{sec:simulation_details}
 \begin{align}
     &\grad\dot\vec{u} = 0 
         \label{eqn:incompressible} \\
-    &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} = -\grad \varpi + (T - \Ro^{-1}C) \hat{z} + \frac{\Pran}{\mP}\grad^2 \vec{u}
-        \label{eqn:momentum} \\
-    &\partial_t T + \vec{u}\dot\grad T + w \grad_{\rm{ad}}  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'.
-        \label{eqn:temperature}, \\
-    &\partial_t C + \vec{u}\dot\grad C = -\frac{\tau_0}{\mP}\grad^2\bar{C} + \frac{\tau}{\mP}\grad^2 C'.
+    &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi = \left(T - \frac{\mu}{\Ro}\right) \hat{z} + \frac{\Pran}{\mP}\grad^2 \vec{u}
+        \label{eqn:momentum}, \\
+    &\partial_t T + \vec{u}\dot\grad T + w \grad_{\rm{ad}}  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'
+        \label{eqn:temperature},
+\end{align}
+\begin{align}
+    &\partial_t \mu + \vec{u}\dot\grad \mu = -\frac{\tau_0}{\mP}\grad^2\bar{\mu} + \frac{\tau}{\mP}\grad^2 \mu'.
         \label{eqn:composition}
 \end{align}
-We define the thermal and compositional gradients
+Here, $\vec{u}$ is the nondimensional velocity, $T$ is the nondimensional temperature, and $\mu$ is the nondimensional concentration.
+Bars (e.g., $\bar{T}$) represent the horizontally-averaged component of a field and primes (e.g., $T'$) denote all fluctuations around that background.
+The nondimensional control parameters are
 \begin{equation}
-    \gradT \equiv -\frac{\partial T}{\partial z},\qquad
-    \gradC \equiv -\Ro^{-1} \frac{\partial C}{\partial z},
+\begin{split}
+    &\mP = \frac{u_{\rm{ff}} L_{\rm{conv}}}{\kappa_T},\qquad
+    \Ro = \frac{|\alpha|\Delta T}{|\beta|\Delta \mu},\qquad\\
+    &\Pran = \frac{\nu}{\kappa_T},\qquad
+    \tau = \frac{\kappa_\mu}{\kappa_T},\qquad
+\end{split}
 \end{equation}
-and stability is determined by the sign of the {\brunt} frequency,
-\begin{equation}
-    N^2 = N_{\rm{structure}}^2 + N_{\rm{composition}}^2,\,\,\text{with}\,\,
-    N_{\rm{structure}}^2 = -(\gradT - \gradad),\,\,
-    N_{\rm{composition}}^2 = \gradC,
-\end{equation}
-where $N^2 > 0$ is buoyantly stable, so the stability criterion is $\gradC - (\gradT - \gradad) > 0$, as in stellar models \citep{salaris_cassisi_2017}.
+where the nondimensional freefall velocity is $\vec{u}_{\rm{ff}} = \sqrt{|\alpha|g L_{\rm{conv}}\Delta T}$ with $g$ the constant gravitational acceleration, $L_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = L_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are the coefficients of expansion for $T$ and $\mu$, $\nu$ is the viscosity, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
+We also specify different values of $\kappa_T = \kappa_{T,0}$ and $\kappa_\mu/\kappa_T = \tau_0$ for the horizontally-averaged component; this allows the radiative gradient to change with height and reduces diffusion on the mean $\mu$ structure to ensure evolution is due to advection.
+These equations are described in detail in Sec.~2 of \citet{garaud_2018}, except for the differing diffusivities on the averages and fluctuations.
 
-In this work, we study a three-layer model in $z = [0, 3]$.
-We want to construct a simulation with
+We define the Ledoux and Schwarzschild discriminants
 \begin{equation}
-    N^2 = 
+    \yS = \left(\frac{\partial T}{\partial z}\right)_{\rm{rad}} - \left(\frac{\partial T}{\partial z}\right)_{\rm{ad}},\,\,
+    \yL = \yS - \Ro^{-1} \frac{\partial \mu}{\partial z},
+\end{equation}
+and in this nondimensional system the {\brunt} frequency is the negative of the Ledoux discriminant $N^2 = -yL$.
+
+In this work, we study a three-layer model in $z = [0, 3]$,
+\begin{align}
+    &\left(\frac{\partial T}{\partial z}\right)_{\rm{rad}} = 
+    \left(\frac{\partial T}{\partial z}\right)_{\rm{ad}} + 
     \begin{cases}
-        -1           & z \leq 1 \\
-        R_0^{-1} - 1 & 1 < z \leq 2 \\
-        R_0^{-1}     & 2 < z
-    \end{cases},\qquad
-    N_{\rm{composition}}^2 = 
+        -1           & z \leq 2 \\
+        10\Ro^{-1}     & z > 2
+    \end{cases},
+    \label{eqn:initial_T}
+    \\
+    &\frac{\partial \mu_0}{\partial z} = 
     \begin{cases}
         0        & z \leq 1 \\
-        R_0^{-1} & 1 < z \leq 2 \\
+        -1       & 1 < z \leq 2 \\
         0        & 2 < z
-    \end{cases}, \qquad
-    N_{\rm{structure}}^2 = 
-    \begin{cases}
-        -1           & z \leq 1 \\
-        -1           & 1 < z \leq 2 \\
-        R_0^{-1}     & 2 < z
-    \end{cases}
-\label{eqn:initial_brunt}
-\end{equation}
-To achieve this, we set $\partial_z C = - \Ro N_{\rm{composition}}^2$ and $\partial_z T = N_{\rm{structure}}^2 - \gradad$, where we set $\gradad = 5[\Ro^{-1} - 2]$ as a constant so that $\gradad > 0$ for all values of $\Ro$ studied.
-We furthermore enforce that $\gradT = \gradrad$ in the initial state, where
-\begin{equation}
-    \gradrad = -\frac{F_{\rm{tot}}}{\kappa_{T,0}},
-\end{equation}
-is the radiative gradient and $\Ftot$ is the total vertical energy flux through the system.
-We set the total flux $\Ftot = -(1 + \gradad) / \mP$ and the convective flux $F_{\rm{conv}} = 1 / \mP$, so $\kappa_{T,0}(z) = -((1 + \gradad)/\partial_z T)\mP^{-1} $.
-%and $\gradT = \gradrad$ if conduction carries all of the energy flux.
-%We fix the flux carried by convection to be
-%\begin{equation}
-%    \Fconv = \kappa_{T,0},
-%\end{equation}
-%so the total flux through the system is $F_{\mathrm{tot}} = \Fconv(\gradad + 1)$.
-%We set $\gradT = \gradrad$ in the initial state.
+    \end{cases},
+    \label{eqn:initial_mu}
+\end{align}
+where the intial temperature derivative is $\partial T_0 / \partial z = (\partial T / \partial z)_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where it is adiabatic.
+We set $(\partial T / \partial z){\rm{ad}} = -1 - 10\Ro^{-1}$.
+
