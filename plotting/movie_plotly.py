@@ -1,13 +1,15 @@
 import queue
+import sys
 from collections import OrderedDict
 import h5py
 import numpy as np
+import kaleido as kdo
 import plotly
 import plotly.graph_objects as go
 import plotly.io as pio
 from mpi4py import MPI
-from plotly.subplots import make_subplots
 from plotly.offline import plot_mpl
+from plotly.subplots import make_subplots
 from plotpal.file_reader import SingleTypeReader, match_basis
 from scipy.interpolate import interp1d
 import palettable
@@ -117,14 +119,13 @@ def generate_custom_colorbar():
 color_scale, purples = generate_custom_colorbar()
 
 
-in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64/'
+in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_restart01/'
+#in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
 fig_name = 'plotly3D'
 
 slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 
-stretch_min_queue = queue.Queue(maxsize=20)
-stretch_max_queue = queue.Queue(maxsize=20)
 data_field = 'mu'
 field_names = [data_field]
 
@@ -149,16 +150,16 @@ fields = [st.format(data_field) for st in field_bases]
 
 with h5py.File('{}/top_cz/data_top_cz.h5'.format(in_dir), 'r') as f:
     entrain_times = f['times'][()]
-    entrain_heights = f['L_d05s'][()] - 0.7*(f['L_d05s'][()] - f['L_d002s'][()])
+    entrain_heights = f['L_d05s'][()] - 1*(f['L_d05s'][()] - f['L_d002s'][()])
 
 stretch_min_vals = np.zeros_like(entrain_times)
 stretch_max_vals = np.zeros_like(entrain_times)
 stretch_min_roll = np.zeros_like(entrain_times)
 stretch_max_roll = np.zeros_like(entrain_times)
+max_boost=0.4
     
         
-
-if not slice_reader.idle:
+if not prof_reader.idle:
 
     #use profiles for colorbar limits
     while prof_reader.writes_remain():
@@ -169,7 +170,7 @@ if not slice_reader.idle:
         profile_func = interp1d(z, z_profile, bounds_error=False, fill_value='extrapolate')
         ind = time_data['write_number'][prof_ind] - 1
         top_cz = entrain_heights[entrain_times == time_data['sim_time'][prof_ind]][0]
-        bot_cz = entrain_heights[entrain_times == time_data['sim_time'][prof_ind]][0]/5
+        bot_cz = 0#entrain_heights[entrain_times == time_data['sim_time'][prof_ind]][0]
         stretch_min_vals[ind] = profile_func(top_cz)
         stretch_max_vals[ind] = profile_func(bot_cz)
     prof_reader.comm.Allreduce(MPI.IN_PLACE, stretch_min_vals, MPI.SUM)
@@ -187,13 +188,16 @@ if not slice_reader.idle:
         ind = i + n_roll
         stretch_min_roll[ind] = np.round(np.mean(stretch_min_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
         stretch_max_roll[ind] = np.round(np.mean(stretch_max_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
-    if prof_reader.comm.rank == 0:
-        for i in range(stretch_min_vals.shape[0]):
-            print(stretch_min_roll[i], stretch_max_roll[i])
+#    if prof_reader.comm.rank == 0:
+#        for i in range(stretch_min_vals.shape[0]):
+#            print(stretch_min_roll[i], stretch_max_roll[i])
 
 
 #    print(stretch_min_roll, stretch_max_roll)
 
+print('start ', MPI.COMM_WORLD.rank)
+sys.stdout.flush()
+if not slice_reader.idle:
     while slice_reader.writes_remain():
         slice_dsets, plot_ind = slice_reader.get_dsets(fields)
         x = match_basis(slice_dsets[fields[-1]], 'x')
@@ -290,6 +294,7 @@ if not slice_reader.idle:
             ind = time_data['write_number'][plot_ind] - 1
             stretch_min = stretch_min_roll[ind]
             stretch_max = stretch_max_roll[ind]
+            stretch_max += max_boost*(stretch_max - stretch_min)
 
             #Figure out gloal scale factor of perturbations
             for d in surface_dicts:
@@ -385,3 +390,7 @@ if not slice_reader.idle:
         fig.update_layout(scene = viewpoint)
         pio.write_image(fig, '{}/{}_{:06d}.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), width=x_pix, height=y_pix, format='png', engine='kaleido')
         fig.data = []
+##        print('completed write {} on {}'.format(time_data['write_number'][plot_ind], MPI.COMM_WORLD.rank))
+##        sys.stdout.flush()
+print('finished ', MPI.COMM_WORLD.rank)
+sys.exit()
