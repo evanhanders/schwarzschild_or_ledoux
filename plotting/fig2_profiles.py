@@ -207,6 +207,9 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
         if yS_switch != yL_switch:
             ax.fill_between((yL_switch, yS_switch), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[0], alpha=0.15)
         ax.fill_between((yS_switch, Lz), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[2], alpha=0.15)
+        if not first:
+#            print(ax.fill_between((yL_switch, oz_bound), ylims[0], ylims[1], hatch='//', edgecolor=(0, 0, 0, 0.2), facecolor="none", zorder=2))
+            print(ax.add_patch(matplotlib.patches.Rectangle((yL_switch, ylims[0]), oz_bound-yL_switch, ylims[1]-ylims[0], fill=False, hatch='//', alpha=0.1)))
 
     ax1.plot(z, tasks['mu'], c='k')
     ax1.set_ylim(-0.05, 1.05)
@@ -228,7 +231,7 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
     if first:
         ax2.text(transformed[0]-0.05, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
     else:
-        ax2.text(transformed[0]-0.05, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
+        ax2.text(transformed[0]-0.06, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
 
     #Add y_L label
     max_x = L_d0999
@@ -237,7 +240,7 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
     if first:
         ax2.text(transformed[0]-0.105, transformed[1] - 0.075, r'$\mathcal{Y}_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
     else:
-        ax2.text(transformed[0]-0.07, transformed[1] - 0.05, r'$\mathcal{Y}_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+        ax2.text(transformed[0]-0.095, transformed[1] - 0.05, r'$\mathcal{Y}_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
 
 
     if first:
@@ -264,7 +267,7 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
     if first:
         ax3.text(transformed[0]-0.105, transformed[1]-0.075, r'$N^2$', color=colors[0], transform=ax3.transAxes)
     else:
-        ax3.text(transformed[0]-0.07, transformed[1]-0.1, r'$N^2$', color=colors[0], transform=ax3.transAxes)
+        ax3.text(transformed[0]-0.095, transformed[1]-0.1, r'$N^2$', color=colors[0], transform=ax3.transAxes)
 
     #Add f_conv^2 label
     if freq2_conv_field['g'].max() > 0:
