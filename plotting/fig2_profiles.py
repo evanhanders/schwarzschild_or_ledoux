@@ -31,6 +31,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import brentq
 import logging
 logger = logging.getLogger(__name__)
+plt.style.use('./apj.mplstyle')
 
 import palettable.colorbrewer.qualitative as bqual
 
@@ -125,12 +126,14 @@ buoyancy_field_schwarz = domain.new_field()
 dz_buoyancy_field = domain.new_field()
 dz_buoyancy_field_schwarz = domain.new_field()
 KE_field = domain.new_field()
+yL_field = domain.new_field()
+yS_field = domain.new_field()
 dedalus_fields = [N2_structure_field, grad_field, grad_mu_field, grad_ad_field, grad_rad_field,
                     delta_grad_field, freq2_conv_field, freq2_conv_field_enstrophy,
                     buoyancy_field, buoyancy_field_schwarz, dz_buoyancy_field, dz_buoyancy_field_schwarz,
-                    KE_field]
+                    KE_field, yL_field, yS_field]
 
-def plot_fields(tasks, ax1, ax2, ax3):
+def plot_fields(tasks, ax1, ax2, ax3, first=False):
 
     for ax in [ax1, ax2, ax3]:
         ax.set_xlabel('z')
@@ -153,15 +156,14 @@ def plot_fields(tasks, ax1, ax2, ax3):
     dz_buoyancy_field_schwarz['g'] = (T_z - (-grad_ad))
     dz_buoyancy_field_schwarz.antidifferentiate('z', ('left', 0), out=buoyancy_field_schwarz)
     KE_field['g'] = tasks['KE']
+    yL_field['g'] = grad_rad_field['g'] - grad_ad_field['g'] - grad_mu_field['g']
+    yS_field['g'] = grad_rad_field['g'] - grad_ad_field['g']
     for f in dedalus_fields:
         f.set_scales(dense_scales, keep_data=True)
 
     N2_structure = N2_structure_field['g']
     N2_composition = grad_mu_field['g']
     N2_tot = N2_structure + N2_composition
-
-    y_schwarz = dz_buoyancy_field_schwarz['g']
-    y_ledoux = dz_buoyancy_field['g']
 
     #departure from grad_ad: 0.1, 0.5, 0.9
     departures = []
@@ -190,43 +192,58 @@ def plot_fields(tasks, ax1, ax2, ax3):
 
     #point of neutral buoyancy is CZ edge.
     cz_bound = z_dense[(z_dense > z_dense[3])*(buoyancy_field['g'] < 0)][-1]
+    yL_switch = z_dense[yL_field['g'] < 0][0]
 
     #point of neutral buoyancy is CZ edge. (also get it by schwarz criterion
     cz_bound_schwarz = z_dense[(z_dense > z_dense[3])*(buoyancy_field_schwarz['g'] < 0)][-1]
+    yS_switch = z_dense[yS_field['g'] < 0][0]
 
 
     #Stiffness
     freq2_conv_field['g'] /= L_d05**2
 
-    for ax, ylims in ((ax1, (-0.05, 1.05)), (ax2, (y_ledoux.min() - 0.1, inv_R_in*100)), (ax3, (1e-6, inv_R_in*100))):
-        ax.fill_between((0, cz_bound), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[1], alpha=0.15)
-        if cz_bound != cz_bound_schwarz:
-            ax.fill_between((cz_bound, cz_bound_schwarz), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[0], alpha=0.15)
-        ax.fill_between((cz_bound_schwarz, Lz), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[2], alpha=0.15)
+    for ax, ylims in ((ax1, (-0.05, 1.05)), (ax2, (yL_field['g'].min() - 0.1, inv_R_in*100)), (ax3, (1e-6, inv_R_in*100))):
+        ax.fill_between((0, yL_switch), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[1], alpha=0.15)
+        if yS_switch != yL_switch:
+            ax.fill_between((yL_switch, yS_switch), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[0], alpha=0.15)
+        ax.fill_between((yS_switch, Lz), ylims[0], ylims[1], color=bqual.Dark2_3.mpl_colors[2], alpha=0.15)
 
     ax1.plot(z, tasks['mu'], c='k')
-    ax1.set_ylim(-0.02, 1.02)
+    ax1.set_ylim(-0.05, 1.05)
 
     ax2.axhline(0, c='k', lw=0.5)
     colors = bqual.Dark2_3.mpl_colors
-    ax2.plot(z_dense, y_schwarz, c=colors[2])
-    ax2.plot(z_dense, y_ledoux, c=colors[0])
-    ax2.plot(z_dense, -y_schwarz, c=colors[2], ls='--')
-    ax2.plot(z_dense, -y_ledoux, c=colors[0], ls='--')
+    ax2.plot(z_dense, yS_field['g'], c=colors[2])
+    ax2.plot(z_dense, yL_field['g'], c=colors[0])
+    ax2.plot(z_dense, -yS_field['g'], c=colors[2], ls='--')
+    ax2.plot(z_dense, -yL_field['g'], c=colors[0], ls='--')
     ax2.set_yscale('log')
-    ax2.set_ylim(1e-1, 30*inv_R_in)
+    ax2.set_ylim(3e-1, 50*inv_R_in)
 
     #Add y_Slabel
-    max_x = z_dense[y_schwarz < 0][-1]
-    max_y = y_schwarz[z_dense > max_x + 0.05][0]
+#    print(max_x)
+    max_x = z_dense[yS_field['g'] > 0][-1]
+    max_y = -yS_field['g'][z_dense > max_x + 0.05][0]
     transformed = ax2.transLimits.transform((max_x, np.log10(max_y)))
-    ax2.text(transformed[0]+0.03, transformed[1]-0.05, r'$y_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
+    if first:
+        ax2.text(transformed[0]-0.05, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
+    else:
+        ax2.text(transformed[0]-0.05, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
 
     #Add y_L label
     max_x = L_d0999
-    max_y = y_ledoux[z_dense > max_x][0]
+    max_y = -yL_field['g'][z_dense > max_x][0]
     transformed = ax2.transLimits.transform((max_x, np.log10(max_y)))
-    ax2.text(transformed[0]-0.075, transformed[1] - 0.05, r'$y_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+    if first:
+        ax2.text(transformed[0]-0.105, transformed[1] - 0.075, r'$\mathcal{Y}_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+    else:
+        ax2.text(transformed[0]-0.07, transformed[1] - 0.05, r'$\mathcal{Y}_{\rm{L}}$', color=colors[0], transform=ax2.transAxes)
+
+
+    if first:
+        ax2.plot(-1e-16*np.ones(2), 1e-16*np.ones(2), c='k', ls='--', label='negative')
+        ax2.plot(-1e-16*np.ones(2), 1e-16*np.ones(2), c='k', label='positive')
+        ax2.legend(loc='upper left', ncol=2, framealpha=0.8, borderpad=0.2, borderaxespad=0.2, fancybox=True, labelspacing=0.1, fontsize=9, columnspacing=1, handletextpad=0.4, handlelength=1.72)
 
     y_L_max_x = max_x
 
@@ -234,24 +251,27 @@ def plot_fields(tasks, ax1, ax2, ax3):
 
 
     colors = bqual.Set1_5.mpl_colors
-    ax3.set_ylim(1e-3, 30*inv_R_in)
+    ax3.set_ylim(3e-1, 50*inv_R_in)
     ax3.set_yscale('log')
     ax3.plot(z,  tasks['bruntN2'], c=colors[0], label=r'$N^2$')
     ax3.plot(z, -tasks['bruntN2'], c=colors[0], ls='--')
-    ax3.plot(z_dense, freq2_conv_field['g'], c=colors[1], label=r'$f_{\rm{conv}}^2$')
+    ax3.plot(z_dense, 1e3*freq2_conv_field['g'], c=colors[1], label=r'$10^3\,f_{\rm{conv}}^2$')
 
     #Add N^2 label
     maxbrunt_x = y_L_max_x
     maxbrunt_y = N2_tot[(z_dense > maxbrunt_x)*(z_dense < maxbrunt_x + 0.25)].max()
     transformed = ax3.transLimits.transform((maxbrunt_x, np.log10(maxbrunt_y)))
-    ax3.text(transformed[0]-0.075, transformed[1]-0.1, r'$N^2$', color=colors[0], transform=ax3.transAxes)
+    if first:
+        ax3.text(transformed[0]-0.105, transformed[1]-0.075, r'$N^2$', color=colors[0], transform=ax3.transAxes)
+    else:
+        ax3.text(transformed[0]-0.07, transformed[1]-0.1, r'$N^2$', color=colors[0], transform=ax3.transAxes)
 
     #Add f_conv^2 label
     if freq2_conv_field['g'].max() > 0:
         maxf2_x = z_dense[freq2_conv_field['g'] > freq2_conv_field['g'].max()*0.3][-1]
-        maxf2_y = freq2_conv_field['g'].max()
+        maxf2_y = 1e3*freq2_conv_field['g'].max()
         transformed = ax3.transLimits.transform((maxf2_x, np.log10(maxf2_y)))
-        ax3.text(transformed[0]+0.01, transformed[1]+0.01, r'$f_{\rm{conv}}^2$', color=colors[1], transform=ax3.transAxes)
+        ax3.text(transformed[0]+0.01, transformed[1]-0.07, r'$10^3\,f_{\rm{conv}}^2$', color=colors[1], transform=ax3.transAxes)
 #    ax3.legend(loc='upper left')
     
     colors = bqual.Accent_5.mpl_colors
@@ -301,10 +321,10 @@ if not rolled_reader.idle:
     
     count = 0
     while rolled_reader.writes_remain():
-        plot_fields(first_tasks, axL_1, axL_2, axL_3)
         count += 1
         if count != roll_writes+1 and args['--publication_fig']:
             continue
+        plot_fields(first_tasks, axL_1, axL_2, axL_3, first=True)
 
         dsets, ni = rolled_reader.get_dsets(fields)
         time_data = dsets[fields[0]].dims[0]
@@ -320,21 +340,26 @@ if not rolled_reader.idle:
 
 
         axL_1.set_ylabel('C')
-        axL_2.set_ylabel(r'$y = \nabla - \nabla_X$')
+        axL_2.set_ylabel(r'$\mathcal{Y}$')
+#        axL_2.set_ylabel(r'$\mathcal{Y} = \nabla_{\rm{rad}} - \nabla_X$')
         axL_3.set_ylabel(r'$f^2$')
 
         axL_3.set_xlabel(r'$z$')
         axR_3.set_xlabel(r'$z$')
 
+        axL_1.text(x=0.5, y=1.1, s='Initial ($t = 0$)', ha='center', transform=axL_1.transAxes)
+        axR_1.text(x=0.5, y=1.1, s='Evolved ($t = {{{:.2f}}}$)'.format(time_data['sim_time'][ni]), ha='center', transform=axR_1.transAxes)
+
         for ax in [axR_1, axR_2, axR_3]:
             ax.set_yticklabels(())
 
         if args['--publication_fig']:
-            plt.subplots_adjust(top=1, bottom=0, hspace=0.05, wspace=0.07, left=0, right=1)
+            print('saving fig')
+#            plt.subplots_adjust(top=1, bottom=0, hspace=0.05, wspace=0.07, left=0, right=1)
             fig.savefig('{:s}/fig2_profiles.png'.format(rolled_reader.out_dir), dpi=int(args['--dpi']), bbox_inches='tight')
             fig.savefig('{:s}/fig2_profiles.pdf'.format(rolled_reader.out_dir), dpi=int(args['--dpi']), bbox_inches='tight')
         else:
-            plt.suptitle('sim_time = {:.2f}'.format(time_data['sim_time'][ni]))
+#            plt.suptitle('sim_time = {:.2f}'.format(time_data['sim_time'][ni]))
             fig.savefig('{:s}/{:s}_{:06d}.png'.format(rolled_reader.out_dir, fig_name, start_fig+time_data['write_number'][ni]), dpi=int(args['--dpi']), bbox_inches='tight')
         for ax in axs:
             ax.cla()
