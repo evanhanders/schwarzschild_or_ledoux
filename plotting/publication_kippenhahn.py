@@ -57,11 +57,13 @@ PURPLE = colors[2]
 PINK   = colors[3]
 kfig = plt.figure(figsize=(3.25, 2))
 ax = kfig.add_subplot(1,1,1)
+plt.subplots_adjust(top=1, bottom=0, hspace=0.05, wspace=0.1, left=0, right=1)
 print(yS_switch, yL_switch)
-plt.fill_between(times, yS_switch, Lz*np.ones_like(times), facecolor=PURPLE, alpha=0.4)
-plt.fill_between(times, yL_switch, yS_switch, facecolor=GREEN, alpha=0.4)
-plt.fill_between(times, np.zeros_like(times), yL_switch, facecolor=ORANGE, alpha=0.4)
-plt.fill_between(times, yL_switch, oz_bound, facecolor=PINK, alpha=0.3)
+alpha_val = 0.15
+plt.fill_between(times, yS_switch, Lz*np.ones_like(times), facecolor=PURPLE, alpha=alpha_val)
+plt.fill_between(times, yL_switch, yS_switch, facecolor=GREEN, alpha=alpha_val)
+plt.fill_between(times, np.zeros_like(times), yL_switch, facecolor=ORANGE, alpha=alpha_val)
+plt.fill_between(times, yL_switch, oz_bound, facecolor=PINK, alpha=(3/2)*alpha_val)
 plt.plot(times, yS_switch, c=GREEN, lw=2, zorder=1)
 plt.plot(times, yL_switch, c=ORANGE, lw=2)
 plt.fill_between(times, yL_switch, oz_bound, hatch='//', edgecolor='k', facecolor="none", zorder=2)
@@ -75,8 +77,8 @@ if end_entrainment < 0.5:
     end_entrainment = 0.5
 len_overshoot   = (1-end_entrainment)
 plt.ylim(0, Lz)
-plt.xlabel('time')
-plt.ylabel('z')
+plt.xlabel('simulation time (freefall units)')
+plt.ylabel(r'$z$')
 
 
 arrow_kwargs = { 'edgecolor' : 'k', 'facecolor' : 'k', 'width' : 0.001, 'head_width' : 0.007, 'head_length': 0.003}
@@ -94,6 +96,7 @@ plt.text(x=end_entrainment + len_overshoot/2, y=2.65/3, s='overshoot', ha='cente
 x_line = end_entrainment*np.ones(100)
 y_line = np.linspace(2.83, 2.97, 100)/3
 plt.plot(x_line, y_line, c='k', lw=0.5, transform=ax.transAxes)
+ax.set_yticks((0, 1, 2, 3))
 
 
 
