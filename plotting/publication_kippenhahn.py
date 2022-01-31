@@ -63,8 +63,8 @@ alpha_val = 0.15
 plt.fill_between(times, yS_switch, Lz*np.ones_like(times), facecolor=PURPLE, alpha=alpha_val)
 plt.fill_between(times, yL_switch, yS_switch, facecolor=GREEN, alpha=alpha_val)
 plt.fill_between(times, np.zeros_like(times), yL_switch, facecolor=ORANGE, alpha=alpha_val)
-plt.fill_between(times, yL_switch, oz_bound, facecolor=PINK, alpha=(3/2)*alpha_val)
-plt.plot(times, yS_switch, c=GREEN, lw=2, zorder=1)
+plt.fill_between(times, yL_switch, oz_bound, facecolor=ORANGE, alpha=(3/2)*alpha_val)
+plt.plot(times, yS_switch, c=PURPLE, lw=2, zorder=1)
 plt.plot(times, yL_switch, c=ORANGE, lw=2)
 plt.fill_between(times, yL_switch, oz_bound, hatch='//', edgecolor='k', facecolor="none", zorder=2)
 #    plt.plot(times, N2_switch, c='k')
@@ -101,7 +101,7 @@ ax.set_yticks((0, 1, 2, 3))
 
 
 plt.text(x=0.02+100/times.max(), y=-0.03 +yL_switch[times > 100][0]/Lz, s=r'$\mathcal{Y}_{\rm{L}} = 0$', ha='left', transform=ax.transAxes, fontsize = 9, rotation=23, color=ORANGE)
-plt.text(x=0.01, y=-0.08 +yS_switch[times > 50][0]/Lz, s=r'$\mathcal{Y}_{\rm{S}} = 0$', ha='left', transform=ax.transAxes, fontsize = 9, color=GREEN)
+plt.text(x=0.01, y=-0.08 +yS_switch[times > 50][0]/Lz, s=r'$\mathcal{Y}_{\rm{S}} = 0$', ha='left', transform=ax.transAxes, fontsize = 9, color=PURPLE)
 plt.savefig('{:s}/{:s}.png'.format(root_dir, 'kippenhahn'), dpi=400, bbox_inches='tight')
 plt.savefig('{:s}/{:s}.pdf'.format(root_dir, 'kippenhahn'), dpi=400, bbox_inches='tight')
 
