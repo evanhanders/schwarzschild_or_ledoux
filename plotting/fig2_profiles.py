@@ -342,7 +342,7 @@ if not rolled_reader.idle:
             ax.set_xlim(0, 3)
 
 
-        axL_1.set_ylabel('C')
+        axL_1.set_ylabel(r'$\mu$')
         axL_2.set_ylabel(r'$\mathcal{Y}$')
 #        axL_2.set_ylabel(r'$\mathcal{Y} = \nabla_{\rm{rad}} - \nabla_X$')
         axL_3.set_ylabel(r'$f^2$')
