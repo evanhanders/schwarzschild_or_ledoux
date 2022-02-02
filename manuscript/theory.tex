@@ -1,35 +1,35 @@
 \section{Theory \& Experiment}
 \label{sec:theory}
-The stability of a convective region can instantaneously be determined using the Schwarzschild criterion,
+Convective stability can be determined using the Schwarzschild criterion,
 \begin{equation}
-    \yS = \gradrad - \gradad,
+    \yS \equiv \gradrad - \gradad,
     \label{eqn:yS}
 \end{equation}
 or the Ledoux criterion,
 \begin{equation}
-    \yL = \yS +  \frac{\chi_\mu}{\chi_T}\gradmu
+    \yL \equiv \yS +  \frac{\chi_\mu}{\chi_T}\gradmu.
     \label{eqn:yL}
 \end{equation}
-Here, the temperature gradient $\justgrad \equiv d \ln P / d \ln T$ has a value of $\gradad$ for an adiabatic stratification and $\gradrad$ if all flux is carried through radiative conductivity.
-The composition gradient $\gradmu = d\ln\mu/d\ln P$ is multiplied by the ratio of $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$, where $\rho$ is the density, $T$ is the temperature, $P$ is the pressure, and $\mu$ is the mean molecular weight.
+The temperature gradient $\justgrad \equiv d \ln P / d \ln T$ (pressure $P$ and temperature $T$) is $\gradad$ for an adiabatic stratification and $\gradrad$ if the flux is entirely carried radiatively.
+The composition gradient $\gradmu = d\ln\mu/d\ln P$ (mean molecular weight $\mu$) is modified by $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$ (density $\rho$).
 
-In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4}, related to the superadiabaticity.
-In stellar structure codes, convective boundaries are assumed to coincide with sign changes in the discriminant.
-The various stability regimes which can occur in stars are well-described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but we will briefly recap four important regimes:
+In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4}, which is like the superadiabaticity.
+Stellar structure codes assume that convective boundaries coincide with the root (sign change) of the discriminant.
+The various stability regimes which can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but note four important regimes:
 \begin{enumerate}
-    \item Convection Zones (CZs): If $\yS > 0$ and $\yL \geq \yS$, a region's stratification is convectively unstable.
-    \item Radiative Zones (RZs): If both $\yS < 0$ and $\yL < \yS$, a region's stratification is stable to convection.
-    \item ``Semiconvection'' zone: If $\yS > 0$ but $\yL < 0$, a stable composition gradient stabilizes an unstable thermal stratification.
-        These regions can be linearly unstable to overstable doubly diffusive convection \citep[ODDC, see][chapter 2]{garaud_2018}, or they can be stable RZs.
-    \item ``Thermohaline'' zone: If $\yS < 0$ and $\yL > \yS$, a stable thermal stratification stabilizes an unstable composition gradient.
-        These regions can be linearly unstable to thermohaline mixing or fingering convection \citep[see][chapter 3]{garaud_2018}, or they can be stable RZs.
+    \item Convection Zones (CZs): Regions with $\yS > 0$ and $\yL \geq \yS$ are convectively unstable.
+    \item Radiative Zones (RZs): Regions with $\yS < 0$ and $\yL \leq \yS$ are stable to convection.
+    \item ``Semiconvection'' Zones (SZs): Regions with $\yS > 0$ but $\yL < 0$ are stablized to convection by a composition gradient despite an unstable thermal stratification.
+        These regions can be stable RZs or linearly unstable to overstable doubly diffusive convection \citep[ODDC, see][chapter 2]{garaud_2018}.
+    \item ``Thermohaline'' Zones: Regions with $\yS < 0$ and $\yL > \yS$ are thermally stable to convection despite an unstable composition gradient.
+        These regions can be stable RZs or linearly unstable to thermohaline mixing \citep[see][chapter 3]{garaud_2018}.
 \end{enumerate}
-In this paper, we study 3D simulations of a linearly-stable semiconvection zone (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
+In this paper, we study 3D simulations of a stable SZ (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
 We examine how the boundary of the CZ evolves through entrainment.
-In particular, we are interested in seeing if $\yS$ and $\yL$ evolve towards the same height due to entrainment.
-Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
+In particular, we are interested in seeing if the roots of $\yS$ and $\yL$ coincide after evolution.
+%Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
 
 In this work, we utilize a simplified 3D model which employs the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
 Since we are studying thin regions near convective boundaries, this assumption is OK.
-The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $C$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
+The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $\mu$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.

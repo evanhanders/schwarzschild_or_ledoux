@@ -88,13 +88,13 @@
 \email{evan.anders@northwestern.edu}
 
 \begin{abstract}
-    In stars, the location of convective boundaries is determined by either the Schwarzschild or Ledoux criterion, but there is not consensus among the 1D stellar modeling community over which criterion to use.
-    In this letter we present a 3D hydrodynamical simulation of a convection zone whose boundary is stabilized by a composition gradient despite being thermally unstable.
-    This convective boundary is Ledoux stable but Schwarzschild unstable.
-    Over hundreds of convective overturn timescales, mixing at the convective boundary causes the convection zone to grow.
-    The convection zone stops growing once it reaches a height where its boundary is stable by the Schwarzschild criterion.
-    This work provides 3D evidence that convective boundaries which are Ledoux stable are fragile unless they are also Schwarzschild stable.
-    Therefore, the Schwarzschild stability criterion properly describes the size of a convection zone, except for when convection zones do not reach statistically stationary states during short-lived evolutionary stages.
+    In stars, convective boundaries are set by either the Schwarzschild or Ledoux criterion, but there is no consensus regarding which criterion to use.
+    In this letter, we present a 3D hydrodynamical simulation of a convection zone whose boundary is thermally unstable but compositionally stable.
+    Therefore, the convective boundary is Schwarzschild unstable but Ledoux stable.
+    Over many convective overturn timescales, entrainment makes the convection zone grow.
+    The convective boundary stops advancing after it becomes stable by the Schwarzschild criterion.
+    This work demonstrates using 3D simulations that the Ledoux criterion \emph{instantaneously} describes the boundary of a convection zone, but that Ledoux-stable boundaries are fragile unless they are also Schwarzschild stable.
+    Therefore, the Schwarzschild stability criterion describes the size of a convection zone, except during short-lived evolutionary stages in which convection does not reach statistical equilibrium.
 \end{abstract}
 \keywords{Stellar convection zones (301), Stellar physics (1621); Stellar evolutionary models (2046)}
 
@@ -107,11 +107,12 @@
 \centering
 \includegraphics[width=\textwidth]{dynamics_figure.pdf}
 \caption{
-    Volume renderings of the composition field $\mu$ in our simulation at early (left) and late (right) times.
-    The change in color from white to dark purple from the top of the box to the top of the convection zone denotes a stable composition gradient.
+    Volume renderings of the simulation composition field $\mu$ at early (left) and late (right) times.
+    The change in color from white at the top of the box to dark purple at the top of the convection zone denotes a stable composition gradient.
     The convection zone is mostly well-mixed, so we expand the colorbar scaling there; black represents entrained low-composition fluid being mixed into the yellow high-composition convection zone.
-    The orange and purple horizontal lines respectively denote the roots of the Ledoux and Schwarzschild discriminants (Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}).
-    {\color{blue} Note: this is currently evolving further so that the last sentence isn't a lie.}
+    The orange and purple horizontal lines respectively denote the Ledoux and Schwarzschild boundaries.
+    The simulation domain spans $z = [0, 3]$, but we only plot $z = [0, 2.5]$ here.
+    {\color{blue} Note: this is currently evolving further.}
 \label{fig:dynamics}
 }
 \end{figure*}
@@ -122,11 +123,11 @@
 \centering
 \includegraphics[width=\textwidth]{fig2_profiles.pdf}
 \caption{
-    Horizontally-averaged profiles are shown for the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}), where $\vec{u}$ is the velocity and $L_{\rm{conv}}$ is the depth of the convection zone.
-    Positive values are solid lines and negative values are dashed lines.
+    Horizontally-averaged profiles are shown for the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}).
+    Positive and negative values are respectively solid and dashed lines.
     We show the initial (left) and evolved (right, time-averaged over 100 convective overturn times) states.
-    The background color is orange in CZs, green in semiconvection zones, and purple in RZs per Section ~\ref{sec:theory}.
-    The lightly hashed background region in the evolved RZ is where mechanical overshoot occurs.
+    The background color is orange in CZs, green in SZs, and purple in RZs per Section ~\ref{sec:theory}.
+    The lightly hashed background region in the evolved RZ is the mechanical overshoot zone.
     {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}
 \label{fig:profiles}
 }
@@ -140,10 +141,11 @@
 \centering
 \includegraphics[width=\columnwidth]{kippenhahn.pdf}
 \caption{
-    A kippenhahn-like diagram of the evolution of our simulation.
+    A kippenhahn-like diagram of the simulation evolution.
+    The $y$-axis is simulation height and the $x$-axis is simulation time.
     The orange line denotes the Ledoux boundary ($\yL = 0$); the CZ is below this and is colored orange.
     The purple line denotes the Schwarzschild boundary ($\yS = 0$); the RZ is above this and is colored purple.
-    The semiconvective region with $\yS > 0$ and $\yL < 0$ is colored green.
+    The semiconvective region between these boundaries is colored green.
     The black line denotes the top of the hashed overshoot zone.
     The simulation has an ``entrainment phase'' while the CZ expands, and a pure ``overshoot phase'' where the convective boundary does not advance.
     {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}

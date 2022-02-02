@@ -1,38 +1,37 @@
 \section{Results}
-\label{sec:result}
+\label{sec:results}
 
+Fig.~\ref{fig:dynamics} visualizes the composition field in our simulation near the initial state (left) and evolved state (right).
+Overplotted horizontal lines correspond to the roots of $\yL$ (orange, Ledoux boundary) and $\yS$ (purple, Schwarzschild boundary).
+Initially, the bottom third of the domain is a CZ, the middle third is an SZ, and the top third is an RZ.
+Convection mechanically overshoots at all times, which can be seen by the presence of convection a small but appreciable distance above the orange Ledoux boundary.
+Overshoot occurs because the Ledoux boundary corresponds to the sign change in the buoyant acceleration, not where the convective velocity is zero.
 
-Volume visualizations of the composition field in our simulation are shown near the initial state (left) and evolved state (right) in Fig.~\ref{fig:dynamics}.
-While our domain spans $z = [0, 3]$, we only plot $z = [0, 2.5]$ to focus on the interesting regions.
-We furthermore plot horizontal lines which correspond to the roots of $\yL$ (orange) and $\yS$ (purple).
-Initially, the bottom third of the domain is a CZ ($\yL > 0$ and $\yS > 0$), the middle third is a semiconvection zone ($\yL < 0$ but $\yS > 0$), and the top third is an RZ ($\yL \leq \yS$, $\yS < 0$). 
-Note that we observe mechanical overshoot at all times: convective velocities are nonzero a small but appreciable distance above the $\yL = 0$ line.
-This occurs because the root of the discriminant denotes where the sign change occurs in the buoyant acceleration, not where the convective velocity is zero.
+The most obvious change from the left to the right panel is that the CZ has consumed the SZ and fills the bottom two-thirds of the box.
+The overshooting convective motions entrained low-composition material from above the Ledoux boundary into the CZ.
+Convective motions mixed this fluid, and this process repeated over thousands of convective overturn times until the Ledoux and Schwarzschild boundaries of the CZ coincided.
+After becoming Schwarzschild stable, the convective boundary stopped moving.
+This occurs because the radiative flux renews and reinforces the radiative gradient, but there is no equivalent process for the composition.
 
-The most obvious difference between the panels on the left and the right is that the CZ has consumed the semiconvection zone and fills the bottom two-thirds of the box.
-Convective flows which overshot the convective boundary entrained low-composition material from the stable layer into the convection zone.
-Convective motions mixed this fluid, and this process repeated over thousands of convective overturn times until the Ledoux and Schwarzschild boundaries of the convection zone coincided.
-At this point, the convection zone ceased its expansion, and the \emph{thermal} stability of the Schwarzschild-stable RZ was sufficient to halt expansion of the convection zone.
-
-Figure \ref{fig:profiles} displays vertical profiles from our simulation in the initial (left) and evolved (right) states.
+Figure \ref{fig:profiles} displays vertical simulation profiles in the initial (left) and evolved (right) states.
 Shown are the composition $\mu$ (top), the discriminants $\yL$ and $\yS$ (middle), and the square \brunt$\,$ frequency (top) as well as the square convective frequency defined as
 \begin{equation}
-f_{\rm{conv}}^2 = \frac{|\vec{u}|^2}{L_{\rm{conv}}^2},
+f_{\rm{conv}}^2 = \frac{|\vec{u}|^2}{\ell_{\rm{conv}}^2},
 \label{eqn:fconv2}
 \end{equation}
-where $\vec{u}$ is the velocity and $L_{\rm{conv}}$ is the depth of the convectively unstable layer.
+where $\vec{u}$ is the velocity and $\ell_{\rm{conv}}$ is the depth of the convectively unstable layer.
 
-Initially, the composition is uniform in the CZ ($z \leq 1$) and RZ ($z \geq 2$), but varies linearly in the semiconvection zone $z \in [1, 2]$.
+Initially, the composition is uniform in the CZ ($z < 1$) and RZ ($z > 2$), but varies linearly in the SZ ($z \in [1, 2]$).
 The root of $\yL$ occurs at $z \approx 1$ while that of $\yS$ occurs at $z \approx 2$.
-Finally, initially $f_{\rm{conv}}^2 = 0$ because we start in a stationary state.
+Furthermore, $f_{\rm{conv}}^2 = 0$ in the initial, stationary state.
 The \brunt$\,$ frequency $N^2$ is negative in a boundary layer at the base of the CZ which drives the instability.
-$N^2$ is stable for $z \gtrsim 1$, and is larger in the RZ than the semiconvection zone by an order of magnitude\footnote{We ran simulations where $N^2$ was identical in the RZ and semiconvection zone and saw similar behavior.
-We make $N^2$ large in the RZ to reduce overshoot in the evolved state.}
+$N^2$ is stable for $z \gtrsim 1$, and is larger in the RZ than the SZ by an order of magnitude\footnote{We ran simulations where $N^2$ was identical in the RZ and SZ and saw similar behavior.
+We make $N^2$ large in the RZ to reduce overshoot and wave mixing in the evolved state.}
 
-The evolved state is attained after convection entrains and mixes the stabilizing fluid in the semiconvection zone.
-We see that the composition profile (top) is constant in the convection zone, and approximates a step function at the top of the overshoot zone.
+The evolved state is attained after convection entrains and mixes the stabilizing fluid in the SZ.
+We see that the composition profile (top) is constant in the CZ and overshoot zone (denoted as a transparent hashed region), but approximates a step function at the top of the overshoot zone.
 The roots of the discriminants $\yL$ and $\yS$ coincide (middle).
-Furthermore, in the CZ, the convective frequency is roughly constant and $N^2 \lesssim 0$.
+Furthermore, in the CZ, the convective frequency is roughly constant and $N^2 \lesssim 0$ (bottom).
 In the RZ, $f_{\rm{conv}}^2 \approx 0$ and $N^2 \gg 0$.
 We can compute the ``stiffness'' of the radiative-convective interface,
 \begin{equation}
@@ -42,14 +41,14 @@ We can compute the ``stiffness'' of the radiative-convective interface,
 which is related to the oft-studied Richardson number.
 In our evolved simulation, we measure $\mS \sim 10^{4}$.
 Boundaries with a low stiffness $\mS \lesssim 10$ easily deform in the presence of convective flows, but convective boundaries in stars often have $\mS \gtrsim 10^6$.
-The value of $\mS$ achieved in these simulations is therefore in the right regime to study entrainment at a stellar convective boundary.
+The number of convective overturn times required to entrain the SZ scale with $\mS$; we have chosen to use a large value of $\mS$ here to ensure our simulations are in the right regime to study entrainment at a stellar convective boundary.
 
-Finally, in Figure \ref{fig:kippenhahn}, we plot a Kippenhahn-like diagram of the simulation's height vs.~time to show evolutionary trends.
-The roots of $\yL$ and $\yS$ are respectively shown as orange and purple lines.
-The CZ is colored orange and sits below the root of $\yL$, the RZ is colored purple and sits above the root of $\yS$, and the semiconvection zone is colored green and sits between the roots.
-Convection motions ``overshoot'' above the root of $\yL$.
+Finally, Figure \ref{fig:kippenhahn} displays a Kippenhahn-like diagram of the simulation's height vs.~time to show evolutionary trends.
+The roots of $\yL$ and $\yS$ are respectively shown as orange (Ledoux boundary) and purple (Schwarzschild boundary) lines.
+The CZ is colored orange and sits below the Ledoux boundary, the RZ is colored purple and sits above the Schwarzschild boundary, and the SZ is colored green and is between these boundaries.
+Convection motions overshoot above the Ledoux boundary.
 The height where the horizontally-averaged kinetic energy falls below 10\% of its bulk-CZ value is marked with a black line, and the hashed region below it is the overshoot zone.
-We note that the black line and overshoot zone roughly correspond with the maximum of $\partial\mu/\partial z$ (Fig.~\ref{fig:profiles}, upper right), so this is a good description.
-Importantly, note that the lines tracing $\yL = 0$ and $\yS = 0$ start at different heights, but 3D convective mixing makes these lines converge on long timescales.
+We note that the black line and overshoot zone roughly correspond with the maximum of $\partial\mu/\partial z$ (Fig.~\ref{fig:profiles}, upper right), so this describes overshoot well.
+Importantly, note that the Schwarzschild and Ledoux boundaries start at different heights, but 3D convective mixing causes them to converge on dynamical timescales.
 
 
