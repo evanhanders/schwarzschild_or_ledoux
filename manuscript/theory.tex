@@ -14,7 +14,7 @@ The temperature gradient $\justgrad \equiv d \ln P / d \ln T$ (pressure $P$ and 
 The composition gradient $\gradmu = d\ln\mu/d\ln P$ (mean molecular weight $\mu$) is modified by $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$ (density $\rho$).
 
 In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4}, which is like the superadiabaticity.
-Stellar structure codes assume that convective boundaries coincide with the root (sign change) of the discriminant.
+Stellar structure software instruments assume that convective boundaries coincide with the root (sign change) of the discriminant.
 The various stability regimes which can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but note four important regimes:
 \begin{enumerate}
     \item Convection Zones (CZs): Regions with $\yS > 0$ and $\yL \geq \yS$ are convectively unstable.
@@ -29,7 +29,7 @@ We examine how the boundary of the CZ evolves through entrainment.
 In particular, we are interested in seeing if the roots of $\yS$ and $\yL$ coincide after evolution.
 %Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
 
-In this work, we utilize a simplified 3D model which employs the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
-Since we are studying thin regions near convective boundaries, this assumption is OK.
+In this work, we utilize a simplified 3D model employing the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
+Since we are studying thin regions near convective boundaries, this assumption is okay.
 The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $\mu$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.
