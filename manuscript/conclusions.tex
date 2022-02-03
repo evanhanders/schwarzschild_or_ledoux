@@ -11,6 +11,8 @@ These 3D dynamics support the claim that ``logically consistent'' implementation
 Modern algorithms like the MESA software instrument's ``convective pre-mixing'' \citep[CPM,][]{mesa5} should agree with our results.
 The results of 1D stellar evolution calculations should not depend on the choice of stability criterion used when $t_{\rm{evol}} \gg t_{\rm{conv}}$.
 
+\todo{Just being picky here, there should be a factor of something like $\mS^2$ in front of $t_{\rm conv}$ in these comparisons, right? Probably best to say that explicitly...}
+
 We note briefly that many SZs (the middle layer of our simulations) in stars are unstable to overstable doubly-diffusive convection (ODDC).
 ODDC mixes composition gradients even more rapidly than the entrainment studied here, and has been studied extensively in local simulations \citep{mirouh_etal_2012, wood_etal_2013, xie_etal_2017}; see the review of \citet{garaud_2018}.
 \citet{moore_garaud_2016} apply ODDC to the regions outside core convection zones in main sequence stars, and their results suggest that ODDC formulations should be widely included in stellar models.
@@ -24,4 +26,5 @@ We furthermore constructed the simulations in this work to have negligible conve
 Finally, in stars, $\gradrad$ and the Schwarzschild boundary location depend upon $\mu$, but we made the assumption that the radiative conductivity and $\gradrad$ do not depend on $\mu$ for simplicity.
 The nonlinear feedback between these effects should be studied in future work, but we do not expect that the fundamental takeaways of this work should change.
 
-In summary, we find that the Schwarzschild criterion provides the location of the convective boundary in a statistically stationary state; in this final state, the Ledoux and Schwarzschild criteria are degenerate.
+In summary, we find that the Ledoux criterion provides the instantaneous location of the convective boundary, the Schwarzschild criterion provides the location of the convective boundary in a statistically stationary state; in this final state, the Ledoux and Schwarzschild criteria agree.
+\todo{Just to highlight that I edited this last sentence, so you should take a look and see what you think.}

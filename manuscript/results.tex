@@ -4,7 +4,7 @@
 Fig.~\ref{fig:dynamics} visualizes the composition field in our simulation near the initial state (left) and evolved state (right).
 Overplotted horizontal lines correspond to the roots of $\yL$ (orange, Ledoux boundary) and $\yS$ (purple, Schwarzschild boundary).
 Initially, the bottom third of the domain is a CZ, the middle third is an SZ, and the top third is an RZ.
-Convection mechanically overshoots at all times, which can be seen by the presence of convection a small but appreciable distance above the orange Ledoux boundary.
+Convection mechanically overshoots at all times, which can be seen by the presence of convection slightly above the orange Ledoux boundary.
 Overshoot occurs because the Ledoux boundary corresponds to the sign change in the buoyant acceleration, not where the convective velocity is zero.
 
 The most obvious change from the left to the right panel is that the CZ has consumed the SZ and fills the bottom two-thirds of the box.
@@ -42,6 +42,7 @@ which is related to the oft-studied Richardson number.
 In our evolved simulation, we measure $\mS \sim 10^{4}$.
 Boundaries with a low stiffness $\mS \lesssim 10$ easily deform in the presence of convective flows, but convective boundaries in stars often have $\mS \gtrsim 10^6$.
 The number of convective overturn times required to entrain the SZ scale with $\mS$; we have chosen to use a large value of $\mS$ here to ensure our simulations are in the right regime to study entrainment at a stellar convective boundary.
+\todo{Maybe emphasize that this scaling is a power-law with a moderate exponent, so we expect this to happen in main-sequence stars at \emph{any} $\mS$ (e.g. it's not exponential in $\mS$, so the time-scales are always short).}
 
 Finally, Figure \ref{fig:kippenhahn} displays a Kippenhahn-like diagram of the simulation's height vs.~time to show evolutionary trends.
 The roots of $\yL$ and $\yS$ are respectively shown as orange (Ledoux boundary) and purple (Schwarzschild boundary) lines.
