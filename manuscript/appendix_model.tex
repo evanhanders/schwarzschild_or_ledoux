@@ -1,40 +1,42 @@
 \section{Model \& Initial Conditions}
 \label{app:model}
-In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field and a height-varying background radiative conductivity, similar to that used in \citet{fuentes_cumming_2020} and \citet{anders_etal_2022}.
+In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field.
 These equations are
 \begin{align}
     &\grad\dot\vec{u} = 0 
         \label{eqn:incompressible} \\
     &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi = \left(T - \frac{\mu}{\Ro}\right) \hat{z} + \frac{\Pran}{\mP}\grad^2 \vec{u}
         \label{eqn:momentum}, \\
-    &\partial_t T + \vec{u}\dot\grad T + w \grad_{\rm{ad}}  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'
-        \label{eqn:temperature},
-\end{align}
-\begin{align}
+    &\partial_t T + \vec{u}\dot(\grad T - \hat{z}\,\partial_z T_{\rm{ad}})  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'
+        \label{eqn:temperature},\\
+%\end{align}
+%\begin{align}
     &\partial_t \mu + \vec{u}\dot\grad \mu = -\frac{\tau_0}{\mP}\grad^2\bar{\mu} + \frac{\tau}{\mP}\grad^2 \mu'.
         \label{eqn:composition}
 \end{align}
-Here, $\vec{u}$ is the nondimensional velocity, $T$ is the nondimensional temperature, and $\mu$ is the nondimensional concentration.
+Here, $\vec{u}$ is velocity, $T$ is temperature, and $\mu$ is concentration.
 Bars (e.g., $\bar{T}$) represent the horizontally-averaged component of a field and primes (e.g., $T'$) denote all fluctuations around that background.
-The nondimensional control parameters are
+The adiabatic temperature gradient is $\partial_z T_{\rm{ad}}$ and the nondimensional control parameters are
 \begin{equation}
 \begin{split}
-    &\mP = \frac{u_{\rm{ff}} L_{\rm{conv}}}{\kappa_T},\qquad
+    &\mP = \frac{u_{\rm{ff}} \ell_{\rm{conv}}}{\kappa_T},\qquad
     \Ro = \frac{|\alpha|\Delta T}{|\beta|\Delta \mu},\qquad\\
     &\Pran = \frac{\nu}{\kappa_T},\qquad
     \tau = \frac{\kappa_\mu}{\kappa_T},\qquad
 \end{split}
 \end{equation}
-where the nondimensional freefall velocity is $\vec{u}_{\rm{ff}} = \sqrt{|\alpha|g L_{\rm{conv}}\Delta T}$ with $g$ the constant gravitational acceleration, $L_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = L_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are the coefficients of expansion for $T$ and $\mu$, $\nu$ is the viscosity, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
-We also specify different values of $\kappa_T = \kappa_{T,0}$ and $\kappa_\mu/\kappa_T = \tau_0$ for the horizontally-averaged component; this allows the radiative gradient to change with height and reduces diffusion on the mean $\mu$ structure to ensure evolution is due to advection.
-These equations are described in detail in Sec.~2 of \citet{garaud_2018}, except for the differing diffusivities on the averages and fluctuations.
+where the nondimensional freefall velocity is $\vec{u}_{\rm{ff}} = \sqrt{|\alpha|g \ell_{\rm{conv}}\Delta T}$ (with gravitational acceleration $g$), $\ell_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = \ell_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are the coefficients of expansion for $T$ and $\mu$, $\nu$ is the viscosity, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
+Eqns.~\ref{eqn:incompressible}-\ref{eqn:composition} are identical to Eqns.~2-5 in \citet{garaud_2018}, except we modify the diffusion coefficients acting on $\bar{T}$ ($\kappa_{T,0}$) and $\bar{\mu}$ ($\tau_0$).
+By doing this, the radiative temperature gradient $\partial_z T_{\rm{rad}} = -\rm{Flux}/\kappa_{T,0}$ can change with height, and we reduce diffusion on $\bar{\mu}$ to ensure its evolution is due to advection.
+
+\todo{$\mP$ above should be changed to $\mathrm{Pe}$ everywhere.}
 
 We define the Ledoux and Schwarzschild discriminants
 \begin{equation}
     \yS = \left(\frac{\partial T}{\partial z}\right)_{\rm{rad}} - \left(\frac{\partial T}{\partial z}\right)_{\rm{ad}},\,\,
     \yL = \yS - \Ro^{-1} \frac{\partial \mu}{\partial z},
 \end{equation}
-and in this nondimensional system the {\brunt} frequency is the negative of the Ledoux discriminant $N^2 = -yL$.
+and in this nondimensional system the {\brunt} frequency is the negative of the Ledoux discriminant $N^2 = -\yL$.
 
 In this work, we study a three-layer model in $z = [0, 3]$,
 \begin{align}
@@ -54,6 +56,7 @@ In this work, we study a three-layer model in $z = [0, 3]$,
     \end{cases},
     \label{eqn:initial_mu}
 \end{align}
-where the intial temperature derivative is $\partial T_0 / \partial z = (\partial T / \partial z)_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where it is adiabatic.
-We set $(\partial T / \partial z){\rm{ad}} = -1 - 10\Ro^{-1}$.
+We set $\mu = 1$ at $z = 0$ and $T = 1$ at $z = 3$.
+The the intial temperature profile has $\partial_zT_0 = \partial_z T_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where $\partial_zT_0 = \partial_z T_{\rm{ad}}$.
+We set $(\partial T / \partial z)_{\rm{ad}} = -1 - 10\Ro^{-1}$.
 
