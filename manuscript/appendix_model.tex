@@ -5,13 +5,13 @@ These equations are
 \begin{align}
     &\grad\dot\vec{u} = 0 
         \label{eqn:incompressible} \\
-    &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi = \left(T - \frac{\mu}{\Ro}\right) \hat{z} + \frac{\Pran}{\mP}\grad^2 \vec{u}
+    &\partial_t \vec{u} + \vec{u}\dot\grad\vec{u} + \grad \varpi = \left(T - \frac{\mu}{\Ro}\right) \hat{z} + \frac{\Pran}{\rm{Pe}}\grad^2 \vec{u}
         \label{eqn:momentum}, \\
-    &\partial_t T + \vec{u}\dot(\grad T - \hat{z}\,\partial_z T_{\rm{ad}})  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\mP}\grad^2 T'
+    &\partial_t T + \vec{u}\dot(\grad T - \hat{z}\,\partial_z T_{\rm{ad}})  + \grad\dot[-\kappa_{T,0} \grad \overline{T}] = \frac{1}{\rm{Pe}}\grad^2 T'
         \label{eqn:temperature},\\
 %\end{align}
 %\begin{align}
-    &\partial_t \mu + \vec{u}\dot\grad \mu = -\frac{\tau_0}{\mP}\grad^2\bar{\mu} + \frac{\tau}{\mP}\grad^2 \mu'.
+    &\partial_t \mu + \vec{u}\dot\grad \mu = -\frac{\tau_0}{\rm{Pe}}\grad^2\bar{\mu} + \frac{\tau}{\rm{Pe}}\grad^2 \mu'.
         \label{eqn:composition}
 \end{align}
 Here, $\vec{u}$ is velocity, $T$ is temperature, and $\mu$ is concentration.
@@ -19,7 +19,7 @@ Bars (e.g., $\bar{T}$) represent the horizontally-averaged component of a field 
 The adiabatic temperature gradient is $\partial_z T_{\rm{ad}}$ and the nondimensional control parameters are
 \begin{equation}
 \begin{split}
-    &\mP = \frac{u_{\rm{ff}} \ell_{\rm{conv}}}{\kappa_T},\qquad
+    &\rm{Pe} = \frac{u_{\rm{ff}} \ell_{\rm{conv}}}{\kappa_T},\qquad
     \Ro = \frac{|\alpha|\Delta T}{|\beta|\Delta \mu},\qquad\\
     &\Pran = \frac{\nu}{\kappa_T},\qquad
     \tau = \frac{\kappa_\mu}{\kappa_T},\qquad
@@ -28,8 +28,6 @@ The adiabatic temperature gradient is $\partial_z T_{\rm{ad}}$ and the nondimens
 where the nondimensional freefall velocity is $\vec{u}_{\rm{ff}} = \sqrt{|\alpha|g \ell_{\rm{conv}}\Delta T}$ (with gravitational acceleration $g$), $\ell_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = \ell_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are the coefficients of expansion for $T$ and $\mu$, $\nu$ is the viscosity, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
 Eqns.~\ref{eqn:incompressible}-\ref{eqn:composition} are identical to Eqns.~2-5 in \citet{garaud_2018}, except we modify the diffusion coefficients acting on $\bar{T}$ ($\kappa_{T,0}$) and $\bar{\mu}$ ($\tau_0$).
 By doing this, the radiative temperature gradient $\partial_z T_{\rm{rad}} = -\rm{Flux}/\kappa_{T,0}$ can change with height, and we reduce diffusion on $\bar{\mu}$ to ensure its evolution is due to advection.
-
-\todo{$\mP$ above should be changed to $\mathrm{Pe}$ everywhere.}
 
 We define the Ledoux and Schwarzschild discriminants
 \begin{equation}

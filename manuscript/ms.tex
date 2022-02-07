@@ -49,12 +49,12 @@
 
 \newcommand{\editone}[1]{\textcolor{orange}{#1}}
 
-\newcommand{\todo}[1]{ {\color{blue} \noindent\footnotesize \\\textsf{TODO:} \textsf{#1}\\\noindent }}
+\newcommand{\todo}[1]{ {\color{blue} \noindent\footnotesize \\\textsf{}TODO:} \textsf{#1}\\\noindent }}
 
 
 %%%% Journal preamble
-\received{July 28, 2021}
-\revised{October 19, 2021}
+\received{}
+\revised{}
 \accepted{}
 \published{}
 \submitjournal{ApJ}
@@ -127,10 +127,9 @@
 \includegraphics[width=\textwidth]{fig2_profiles.pdf}
 \caption{
     Horizontally-averaged profiles are shown for the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}).
-    \todo{Could you move $\yS$ in the left panel to be inside the blue region, level with $\yS$? I think that might look better and be less ambiguous.}
     Positive and negative values are respectively solid and dashed lines.
     We show the initial (left) and evolved (right, time-averaged over 100 convective overturn times) states.
-    \todo{I think it's confusing that $f_{\rm conv}$ doesn't appear on the left panel. I get why (no motion yet!), so maybe call this out explicitly in the caption?}
+    Note that there are no motions in the initial state, so $f_{\rm{conv}}^2 = 0$ and does not appear.
     The background color is orange in CZs, green in SZs, and purple in RZs per Section ~\ref{sec:theory}.
     The lightly hashed background region in the evolved RZ is the mechanical overshoot zone.
     {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}

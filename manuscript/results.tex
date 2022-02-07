@@ -42,7 +42,8 @@ which is related to the oft-studied Richardson number.
 In our evolved simulation, we measure $\mS \sim 10^{4}$.
 Boundaries with a low stiffness $\mS \lesssim 10$ easily deform in the presence of convective flows, but convective boundaries in stars often have $\mS \gtrsim 10^6$.
 The number of convective overturn times required to entrain the SZ scale with $\mS$; we have chosen to use a large value of $\mS$ here to ensure our simulations are in the right regime to study entrainment at a stellar convective boundary.
-\todo{Maybe emphasize that this scaling is a power-law with a moderate exponent, so we expect this to happen in main-sequence stars at \emph{any} $\mS$ (e.g. it's not exponential in $\mS$, so the time-scales are always short).}
+We briefly note that the entrainment timescale for the SZ scales like $\mS^{\alpha}\tau_{\rm{dyn}}$, where $\alpha$ is an $\mathcal{O}(1)$ positive exponent and $\tau_{\rm{dyn}}$ is the dynamical timescale.
+Since the relevant timescale of evolution on the main sequence is the nuclear time $\tau_{\rm{nuc}}$, and since $\tau_{\rm{nuc}}/\tau_{\rm{dyn}} \gg \mS^{\alpha}$ even for $\mS \sim 10^6$, we expect CZs to entrain SZs during a single stellar evolution time step.
 
 Finally, Figure \ref{fig:kippenhahn} displays a Kippenhahn-like diagram of the simulation's height vs.~time to show evolutionary trends.
 The roots of $\yL$ and $\yS$ are respectively shown as orange (Ledoux boundary) and purple (Schwarzschild boundary) lines.
