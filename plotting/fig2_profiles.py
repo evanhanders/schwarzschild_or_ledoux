@@ -226,12 +226,13 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
     #Add y_Slabel
 #    print(max_x)
     max_x = z_dense[yS_field['g'] > 0][-1]
-    max_y = -yS_field['g'][z_dense > max_x + 0.05][0]
+    max_y = np.max(yS_field['g'])
+#    max_y = -yS_field['g'][z_dense > max_x + 0.05][0]
     transformed = ax2.transLimits.transform((max_x, np.log10(max_y)))
     if first:
-        ax2.text(transformed[0]-0.05, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
+        ax2.text(transformed[0]+0.03, transformed[1] - 0.05, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
     else:
-        ax2.text(transformed[0]-0.06, transformed[1] + 0.06, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
+        ax2.text(transformed[0]+0.03, transformed[1] - 0.05, r'$\mathcal{Y}_{\rm{S}}$', color=colors[2], transform=ax2.transAxes)
 
     #Add y_L label
     max_x = L_d0999
