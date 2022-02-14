@@ -92,12 +92,12 @@
 
 \begin{abstract}
     In one-dimensional stellar evolution models, convective boundaries are calculated using either the Schwarzschild or Ledoux criterion, but there is no consensus regarding which criterion to use.
-    In this letter, we present a 3D hydrodynamical simulation of a convection zone whose boundary is thermally unstable but compositionally stable.
-    Therefore, the convective boundary is Schwarzschild unstable but Ledoux stable.
-    Over many convective overturn timescales, entrainment makes the convection zone grow.
-    The convective boundary stops advancing after it becomes stable by the Schwarzschild criterion.
-    This work demonstrates using 3D simulations that the Ledoux criterion \emph{instantaneously} describes the boundary of a convection zone, but that Ledoux-stable boundaries are fragile unless they are also Schwarzschild stable.
-    Therefore, the Schwarzschild stability criterion describes the size of a convection zone, except during short-lived evolutionary stages in which entrainment persists.
+    In this letter, we present a 3D hydrodynamical simulation of a convection zone and adjacent radiative zone, including both thermal and compositional buoyancy forces.
+    Turbulent convection only occurs in the region which is unstable according to the Ledoux criterion.
+    Early in the simulation, the convective boundary is Schwarzschild unstable but Ledoux stable, because there is a composition gradient near the convection zone boundary.
+    Over many convective overturn timescales the convection zone grows via entrainment.
+    The convection zone saturates at the size predicted by the Schwarzchild criterion, and in this final state the Schwarzschild and Ledoux criteria are equivalent.
+    Therefore, the size of stellar convection zones is determined by the Schwarzschild criterion, except possibly during short-lived stages in which entrainment persists.
 \end{abstract}
 \keywords{Stellar convection zones (301), Stellar physics (1621); Stellar evolutionary models (2046)}
 
@@ -115,7 +115,6 @@
     The convection zone is mostly well-mixed, so we expand the colorbar scaling there; black represents entrained low-$\mu$ fluid being mixed into the yellow high-$\mu$ convection zone.
     The orange and purple horizontal lines respectively denote the Ledoux and Schwarzschild boundaries.
     The simulation domain spans $z = [0, 3]$, but we only plot $z = [0, 2.5]$ here.
-    {\color{blue} Note: this is currently evolving further.}
 \label{fig:dynamics}
 }
 \end{figure*}
@@ -132,7 +131,6 @@
     Note that there are no motions in the initial state, so $f_{\rm{conv}}^2 = 0$ and does not appear.
     The background color is orange in CZs, green in SZs, and purple in RZs per Section ~\ref{sec:theory}.
     The lightly hashed background region in the evolved RZ is the mechanical overshoot zone.
-    {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}
 \label{fig:profiles}
 }
 \end{figure*}
@@ -152,7 +150,7 @@
     The semiconvective region between these boundaries is colored green.
     The overshoot zone is hashed, and the black line denotes the top of this region.
     The simulation has an ``entrainment phase'' while the CZ expands, and a pure ``overshoot phase'' where the convective boundary does not advance.
-    {\color{blue} Note: this data is taken from a less turbulent run than fig 1; it'll be updated when the fig 1 run finishes.}
+    {\color{blue} Note: The simulation has only evolved to $t = 17000$, and I extended the end of this; it is running to 20000.}
 \label{fig:kippenhahn}
 }
 \end{figure}
