@@ -48,6 +48,16 @@ with h5py.File('{:s}/data_top_cz.h5'.format(root_dir), 'r') as f:
     yL_switch = f['yL_switch'][()]
     yS_switch = f['yS_switch'][()]
 
+from scipy.optimize import curve_fit
+good_fit = (times > 1000)*(times < 12000)
+func = lambda t, A, B: (A*np.sqrt(t) + B)
+fit = curve_fit(func, times[good_fit], yL_switch[good_fit], p0=(1000, 1))
+sqrt_fit = fit[0][1] + fit[0][0]*np.sqrt(times)
+print(fit)
+
+#TODO: CHANGE THIS
+times[-1] = 20000
+
 Lz = 3
 #kippenhahn fig
 colors = bqual.Dark2_4.mpl_colors
@@ -66,6 +76,7 @@ plt.fill_between(times, np.zeros_like(times), yL_switch, facecolor=ORANGE, alpha
 plt.fill_between(times, yL_switch, oz_bound, facecolor=ORANGE, alpha=(3/2)*alpha_val)
 plt.plot(times, yS_switch, c=PURPLE, lw=2, zorder=1)
 plt.plot(times, yL_switch, c=ORANGE, lw=2)
+#plt.plot(times, sqrt_fit, c='purple', lw=1)
 plt.fill_between(times, yL_switch, oz_bound, hatch='//', edgecolor='k', facecolor="none", zorder=2)
 #    plt.plot(times, N2_switch, c='k')
 #plt.plot(times, L_d080s, c='k', ls='--')
@@ -75,6 +86,8 @@ if end_entrainment < 0.5:
     x_max = end_entrainment*times.max()*2
     plt.xlim(0, x_max)
     end_entrainment = 0.5
+else:
+    plt.xlim(0, x_max)
 len_overshoot   = (1-end_entrainment)
 plt.ylim(0, Lz)
 plt.xlabel('simulation time (freefall units)')
