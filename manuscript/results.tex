@@ -5,13 +5,13 @@ Fig.~\ref{fig:dynamics} visualizes the composition field in our simulation near 
 Overplotted horizontal lines correspond to the roots of $\yL$ (orange, Ledoux boundary) and $\yS$ (purple, Schwarzschild boundary).
 Initially, the bottom third of the domain is a CZ, the middle third is an SZ, and the top third is an RZ.
 Convection mechanically overshoots at all times, which can be seen by the presence of convection slightly above the orange Ledoux boundary.
-Overshoot occurs because the Ledoux boundary corresponds to the sign change in the buoyant acceleration, not where the convective velocity is zero.
+Overshoot occurs because the Ledoux boundary is not the location where convective velocity is zero, but rather the location where buoyant acceleration changes sign due to a sign change in the entropy gradient.
 
 The most obvious change from the left to the right panel is that the CZ has consumed the SZ and fills the bottom two-thirds of the box.
 The overshooting convective motions entrained low-composition material from above the Ledoux boundary into the CZ.
 Convective motions mixed this fluid, and this process repeated over thousands of convective overturn times until the Ledoux and Schwarzschild boundaries of the CZ coincided.
 After becoming Schwarzschild stable, the convective boundary stopped moving.
-This occurs because the radiative flux renews and reinforces the radiative gradient, but there is no equivalent process for the composition.
+This occurs because the radiative flux renews and reinforces the radiative gradient, but there is no equivalent process for the composition\footnote{Nuclear timescales are generally much longer than dynamical timescales and can be neglected as a source of composition.}.
 
 Figure \ref{fig:profiles} displays vertical simulation profiles in the initial (left) and evolved (right) states.
 Shown are the composition $\mu$ (top), the discriminants $\yL$ and $\yS$ (middle), and the square \brunt$\,$ frequency (top) as well as the square convective frequency defined as
@@ -19,7 +19,7 @@ Shown are the composition $\mu$ (top), the discriminants $\yL$ and $\yS$ (middle
 f_{\rm{conv}}^2 = \frac{|\vec{u}|^2}{\ell_{\rm{conv}}^2},
 \label{eqn:fconv2}
 \end{equation}
-where $\vec{u}$ is the velocity and $\ell_{\rm{conv}}$ is the depth of the convectively unstable layer.
+where $|\vec{u}|$ is the horizontally-averaged velocity magnitude and $\ell_{\rm{conv}}$ is the depth of the convectively unstable layer.
 
 Initially, the composition is uniform in the CZ ($z < 1$) and RZ ($z > 2$), but varies linearly in the SZ ($z \in [1, 2]$).
 The root of $\yL$ occurs at $z \approx 1$ while that of $\yS$ occurs at $z \approx 2$.
@@ -39,10 +39,9 @@ We can compute the ``stiffness'' of the radiative-convective interface,
 \label{eqn:stiffness}
 \end{equation}
 which is related to the oft-studied Richardson number.
-In our evolved simulation, we measure $\mS \sim 10^{4}$.
 Boundaries with a low stiffness $\mS \lesssim 10$ easily deform in the presence of convective flows, but convective boundaries in stars often have $\mS \gtrsim 10^6$.
-The number of convective overturn times required to entrain the SZ scale with $\mS$; we have chosen to use a large value of $\mS$ here to ensure our simulations are in the right regime to study entrainment at a stellar convective boundary.
-We briefly note that the entrainment timescale for the SZ scales like $\mS^{\alpha}\tau_{\rm{dyn}}$, where $\alpha$ is an $\mathcal{O}(1)$ positive exponent and $\tau_{\rm{dyn}}$ is the dynamical timescale.
+Note that the time to entrain the SZ scales like $\mS^{\alpha}\tau_{\rm{dyn}}$, where $\alpha$ is an $\mathcal{O}(1)$ positive exponent and $\tau_{\rm{dyn}}$ is the dynamical timescale \citep{turner_1968, fuentes_cumming_2020}.
+Due to this $\mS$ dependence, we study a large value of $\mS \sim 10^{4}$ in the statistically-stationary state to ensure our simulations are in the right regime to study entrainment at a stellar convective boundary.
 Since the relevant timescale of evolution on the main sequence is the nuclear time $\tau_{\rm{nuc}}$, and since $\tau_{\rm{nuc}}/\tau_{\rm{dyn}} \gg \mS^{\alpha}$ even for $\mS \sim 10^6$, we expect CZs to entrain SZs during a single stellar evolution time step.
 
 Finally, Figure \ref{fig:kippenhahn} displays a Kippenhahn-like diagram of the simulation's height vs.~time to show evolutionary trends.

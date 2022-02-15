@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex ms"] 1644878976 "ms.aux" "ms.bbl" "ms" 1644878978
+["bibtex ms"] 1644938620 "ms.aux" "ms.bbl" "ms" 1644938917
   "./aasjournal.bst" 1636064171 37930 c2368a73b82a7c192c7ab34d16c71a72 ""
   "biblio.bib" 1643825363 36844 1d7bd01325c3e7efcde1e416521952ab ""
-  "ms.aux" 1644878977 8633 75d6bb9448e8b868b8d2313e49c46d8f "pdflatex"
+  "ms.aux" 1644938917 8706 e6a90254808e9ae5fa0c5556094674ac "pdflatex"
   (generated)
-  "ms.blg"
   "ms.bbl"
-["pdflatex"] 1644878976 "ms.tex" "ms.pdf" "ms" 1644878978
+  "ms.blg"
+["pdflatex"] 1644938916 "ms.tex" "ms.pdf" "ms" 1644938917
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/helvetic/phvr.tfm" 1136768653 2504 ba6584b616b92101c768b6c4ffb32dd0 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -145,16 +145,16 @@
   "conclusions.tex" 1644872620 3453 5ef325a007161e56b5e122da172c663e ""
   "dynamics_figure.pdf" 1644878933 2049214 632f05db67cb9d912fe976de09742656 ""
   "fig2_profiles.pdf" 1644877644 31344 4c66b29840cf96afb1a4beaf4ad31a22 ""
-  "intro.tex" 1643918571 3096 6094760ed0bdba73bffeca1cfca959c6 ""
+  "intro.tex" 1644937556 3227 da610fd62675262265af01883107f5f5 ""
   "kippenhahn.pdf" 1644876767 921290 f51040456d6aa5b06c7965475e8b28f8 ""
-  "ms.aux" 1644878977 8633 75d6bb9448e8b868b8d2313e49c46d8f "pdflatex"
-  "ms.bbl" 1644878976 9241 e0de57947aec867f429307be1447a252 "bibtex ms"
-  "ms.out" 1644878977 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
-  "ms.tex" 1644878964 8905 0ef847d3fdbdb8292363c01d998c1899 ""
-  "results.tex" 1644267502 5250 751e142ed6339fb6e38930345facbc3b ""
-  "theory.tex" 1644872620 3205 d1862c703f68ca6641f18922116170e4 ""
+  "ms.aux" 1644938917 8706 e6a90254808e9ae5fa0c5556094674ac "pdflatex"
+  "ms.bbl" 1644938621 9241 e0de57947aec867f429307be1447a252 "bibtex ms"
+  "ms.out" 1644938917 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
+  "ms.tex" 1644937391 8872 cdb4c20f4f5189ca19ea7ffe54e01b28 ""
+  "results.tex" 1644938916 5417 67bec2c0f729a916cf482fc330b4ddf3 ""
+  "theory.tex" 1644937846 3157 7c5be1eaf86e9fb29c52bc05b35ab0d6 ""
   (generated)
   "ms.aux"
   "ms.log"
-  "ms.pdf"
   "ms.out"
+  "ms.pdf"

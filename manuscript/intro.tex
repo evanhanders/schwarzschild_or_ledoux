@@ -1,19 +1,20 @@
 
 \section{Introduction}
 \label{sec:introduction}
-Observations tell us that we do not understand the positioning of convective boundaries in stars.
-For example, models and observations disagree about the sizes of convective cores \citep{claret_torres_2018, viani_basu_2020, pedersen_etal_2021, johnston_2021}, lithium abundances in solar-type stars \citep{pinsonneault_1997, sestito_randich_2005, carlos_etal_2019, dumont_etal_2021}, and the sound speed at the base of the Sun's convection zone \citep[see][Sec.~7.2.1]{basu_2016}.
-Improperly estimating convective boundary locations can have important impacts across astrophysics such as by affecting the mass of stellar remnants \citep{farmer_etal_2019, mehta_etal_2022} and the inferred radii of exoplanets \citep{basu_etal_2012, morrell_2020}.
+We do not understand convective boundaries in stars.
+This is suggested by a variety of observations; for example, models and observations disagree about the sizes of convective cores \citep{claret_torres_2018, viani_basu_2020, pedersen_etal_2021, johnston_2021}, lithium abundances in solar-type stars \citep{pinsonneault_1997, sestito_randich_2005, carlos_etal_2019, dumont_etal_2021}, and the sound speed at the base of the Sun's convection zone \citep[see][Sec.~7.2.1]{basu_2016}.
+Improperly estimating convective boundary locations can have important impacts across astrophysics such as affecting the mass of stellar remnants \citep{farmer_etal_2019, mehta_etal_2022} and the inferred radii of exoplanets \citep{basu_etal_2012, morrell_2020}.
 
 While convective boundary mixing (CBM) has many uncertainties, the most fundamental question is: what determines the location of convection zone boundaries? 
-Some authors evaluate the \emph{Schwarzschild criterion}, which determines where the temperature and pressure stratification within a star are stable or unstable.
-Others evaluate the \emph{Ledoux criterion}, which accounts for stability or instability due to compositional stratification \citep[e.g., the variation of helium abundance with pressure; see][chapter 3, which reviews these criteria]{salaris_cassisi_2017}.
-Recent authors state that these criteria should be equivalent at a convective boundary according to mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5}, but in practice these criteria are often different at convective boundaries in stellar evolution software instruments, and a variety of workarounds have been proposed to address this~\citep{mesa4,mesa5}.
+Some stellar evolution models determine the location of the convection zone boundary using the \emph{Schwarzschild criterion}, by comparing the radiative and adiabatic temperature gradients.
+In other models, the convection zone boundary is determined by using the \emph{Ledoux criterion}, which also accounts for compositional stratification \citep[][chapter 3, reviews these criteria]{salaris_cassisi_2017}.
+Recent work states that these criteria should be equivalent at a convective boundary according to mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5}, but in practice these criteria are often different at convective boundaries in stellar evolution software instruments, and this has led to a variety of workarounds \citep{mesa4,mesa5}.
 
-There is still disagreement regarding which stability criterion to employ~\citep[discussed in][chapter 2]{kaiser_etal_2020}.
-Multi-dimensional simulations show that convection zones with Ledoux-stable boundaries expand by entraining compositionally-stable regions \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, fuentes_cumming_2020, andrassy_etal_2020, andrassy_etal_2021}.
-It is unclear from past 3D simulations whether that entrainment should stop, leading to uncertainty in how to include entrainment in 1D models \citep{staritsin_2013, scott_etal_2021}.
+As there is still disagreement regarding which stability criterion is appropriate for 1D modeling~\citep[see][chapter 2]{kaiser_etal_2020}, insight can be gained from studying multi-dimensional simulations.
+Such simulations show that convection zones adjacent to a Ledoux stable region can expand by entraining material from the stable region \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, fuentes_cumming_2020, andrassy_etal_2020, andrassy_etal_2021}.
+However, past simulations have not achieved a statistically-stationary state, leading to uncertainty in how to include entrainment in 1D models \citep{staritsin_2013, scott_etal_2021}.
 
-In this letter, we present a simple 3D hydrodynamical simulation that demonstrates that convection zones with Ledoux-stable but Schwarzschild-unstable boundaries entrain material until the Ledoux and Schwarzschild criteria agree on the location of the convective boundary.
-Therefore, in 1D stellar evolution models, when evolutionary timescales are much larger than the convective overturn timescale \citep[such as on the main sequence, see][]{georgy_etal_2021}, the Schwarzschild criterion describes the location of the convective boundary, and Ledoux and Schwarzschild should agree if properly implemented.
-We discuss these criteria in Sec.~\ref{sec:theory}, display simulations in Sec.~\ref{sec:results}, and briefly discuss in Sec.~\ref{sec:conclusions}.
+In this letter, we present a 3D hydrodynamical simulation that demonstrates that convection zones adjacent to regions that are Ledoux-stable but Schwarzschild unstable will entrain material until the adjacent region is stable by both criteria.
+Therefore, in 1D stellar evolution models, the Schwarzschild criterion correctly determines the location of the convective boundary when evolutionary timescales are much larger than the convective overturn timescale \citep[e.g., on the main sequence;][]{georgy_etal_2021}.
+When correctly implemented, the Ledoux criterion should return the same result \citep{gabriel_etal_2014}.
+We discuss these criteria in Sec.~\ref{sec:theory}, describe our simulation in Sec.~\ref{sec:results}, and briefly discuss the implications of our results for 1D stellar evolution models in Sec.~\ref{sec:conclusions}.

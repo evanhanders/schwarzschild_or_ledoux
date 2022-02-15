@@ -17,19 +17,18 @@ In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep
 Stellar structure software instruments assume that convective boundaries coincide with the root (sign change) of the discriminant.
 The various stability regimes which can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but note four important regimes:
 \begin{enumerate}
-    \item Convection Zones (CZs): Regions with $\yS > 0$ and $\yL \geq \yS$ are convectively unstable.
+    \item Convection Zones (CZs): Regions with both $\yS > 0$ and $\yL > 0$ are convectively unstable.
     \item Radiative Zones (RZs): Regions with $\yS < 0$ and $\yL \leq \yS$ are stable to convection.
     \item ``Semiconvection'' Zones (SZs): Regions with $\yS > 0$ but $\yL < 0$ are stablized to convection by a composition gradient despite an unstable thermal stratification.
         These regions can be stable RZs or linearly unstable to oscillatory double-diffusive convection \citep[ODDC, see][chapters 2 and 4]{garaud_2018}.
     \item ``Thermohaline'' Zones: Regions with $\yS < 0$ and $\yL > \yS$ are thermally stable to convection despite an unstable composition gradient.
         These regions can be stable RZs or linearly unstable to thermohaline mixing \citep[see][chapters 2 and 3]{garaud_2018}.
 \end{enumerate}
-In this paper, we study 3D simulations of a stable SZ (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
+In this letter, we study 3D simulations of a stable SZ (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
 We examine how the boundary of the CZ evolves through entrainment.
-In particular, we are interested in seeing if the roots of $\yS$ and $\yL$ coincide after evolution.
-%Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
+In particular, we are interested in seeing if the roots of $\yS$ and $\yL$ coincide on timescales that are long compared to the dynamical timescale but short compared to evolutionary timescales.
 
 In this work, we utilize a simplified 3D model employing the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
-Since we are studying thin regions near convective boundaries, this assumption is okay.
+We study a domain consisting of a thin (much smaller than a scale height) region near a convective boundary, so this assumption is valid.
 The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $\mu$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.
