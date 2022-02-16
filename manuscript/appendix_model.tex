@@ -1,6 +1,6 @@
 \section{Model \& Initial Conditions}
 \label{app:model}
-In this work we study the simplest possible system: incompressible, Boussinesq convection with a composition field.
+In this work we study incompressible, Boussinesq convection with a composition field.
 These equations are
 \begin{align}
     &\grad\dot\vec{u} = 0 
@@ -27,7 +27,8 @@ The adiabatic temperature gradient is $\partial_z T_{\rm{ad}}$ and the nondimens
 \end{equation}
 where the nondimensional freefall velocity is $\vec{u}_{\rm{ff}} = \sqrt{|\alpha|g \ell_{\rm{conv}}\Delta T}$ (with gravitational acceleration $g$), $\ell_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = \ell_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are the coefficients of expansion for $T$ and $\mu$, $\nu$ is the viscosity, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
 Eqns.~\ref{eqn:incompressible}-\ref{eqn:composition} are identical to Eqns.~2-5 in \citet{garaud_2018}, except we modify the diffusion coefficients acting on $\bar{T}$ ($\kappa_{T,0}$) and $\bar{\mu}$ ($\tau_0$).
-By doing this, the radiative temperature gradient $\partial_z T_{\rm{rad}} = -\rm{Flux}/\kappa_{T,0}$ can change with height, and we reduce diffusion on $\bar{\mu}$ to ensure its evolution is due to advection.
+By doing this, we keep the turbulence (Pe) uniform throughout the domain while also allowing the radiative temperature gradient $\partial_z T_{\rm{rad}} = -\rm{Flux}/\kappa_{T,0}$ to vary with height.
+We furthermore reduce diffusion on $\bar{\mu}$ to ensure its evolution is due to advection.
 
 We define the Ledoux and Schwarzschild discriminants
 \begin{equation}
@@ -36,7 +37,7 @@ We define the Ledoux and Schwarzschild discriminants
 \end{equation}
 and in this nondimensional system the {\brunt} frequency is the negative of the Ledoux discriminant $N^2 = -\yL$.
 
-In this work, we study a three-layer model in $z = [0, 3]$,
+We study a three-layer model with $z \in [0, 3]$,
 \begin{align}
     &\left(\frac{\partial T}{\partial z}\right)_{\rm{rad}} = 
     \left(\frac{\partial T}{\partial z}\right)_{\rm{ad}} + 
@@ -50,11 +51,12 @@ In this work, we study a three-layer model in $z = [0, 3]$,
     \begin{cases}
         0        & z \leq 1 \\
         -1       & 1 < z \leq 2 \\
-        0        & 2 < z
+        0        & 2 > z
     \end{cases},
     \label{eqn:initial_mu}
 \end{align}
 We set $\mu = 1$ at $z = 0$ and $T = 1$ at $z = 3$.
-The the intial temperature profile has $\partial_zT_0 = \partial_z T_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where $\partial_zT_0 = \partial_z T_{\rm{ad}}$.
+The intial temperature profile has $\partial_zT_0 = \partial_z T_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where $\partial_zT_0 = \partial_z T_{\rm{ad}}$.
 We set $(\partial T / \partial z)_{\rm{ad}} = -1 - 10\Ro^{-1}$.
-
+To obtain $\mu_0$, we numerically integrate Eqn.~\ref{eqn:initial_mu} with $\mu_0(z=0) = 0$.
+To obtain $T_0$, we numerically integrate $\partial_z T_0 = (\partial_z T)_{\rm{rad}}$ (Eqn.~\ref{eqn:initial_T}) with $T_0(z=3) = 1$.

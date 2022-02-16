@@ -35,7 +35,7 @@
 \newcommand{\mR}{\ensuremath{\mathcal{R}}}
 \newcommand{\mS}{\ensuremath{\mathcal{S}}}
 \newcommand\Pran{\ensuremath{\mathrm{Pr}}}
-\newcommand{\brunt}{{Brunt-V\"{a}is\"{a}l\"{a}}}
+\newcommand{\brunt}{{Brunt--V\"{a}is\"{a}l\"{a}}}
 
 \newcommand{\angles}[1]{\langle #1 \rangle}
 \newcommand{\pd}[1]{\partial_{#1}}
@@ -77,7 +77,6 @@
 \affiliation{CIERA, Northwestern University, Evanston IL 60201, USA}
 \affiliation{Department of Engineering Sciences and Applied Mathematics, Northwestern University, Evanston IL 60208, USA}
 \affiliation{Kavli Institute for Theoretical Physics, University of California, Santa Barbara, CA 93106, USA}
-%\author[0000-0001-8935-219X]{Adrian E. Fraser}
 \author[0000-0003-4323-2082]{Adrian E. Fraser}
 \affiliation{Department of Applied Mathematics, Baskin School of Engineering, University of California, Santa Cruz, Santa Cruz, CA 95064, USA}
 \affiliation{Kavli Institute for Theoretical Physics, University of California, Santa Barbara, CA 93106, USA}
@@ -93,8 +92,8 @@
 \begin{abstract}
     In one-dimensional stellar evolution models, convective boundaries are calculated using either the Schwarzschild or Ledoux criterion, but there is no consensus regarding which criterion to use.
     In this letter, we present a 3D hydrodynamical simulation of a convection zone and adjacent radiative zone, including both thermal and compositional buoyancy forces.
-    Turbulent convection only occurs in the region which is unstable according to the Ledoux criterion.
-    Early in the simulation, the stable region adjacent to the convection zone is Schwarzschild unstable but Ledoux stable, due to a composition gradient.
+    As expected, regions which are unstable according to the Ledoux criterion are convective.
+    Initially, the radiative zone adjacent to the convection zone is Schwarzschild-unstable but Ledoux-stable due to a composition gradient.
     Over many convective overturn timescales the convection zone grows via entrainment.
     The convection zone saturates at the size predicted by the Schwarzchild criterion, and in this final state the Schwarzschild and Ledoux criteria are equivalent.
     Therefore, the size of stellar convection zones is determined by the Schwarzschild criterion, except possibly during short-lived stages in which entrainment persists.
@@ -110,11 +109,12 @@
 \centering
 \includegraphics[width=\textwidth]{dynamics_figure.pdf}
 \caption{
-    Volume renderings of the simulation composition field $\mu$ at early (left) and late (right) times.
+    Volume renderings of the composition $\mu$ at early (left) and late (right) times.
     The change in color from white at the top of the box to dark purple at the top of the convection zone denotes a stable composition gradient.
-    The convection zone is mostly well-mixed, so we expand the colorbar scaling there; black represents entrained low-$\mu$ fluid being mixed into the yellow high-$\mu$ convection zone.
-    The orange and purple horizontal lines respectively denote the Ledoux and Schwarzschild boundaries.
-    The simulation domain spans $z = [0, 3]$, but we only plot $z = [0, 2.5]$ here.
+    The convection zone is well-mixed, so we expand the colorbar scaling there; black represents entrained low-$\mu$ fluid being mixed into the yellow high-$\mu$ convection zone.
+    The orange and purple horizontal lines respectively denote the heights at which $\yL = 0$ and $\yS = 0$.
+    The two criteria are equivalent in the right panel, so the orange line is not visible.
+    The simulation domain spans $z \in [0, 3]$, but we only plot $z \in [0, 2.5]$ here.
 \label{fig:dynamics}
 }
 \end{figure*}
@@ -125,10 +125,10 @@
 \centering
 \includegraphics[width=\textwidth]{fig2_profiles.pdf}
 \caption{
-    Horizontally-averaged profiles are shown for the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}).
+    Horizontally-averaged profiles of the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}).
     Positive and negative values are respectively solid and dashed lines.
     We show the initial (left) and evolved (right, time-averaged over 100 convective overturn times) states.
-    Note that there are no motions in the initial state, so $f_{\rm{conv}}^2 = 0$ and does not appear.
+    There are no motions in the initial state, so $f_{\rm{conv}}^2 = 0$ and does not appear.
     The background color is orange in CZs, green in SZs, and purple in RZs per Section ~\ref{sec:theory}.
     The lightly hashed background region in the evolved RZ is the mechanical overshoot zone.
 \label{fig:profiles}
@@ -145,8 +145,8 @@
 \caption{
     A Kippenhahn-like diagram of the simulation evolution.
     The $y$-axis is simulation height and the $x$-axis is simulation time.
-    The orange line denotes the Ledoux boundary ($\yL = 0$); the CZ is below this and is colored orange.
-    The purple line denotes the Schwarzschild boundary ($\yS = 0$); the RZ is above this and is colored purple.
+    The orange line denotes the convective boundary according to the Ledoux criterion ($\yL = 0$); the CZ is below this and is colored orange.
+    The purple line denotes the convective boundary according to the Schwarzschild criterion ($\yS = 0$); the RZ is above this and is colored purple.
     The semiconvective region between these boundaries is colored green.
     The overshoot zone is hashed, and the black line denotes the top of this region.
     The simulation has an ``entrainment phase'' while the CZ expands, and a pure ``overshoot phase'' where the convective boundary does not advance.
@@ -156,8 +156,6 @@
 \end{figure}
 
 
-\newpage
-\,\newpage
 \input{conclusions}
 
 \begin{acknowledgments}
