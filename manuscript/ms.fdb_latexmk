@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex ms"] 1645123307 "ms.aux" "ms.bbl" "ms" 1645125558
+["bibtex ms"] 1645127454 "ms.aux" "ms.bbl" "ms" 1645127515
   "./aasjournal.bst" 1636064171 37930 c2368a73b82a7c192c7ab34d16c71a72 ""
   "biblio.bib" 1643825363 36844 1d7bd01325c3e7efcde1e416521952ab ""
-  "ms.aux" 1645125558 8508 5160c5cca8d3f9e20416c8509264baeb "pdflatex"
+  "ms.aux" 1645127515 8508 4d2f0bc83e69f19e4be3a3597895a0a2 "pdflatex"
   (generated)
   "ms.blg"
   "ms.bbl"
-["pdflatex"] 1645125557 "ms.tex" "ms.pdf" "ms" 1645125558
+["pdflatex"] 1645127514 "ms.tex" "ms.pdf" "ms" 1645127515
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/helvetic/phvr.tfm" 1136768653 2504 ba6584b616b92101c768b6c4ffb32dd0 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -131,21 +131,21 @@
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1586288259 2432462 fd0fa20e9a3cb5f8169fd0ba1c955158 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
   "aastex631.cls" 1636064171 239479 b28688f0c3df5a7b8dca3f903804b0ef ""
-  "appendix_model.tex" 1645124252 4392 bcb2fa2d6b3138019f4d2a5cf966967c ""
-  "appendix_simulations.tex" 1645124054 1773 29e6227d34874e6e940999b35810db89 ""
-  "conclusions.tex" 1645125556 3567 a3463b0633a9d65147e74dd0c4dc9f18 ""
+  "appendix_model.tex" 1645125671 4392 bcb2fa2d6b3138019f4d2a5cf966967c ""
+  "appendix_simulations.tex" 1645125671 1773 29e6227d34874e6e940999b35810db89 ""
+  "conclusions.tex" 1645125671 3567 a3463b0633a9d65147e74dd0c4dc9f18 ""
   "dynamics_figure.pdf" 1645052150 2037722 e72a2dbb7190592a097fcc54fad18b02 ""
   "fig2_profiles.pdf" 1645052987 31352 7179412c5ee0cbd36cade29fe7d30ee9 ""
-  "intro.tex" 1645124582 3216 6f3599c3d3e570ad9933a97e33b69ac1 ""
+  "intro.tex" 1645125671 3216 6f3599c3d3e570ad9933a97e33b69ac1 ""
   "kippenhahn.pdf" 1644876767 921290 f51040456d6aa5b06c7965475e8b28f8 ""
-  "ms.aux" 1645125558 8508 5160c5cca8d3f9e20416c8509264baeb "pdflatex"
-  "ms.bbl" 1645123307 8868 704620deb2e79c6ace632b4d87c021cf "bibtex ms"
-  "ms.out" 1645125558 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
-  "ms.tex" 1645123305 8919 cfa4797844165bca891abbcf2b2e6236 ""
-  "results.tex" 1645125176 5557 5cc4e30fa4d77c8ad17fdec18c58d20a ""
-  "theory.tex" 1645124938 3244 10a21ec73b0deabbd460de5a75773d85 ""
+  "ms.aux" 1645127515 8508 4d2f0bc83e69f19e4be3a3597895a0a2 "pdflatex"
+  "ms.bbl" 1645127454 8868 704620deb2e79c6ace632b4d87c021cf "bibtex ms"
+  "ms.out" 1645127515 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
+  "ms.tex" 1645127513 9148 f302d21df34373f2a81fa0cfd9f25f9d ""
+  "results.tex" 1645125671 5557 5cc4e30fa4d77c8ad17fdec18c58d20a ""
+  "theory.tex" 1645125671 3244 10a21ec73b0deabbd460de5a75773d85 ""
   (generated)
-  "ms.pdf"
   "ms.out"
   "ms.aux"
   "ms.log"
+  "ms.pdf"
