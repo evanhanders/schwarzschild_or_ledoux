@@ -2,16 +2,16 @@
 \section{Introduction}
 \label{sec:introduction}
 We do not understand convective boundaries in stars.
-There are discrepancies between models and observations of the sizes of convective cores \citep{claret_torres_2018, viani_basu_2020, pedersen_etal_2021, johnston_2021}, lithium abundances in solar-type stars \citep{pinsonneault_1997, sestito_randich_2005, carlos_etal_2019, dumont_etal_2021}, and the sound speed at the base of the Sun's convection zone \citep[see][Sec.~7.2.1]{basu_2016}.
+There are discrepancies between models and observations regarding the sizes of convective cores \citep{claret_torres_2018, viani_basu_2020, pedersen_etal_2021, johnston_2021}, lithium abundances in solar-type stars \citep{pinsonneault_1997, sestito_randich_2005, carlos_etal_2019, dumont_etal_2021}, and the sound speed at the base of the Sun's convection zone \citep[see][Sec.~7.2.1]{basu_2016}.
 Incorrect convective boundary locations can have important impacts across astrophysics such as affecting the mass of stellar remnants \citep{farmer_etal_2019, mehta_etal_2022} and the inferred radii of exoplanets \citep{basu_etal_2012, morrell_2020}.
 
 While convective boundary mixing (CBM) has many uncertainties, the most fundamental question is: what determines the location of convection zone boundaries? 
 Some stellar evolution models determine the location of the convection zone boundary using the \emph{Schwarzschild criterion}, by comparing the radiative and adiabatic temperature gradients.
 In other models, the convection zone boundary is determined by using the \emph{Ledoux criterion}, which also accounts for compositional stratification \citep[][chapter 3, reviews these criteria]{salaris_cassisi_2017}.
-Recent work states that these criteria should be equivalent at a convective boundary according to mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5}, but in practice these criteria are often different at convective boundaries in stellar evolution software instruments, and this has led to a variety of workarounds \citep{mesa4,mesa5}.
+Recent work states that these criteria should be equivalent at a convective boundary according to mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5}, but in practice these criteria are often different at convective boundaries in stellar evolution software instruments, and this has led to a variety of algorithms for determining boundary locations \citep{mesa4,mesa5}.
 
 As there is still disagreement regarding which stability criterion is appropriate for 1D modeling~\citep[see][chapter 2]{kaiser_etal_2020}, insight can be gained from studying multi-dimensional simulations.
-Such simulations show that convection zones adjacent to a Ledoux stable region can expand by entraining material from the stable region \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, fuentes_cumming_2020, andrassy_etal_2020, andrassy_etal_2021}.
+Such simulations show that a convection zone adjacent to a Ledoux-stable region can expand by entraining material from the stable region \citep{meakin_arnett_2007, woodward_etal_2015, jones_etal_2017, cristini_etal_2019, fuentes_cumming_2020, andrassy_etal_2020, andrassy_etal_2021}.
 However, past simulations have not achieved a statistically-stationary state, leading to uncertainty in how to include entrainment in 1D models \citep{staritsin_2013, scott_etal_2021}.
 
 In this letter, we present a 3D hydrodynamical simulation that demonstrates that convection zones adjacent to regions that are Ledoux-stable but Schwarzschild-unstable will entrain material until the adjacent region is stable by both criteria.
