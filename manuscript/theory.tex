@@ -1,35 +1,35 @@
 \section{Theory \& Experiment}
 \label{sec:theory}
-Convective stability can be determined using the Schwarzschild criterion,
+The Schwarzschild criterion for convective stability is
 \begin{equation}
-    \yS \equiv \gradrad - \gradad,
+    \yS \equiv \gradrad - \gradad < 0,
     \label{eqn:yS}
 \end{equation}
-or the Ledoux criterion,
+whereas the Ledoux criterion for convective stability is
 \begin{equation}
-    \yL \equiv \yS +  \frac{\chi_\mu}{\chi_T}\gradmu.
+    \yL \equiv \yS +  \frac{\chi_\mu}{\chi_T}\gradmu < 0.
     \label{eqn:yL}
 \end{equation}
 The temperature gradient $\justgrad \equiv d \ln P / d \ln T$ (pressure $P$ and temperature $T$) is $\gradad$ for an adiabatic stratification and $\gradrad$ if the flux is entirely carried radiatively.
-The composition gradient $\gradmu = d\ln\mu/d\ln P$ (mean molecular weight $\mu$) is modified by $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$ (density $\rho$).
+The Ledoux criterion includes the effects of the composition gradient $\gradmu = d\ln\mu/d\ln P$ (mean molecular weight $\mu$), where $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$ (density $\rho$).
 
-In Eqns.~\ref{eqn:yS} and \ref{eqn:yL}, $\mathcal{Y}$ is the discriminant \citep[e.g.,][sec.~2]{mesa4}, which is like the superadiabaticity.
-Stellar structure software instruments assume that convective boundaries coincide with the root (sign change) of the discriminant.
+Stellar structure software instruments assume that the location of convective boundaries coincide with sign changes of $\yL$ or $\yS$ \citep[][sec.~2]{mesa4}..
 The various stability regimes which can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but note four important regimes:
 \begin{enumerate}
-    \item Convection Zones (CZs): Regions with $\yS > 0$ and $\yL \geq \yS$ are convectively unstable.
-    \item Radiative Zones (RZs): Regions with $\yS < 0$ and $\yL \leq \yS$ are stable to convection.
+    \item Convection Zones (CZs): Regions with both $\yS > 0$ and $\yL > 0$ are convectively unstable.
+    \item Radiative Zones (RZs): Regions with $\yS < 0$ and $\yL \leq \yS$ are always stable to convection.
+        Other combinations of $\yL$ and $\yS$ may also be RZs, as detailed below in \#3 and \#4.
     \item ``Semiconvection'' Zones (SZs): Regions with $\yS > 0$ but $\yL < 0$ are stablized to convection by a composition gradient despite an unstable thermal stratification.
-        These regions can be stable RZs or linearly unstable to overstable doubly diffusive convection \citep[ODDC, see][chapter 2]{garaud_2018}.
+        These regions can be stable RZs or linearly unstable to oscillatory double-diffusive convection \citep[ODDC, see][chapters 2 and 4]{garaud_2018}.
     \item ``Thermohaline'' Zones: Regions with $\yS < 0$ and $\yL > \yS$ are thermally stable to convection despite an unstable composition gradient.
-        These regions can be stable RZs or linearly unstable to thermohaline mixing \citep[see][chapter 3]{garaud_2018}.
+        These regions can be stable RZs or linearly unstable to thermohaline mixing \citep[see][chapters 2 and 3]{garaud_2018}.
 \end{enumerate}
-In this paper, we study 3D simulations of a stable SZ (\#3) bounded below by a CZ (\#1) and above by an RZ (\#2).
+In this letter, we study a three-layer 3D simulation of convection.
+The initial structure of the simulation is an unstable CZ (bottom, \#1), a compositionally-stabilized SZ (middle, \#3), and a thermally stable RZ (top, \#2).
 We examine how the boundary of the CZ evolves through entrainment.
-In particular, we are interested in seeing if the roots of $\yS$ and $\yL$ coincide after evolution.
-%Since stellar evolution timesteps generally span many convective overturn times, our 3D simulation should evolve to the proper state, which may be quite different from our initial conditions.
+In particular, we are interested in seeing if the heights where $\yS = 0$ and $\yL = 0$ coincide on timescales that are long compared to the dynamical timescale but short compared to evolutionary timescales.
 
-In this work, we utilize a simplified 3D model employing the Boussinesq approximation, which assumes that the depth of the layer being studied is much smaller than the local scale height.
-Since we are studying thin regions near convective boundaries, this assumption is okay.
-The relevant physics for this problem are included ($\gradrad$ varies with height, buoyancy is determined both by the composition $\mu$ and the temperature stratification $T$), so $\yS$ and $\yL$ are meaningfuly defined and distinct from one another when composition gradients are present.
+In this work, we utilize a 3D model employing the Boussinesq approximation, which is formally valid when motions occur on length scales much smaller than the pressure scale height.
+This approximation fully captures the primary focus of this work, which is nonlinear advective mixing near the CZ-SZ boundary.
+Our simulations use a height-dependent $\gradrad$ and buoyancy is determined by a combination of the composition and the temperature stratification, so $\yS$ and $\yL$ are determined independently and self-consistently.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.
