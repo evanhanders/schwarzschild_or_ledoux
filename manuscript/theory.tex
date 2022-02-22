@@ -14,7 +14,7 @@ The temperature gradient $\justgrad \equiv d \ln P / d \ln T$ (pressure $P$ and 
 The Ledoux criterion includes the effects of the composition gradient $\gradmu = d\ln\mu/d\ln P$ (mean molecular weight $\mu$), where $\chi_T = (d\ln P / d\ln T)_{\rho,\mu}$ and $\chi_\mu = (d\ln P / d\ln\mu)_{\rho,T}$ (density $\rho$).
 
 Stellar structure software instruments assume that the location of convective boundaries coincide with sign changes of $\yL$ or $\yS$ \citep[][sec.~2]{mesa4}..
-The various stability regimes which can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but note four important regimes:
+The various stability regimes that can occur in stars are described in section 3 and figure 3 of \citet{salaris_cassisi_2017}, but we note four important regimes here:
 \begin{enumerate}
     \item Convection Zones (CZs): Regions with both $\yS > 0$ and $\yL > 0$ are convectively unstable.
     \item Radiative Zones (RZs): Regions with $\yS < 0$ and $\yL \leq \yS$ are always stable to convection.
@@ -27,9 +27,10 @@ The various stability regimes which can occur in stars are described in section 
 In this letter, we study a three-layer 3D simulation of convection.
 The initial structure of the simulation is an unstable CZ (bottom, \#1), a compositionally-stabilized SZ (middle, \#3), and a thermally stable RZ (top, \#2).
 We examine how the boundary of the CZ evolves through entrainment.
-In particular, we are interested in seeing if the heights where $\yS = 0$ and $\yL = 0$ coincide on timescales that are long compared to the dynamical timescale but short compared to evolutionary timescales.
+In particular, we are interested in determining whether the heights at which $\yS = 0$ and $\yL = 0$ coincide on timescales that are long compared to the dynamical timescale but short compared to evolutionary timescales.
 
 In this work, we utilize a 3D model employing the Boussinesq approximation, which is formally valid when motions occur on length scales much smaller than the pressure scale height.
 This approximation fully captures the primary focus of this work, which is nonlinear advective mixing near the CZ-SZ boundary.
+While there is no direct analog between our simulation length scales and stellar structure length scales, it may be helpful to think of the initial convection zone length scale (1 unit of height in our simulations) to be proportional to something like the mixing length or the pressure scale height in stellar evolution software instruments.
 Our simulations use a height-dependent $\gradrad$ and buoyancy is determined by a combination of the composition and the temperature stratification, so $\yS$ and $\yL$ are determined independently and self-consistently.
 For details on our model setup and Dedalus simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.

@@ -8,7 +8,7 @@ Overshooting convective motions entrain the entire Schwarzschild-unstable region
 This simulation demonstrates that, while the Ledoux criterion \emph{instantaneously} predicts the location of the convective boundary, on evolutionary timescales the convective boundary is given by the Schwarzschild criterion (for $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$, see Sec.~\ref{sec:results}).
 Our 3D simulation supports the claim that logically consistent implementations of mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5} should have convective boundaries which are Schwarzschild-stable.
 E.g., the MESA software instrument's ``convective pre-mixing'' \citep[CPM,][]{mesa5} is consistent with our simulation.
-Given our results, properly-implemented 1D stellar evolution calculations should not depend on the choice of stability criterion used when $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$.
+Given our results, the predictions made by 1D stellar evolution calculations should not depend on the choice of stability criterion used if/when convective boundary treatments are properly implemented and $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$.
 
 In many stars, SZs should be unstable to oscillatory double-diffusive convection (ODDC).
 \citet{mirouh_etal_2012} show that convective layers emerge from ODDC, and thus mix composition gradients even more rapidly than entrainment; ODDC is discussed thoroughly in \citet{garaud_2018}.
@@ -27,4 +27,4 @@ We assume that the radiative conductivity and $\gradrad$ do not depend on $\mu$ 
 The nonlinear feedback between these effects should be studied in future work, but we expect that our conclusions are robust.
 
 In summary, we find that the Ledoux criterion provides the instantaneous location of the convective boundary, and the Schwarzschild criterion provides the location of the convective boundary in a statistically stationary state; in this final state, the Ledoux and Schwarzschild criteria agree.
-1D stellar evolution software instruments should therefore use the Schwarzschild criterion to predict the boundary location of long-lived convective zones.
+%1D stellar evolution software instruments should therefore use the Schwarzschild criterion to predict the boundary location of long-lived convective zones.
