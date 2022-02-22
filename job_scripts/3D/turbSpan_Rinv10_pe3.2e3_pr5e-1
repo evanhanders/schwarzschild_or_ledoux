@@ -1,0 +1,17 @@
+#PBS -S /bin/bash
+#PBS -N schwarz_ledoux_triLayer_Rinv10_pe3.2e3_pr5e-1_turbulence
+#PBS -l select=147:ncpus=28:mpiprocs=28:model=bro
+#PBS -l walltime=72:00:00
+#PBS -l site=needed=/home1+/nobackupp19+/nobackupp16
+#PBS -j oe
+#PBS -q long
+#PBS -W group_list=s2276
+
+source /swbuild/eanders/miniconda3/etc/profile.d/conda.sh
+conda activate dedalus
+cd $PBS_O_WORKDIR
+
+date
+/u/scicon/tools/bin/several_tries mpiexec_mpt -n 4096 python3 triLayer_model.py config/turb_re3.2e3 \
+    > out.triLayer_Rinv10_pe3.2e3_pr5e-1.$PBS_JOBID
+date

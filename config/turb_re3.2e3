@@ -1,0 +1,17 @@
+[parameters]
+Pe = 3.2e3
+Pr = 5e-1
+Lx = 4
+tau_k0 = 3e-3
+inv_R = 10
+run_time_ff = 20000
+run_time_wall = 71.5
+nx = 192
+ny = 192
+nz = 512
+nz_up = 64
+
+RZ_N2_boost = 10
+
+restart = ./publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_restart08/final_checkpoint/final_checkpoint_s1.h5
+label = restart09

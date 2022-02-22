@@ -1,0 +1,14 @@
+[parameters]
+Pe = 2e2
+Pr = 5e-1
+Lx = 4
+tau_k0 = 3e-3
+inv_R = 10
+run_time_ff = 2000
+run_time_wall = 23.5
+nx = 32
+ny = 32
+nz = 128
+nz_up = 16
+
+RZ_N2_boost = 10
