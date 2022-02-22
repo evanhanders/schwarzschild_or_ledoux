@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex ms"] 1645569466 "ms.aux" "ms.bbl" "ms" 1645569523
+["bibtex ms"] 1645570835 "ms.aux" "ms.bbl" "ms" 1645570894
   "./aasjournal.bst" 1636064171 37930 c2368a73b82a7c192c7ab34d16c71a72 ""
-  "biblio.bib" 1645568160 38339 38510cb1f3cfa0f44fd5354e328f2e30 ""
-  "ms.aux" 1645569523 8735 a1c6387a1ceabb726668c8cdab8194d6 "pdflatex"
+  "biblio.bib" 1645570741 38364 260415bca76c44c9ee4be90f5d6c2256 ""
+  "ms.aux" 1645570894 8735 a1c6387a1ceabb726668c8cdab8194d6 "pdflatex"
   (generated)
   "ms.bbl"
   "ms.blg"
-["pdflatex"] 1645569522 "ms.tex" "ms.pdf" "ms" 1645569523
+["pdflatex"] 1645570893 "ms.tex" "ms.pdf" "ms" 1645570894
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/helvetic/phvr.tfm" 1136768653 2504 ba6584b616b92101c768b6c4ffb32dd0 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -138,14 +138,14 @@
   "fig2_profiles.pdf" 1645569496 30476 252d820eac4af31cdc1d7eeb7dfa4999 ""
   "intro.tex" 1645568816 3380 9f69699cf934f78c6e3287d8a77edbf3 ""
   "kippenhahn.pdf" 1645569496 1067536 fe41e8d1027d18d096ea71029ac869a6 ""
-  "ms.aux" 1645569523 8735 a1c6387a1ceabb726668c8cdab8194d6 "pdflatex"
-  "ms.bbl" 1645569466 9394 bf731b347b66a1b9a71faa272a821e15 "bibtex ms"
-  "ms.out" 1645569523 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
-  "ms.tex" 1645569521 9144 b75e84c497172b27159a81a66b90ccf2 ""
+  "ms.aux" 1645570894 8735 a1c6387a1ceabb726668c8cdab8194d6 "pdflatex"
+  "ms.bbl" 1645570835 9390 944a0b5a98b99a191e745a2fad80004d "bibtex ms"
+  "ms.out" 1645570894 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
+  "ms.tex" 1645570875 9202 e70978f3613fef0bf31e8a6786df6ec0 ""
   "results.tex" 1645568942 5624 e48522b70e4e99af3507fa6c99a1c088 ""
   "theory.tex" 1645569178 3606 091af8cf654ee6ef67b4467643371902 ""
   (generated)
-  "ms.log"
-  "ms.aux"
   "ms.out"
   "ms.pdf"
+  "ms.log"
+  "ms.aux"
