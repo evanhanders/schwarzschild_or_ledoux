@@ -169,10 +169,10 @@ good_write = np.array(good_write)
 
 dense_dt = 1
 sparse_dt = 25
-start_dense = 100
-start_sparse = 700
-end_sparse   = 15000
-end_movie = 15600
+start_dense = 130
+start_sparse = 730
+end_sparse   = 15030
+end_movie = 15630
 
 times1 = np.arange(start_dense, start_sparse, dense_dt)
 times2 = np.arange(start_sparse, end_sparse, sparse_dt)
@@ -229,6 +229,8 @@ if not slice_reader.idle:
         z = match_basis(slice_dsets[fields[0]], 'z')
         time_data = slice_dsets[fields[0]].dims[0]
         if time_data['sim_time'][plot_ind] not in movie_sim_times:
+            continue
+        if time_data['sim_time'][plot_ind] not in sim_times[good_write]:
             continue
 
         yz_side_data=slice_dsets['{}_x_side'.format(data_field)][plot_ind,:].squeeze()
@@ -289,7 +291,7 @@ if not slice_reader.idle:
         top_ledoux_lines = []
         
         for c, z_val in zip((brewer_dark3[1], brewer_dark3[2]), (yL_now, yS_now)):
-            vertices = ((x_max, y_min, z_val), (x_max, y_mid_off, z_val), (x_mid, y_mid_off, z_val), (x_mid, y_max, z_val))
+            vertices = ((x_max, y_min, z_val), (x_max, y_mid, z_val), (x_mid, y_mid, z_val), (x_mid, y_max, z_val))
             line_vals = np.array(vertices)
             top_ledoux_lines.append({})
             top_ledoux_lines[-1]['x'] = line_vals[:,0]
