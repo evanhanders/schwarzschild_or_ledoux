@@ -13,6 +13,8 @@ from plotly.subplots import make_subplots
 from plotpal.file_reader import SingleTypeReader, match_basis
 from scipy.interpolate import interp1d
 import palettable
+brewer_dark3 = palettable.colorbrewer.qualitative.Dark2_3
+brewer_dark3 = ['rgb({},{},{})'.format(*c) for c in brewer_dark3.colors]
 
 def construct_surface_dict(x_vals, y_vals, z_vals, data_vals, x_bounds=None, y_bounds=None, z_bounds=None, bool_function=np.logical_or):
     """
@@ -118,13 +120,13 @@ def generate_custom_colorbar():
 
 color_scale, purples = generate_custom_colorbar()
 
-
-in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_restart01/'
-#in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
+in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
 fig_name = 'plotly3D'
 
 slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
+
+print('saving to {}'.format(slice_reader.out_dir))
 
 data_field = 'mu'
 field_names = [data_field]
@@ -148,19 +150,59 @@ fig.update_layout(scene = scene_dict,
 field_bases = ['{}_x_side', '{}_x_mid', '{}_y_side', '{}_y_mid', '{}_z_2.5', '{}_z_0.5']
 fields = [st.format(data_field) for st in field_bases]
 
+sim_times = []
+good_write = []
+time_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write', global_comm=MPI.COMM_SELF )
+for fname in time_reader.reader.file_lists['profiles']:
+    with h5py.File(fname, 'r') as f:
+        for t in f['scales/sim_time'][()]:
+            if len(sim_times) > 0:
+                back = 0
+                while t < sim_times[-1-back]:
+                    good_write[-1-back] = False
+                    back += 1
+            sim_times.append(t)
+            good_write.append(True)
+        z = f['scales/z/1.0'][()]
+sim_times = np.array(sim_times)
+good_write = np.array(good_write)
+
+dense_dt = 1
+sparse_dt = 25
+start_dense = 100
+start_sparse = 700
+end_sparse   = 15000
+end_movie = 15600
+
+times1 = np.arange(start_dense, start_sparse, dense_dt)
+times2 = np.arange(start_sparse, end_sparse, sparse_dt)
+times3 = np.arange(end_sparse, end_movie, dense_dt)
+
+movie_times = np.concatenate((times1, times2, times3))
+movie_sim_times = []
+for t in movie_times:
+    movie_sim_times.append(sim_times[good_write][np.argmin(np.abs(sim_times[good_write]-t))])
+write_numbers = np.arange(len(movie_sim_times)) + 1
+
+
+entrain_factors = np.ones_like(sim_times)
+entrain_factors[(sim_times > 100)*(sim_times < 200)] += (sim_times[(sim_times > 100)*(sim_times < 200)] - 100)/100
+entrain_factors[sim_times > 200] += 1
+entrain_factors[(sim_times > 5000)*(sim_times < 6000)] += (sim_times[(sim_times > 5000)*(sim_times < 6000)] - 5000)/1000
+entrain_factors[sim_times > 6000] += 1
 with h5py.File('{}/top_cz/data_top_cz.h5'.format(in_dir), 'r') as f:
     entrain_times = f['times'][()]
-    entrain_heights = f['L_d05s'][()] - 1*(f['L_d05s'][()] - f['L_d002s'][()])
+    entrain_heights = f['L_d05s'][()] - entrain_factors*(f['L_d05s'][()] - f['L_d002s'][()])
+    yL = f['yL_switch'][()]
+    yS = f['yS_switch'][()]
 
 stretch_min_vals = np.zeros_like(entrain_times)
 stretch_max_vals = np.zeros_like(entrain_times)
-stretch_min_roll = np.zeros_like(entrain_times)
-stretch_max_roll = np.zeros_like(entrain_times)
 max_boost=0.4
-    
-        
-if not prof_reader.idle:
 
+
+
+if not prof_reader.idle:
     #use profiles for colorbar limits
     while prof_reader.writes_remain():
         prof_dsets, prof_ind = prof_reader.get_dsets([data_field,])
@@ -175,25 +217,7 @@ if not prof_reader.idle:
         stretch_max_vals[ind] = profile_func(bot_cz)
     prof_reader.comm.Allreduce(MPI.IN_PLACE, stretch_min_vals, MPI.SUM)
     prof_reader.comm.Allreduce(MPI.IN_PLACE, stretch_max_vals, MPI.SUM)
-    #roll
-    n_roll = 4
-    for i in range(n_roll):
-        lasti = stretch_min_vals.shape[0] - i - 1
-        stretch_min_roll[i]     = np.round(np.mean(stretch_min_vals[:i+int(n_roll/2)]), 4)
-        stretch_max_roll[i]     = np.round(np.mean(stretch_max_vals[:i+int(n_roll/2)]), 4)
-        stretch_min_roll[lasti] = np.round(np.mean(stretch_min_vals[-int(n_roll/2)+lasti:]), 4)
-        stretch_max_roll[lasti] = np.round(np.mean(stretch_max_vals[-int(n_roll/2)+lasti:]), 4)
 
-    for i in range(stretch_min_vals.shape[0] - 2*n_roll):
-        ind = i + n_roll
-        stretch_min_roll[ind] = np.round(np.mean(stretch_min_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
-        stretch_max_roll[ind] = np.round(np.mean(stretch_max_vals[ind-int(n_roll/2):ind+int(n_roll/2)]), 4)
-#    if prof_reader.comm.rank == 0:
-#        for i in range(stretch_min_vals.shape[0]):
-#            print(stretch_min_roll[i], stretch_max_roll[i])
-
-
-#    print(stretch_min_roll, stretch_max_roll)
 
 print('start ', MPI.COMM_WORLD.rank)
 sys.stdout.flush()
@@ -204,6 +228,8 @@ if not slice_reader.idle:
         y = match_basis(slice_dsets[fields[-1]], 'y')
         z = match_basis(slice_dsets[fields[0]], 'z')
         time_data = slice_dsets[fields[0]].dims[0]
+        if time_data['sim_time'][plot_ind] not in movie_sim_times:
+            continue
 
         yz_side_data=slice_dsets['{}_x_side'.format(data_field)][plot_ind,:].squeeze()
         yz_mid_data= slice_dsets['{}_x_mid'.format(data_field)][plot_ind,:].squeeze()
@@ -212,6 +238,14 @@ if not slice_reader.idle:
         xy_side_data=slice_dsets['{}_z_2.5'.format(data_field)][plot_ind,:].squeeze()
         xy_mid_data= slice_dsets['{}_z_0.5'.format(data_field)][plot_ind,:].squeeze()
 
+        ind = time_data['write_number'][plot_ind] - 1
+        stretch_min = stretch_min_vals[ind]
+        stretch_max = stretch_max_vals[ind]
+        stretch_max += max_boost*(stretch_max - stretch_min)
+
+        now = entrain_times == time_data['sim_time'][plot_ind]
+        yL_now = yL[now][0]
+        yS_now = yS[now][0]
 
         x_max, x_mid, x_min = (x.max(), x[int(len(x)/2)], x.min())
         y_max, y_mid, y_min = (y.max(), y[int(len(y)/2)], y.min())
@@ -253,27 +287,15 @@ if not slice_reader.idle:
 
         #Construct top-ledoux lines
         top_ledoux_lines = []
-        constX_xvals = (x_max, x_mid_off)
-        constX_zvals = (2, 2)
-        constX_ybounds = ([y_min, y_mid_off], [y_mid_off, y_max])
-        line_width = (10, 5)
-        for x_val, y_bounds, z_val, width in zip(constX_xvals, constX_ybounds, constX_zvals, line_width):
-            top_ledoux_lines.append(OrderedDict())
-            top_ledoux_lines[-1]['y'] = np.linspace(*tuple(y_bounds), 2)
-            top_ledoux_lines[-1]['x'] = x_val*np.ones_like(lines[-1]['y'])
-            top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['y'])
-            top_ledoux_lines[-1]['line'] = {'color':purples[-2], 'width' : width}
-
-        constY_yvals = (y_max, y_mid_off)
-        constY_zvals = (2, 2)
-        constY_xbounds = ([x_min, x_mid_off], [x_mid_off, x_max])
-        line_width = (10, 5)
-        for x_bounds, y_val, z_val, width in zip(constY_xbounds, constY_yvals, constY_zvals, line_width):
-            top_ledoux_lines.append(OrderedDict())
-            top_ledoux_lines[-1]['x'] = np.linspace(*tuple(x_bounds), 2)
-            top_ledoux_lines[-1]['y'] = y_val*np.ones_like(lines[-1]['x'])
-            top_ledoux_lines[-1]['z'] = z_val*np.ones_like(lines[-1]['x'])
-            top_ledoux_lines[-1]['line'] = {'color':purples[-2], 'width' : width}
+        
+        for c, z_val in zip((brewer_dark3[1], brewer_dark3[2]), (yL_now, yS_now)):
+            vertices = ((x_max, y_min, z_val), (x_max, y_mid_off, z_val), (x_mid, y_mid_off, z_val), (x_mid, y_max, z_val))
+            line_vals = np.array(vertices)
+            top_ledoux_lines.append({})
+            top_ledoux_lines[-1]['x'] = line_vals[:,0]
+            top_ledoux_lines[-1]['y'] = line_vals[:,1]
+            top_ledoux_lines[-1]['z'] = line_vals[:,2]
+            top_ledoux_lines[-1]['line'] = {'color':c, 'width': 7}
 
         xy_side = construct_surface_dict(x, y, z_max, xy_side_data, x_bounds=(x_min, x_mid), y_bounds=(y_min, y_mid))
         xz_side = construct_surface_dict(x, y_max, z, xz_side_data, x_bounds=(x_min, x_mid), z_bounds=(z_min, z_mid))
@@ -291,10 +313,6 @@ if not slice_reader.idle:
         tickvals = ticktext = None
         if data_field == 'mu':
             cmin = 0
-            ind = time_data['write_number'][plot_ind] - 1
-            stretch_min = stretch_min_roll[ind]
-            stretch_max = stretch_max_roll[ind]
-            stretch_max += max_boost*(stretch_max - stretch_min)
 
             #Figure out gloal scale factor of perturbations
             for d in surface_dicts:
@@ -308,7 +326,6 @@ if not slice_reader.idle:
                 edit_points *= (stretch_min - cmin)
                 edit_points += stretch_min
                 d['surfacecolor'][edit_bool] = edit_points
-            for d in surface_dicts:
                 d['surfacecolor'] /= 2*stretch_min
                 #print(np.nanmax(d['surfacecolor']), np.nanmin(d['surfacecolor']))
             tickvals = [0, 0.5, 1]
@@ -388,6 +405,7 @@ if not slice_reader.idle:
         viewpoint = {'camera_eye' : {'x' : 2*1.1, 'y': 0.4*1.1, 'z' : 0.5*1.1}
                     }
         fig.update_layout(scene = viewpoint)
+        write_num = write_numbers[time_data['sim_time'] == movie_sim_times]
         pio.write_image(fig, '{}/{}_{:06d}.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), width=x_pix, height=y_pix, format='png', engine='kaleido')
         fig.data = []
 ##        print('completed write {} on {}'.format(time_data['write_number'][plot_ind], MPI.COMM_WORLD.rank))
