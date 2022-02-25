@@ -24,7 +24,7 @@ from docopt import docopt
 args = docopt(__doc__)
 import numpy as np
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import scipy.optimize as sop

@@ -216,10 +216,14 @@ def plot_fields(tasks, ax1, ax2, ax3, first=False):
 
     ax2.axhline(0, c='k', lw=0.5)
     colors = bqual.Dark2_3.mpl_colors
+    if first:
+        dashes = (4, 3)
+    else:
+        dashes = (3.7, 2.1)
     ax2.plot(z_dense, yS_field['g'], c=colors[2])
     ax2.plot(z_dense, yL_field['g'], c=colors[0])
-    ax2.plot(z_dense, -yS_field['g'], c=colors[2], ls='--')
-    ax2.plot(z_dense, -yL_field['g'], c=colors[0], ls='--')
+    ax2.plot(z_dense, -yS_field['g'], c=colors[2], ls='--', dashes=dashes)
+    ax2.plot(z_dense, -yL_field['g'], c=colors[0], ls='--', dashes=dashes)
     ax2.set_yscale('log')
     ax2.set_ylim(3e-1, 50*inv_R_in)
 

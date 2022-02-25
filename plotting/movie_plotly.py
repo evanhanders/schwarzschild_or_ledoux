@@ -12,6 +12,11 @@ from plotly.offline import plot_mpl
 from plotly.subplots import make_subplots
 from plotpal.file_reader import SingleTypeReader, match_basis
 from scipy.interpolate import interp1d
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import matplotlib
+
 import palettable
 brewer_dark3 = palettable.colorbrewer.qualitative.Dark2_3
 brewer_dark3 = ['rgb({},{},{})'.format(*c) for c in brewer_dark3.colors]
@@ -116,12 +121,19 @@ def generate_custom_colorbar():
     my_scale = []
     for n, c in zip(numbers, new_cmap):
         my_scale.append((n, c))
-    return my_scale, purples
 
-color_scale, purples = generate_custom_colorbar()
+    matplotlib_cmap = []
+    for n in new_cmap:
+        colors = n.split('rgb(')[-1].split(')')[0].split(',')
+        matplotlib_cmap.append([float(c)/255 for c in colors] + [1])
+    matplotlib_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(numbers, matplotlib_cmap)))  
+
+    return my_scale, purples, matplotlib_cmap
+
+color_scale, purples, matplotlib_cmap = generate_custom_colorbar()
 
 in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
-fig_name = 'plotly3D'
+fig_name = 'long_volume_movie'
 
 slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
@@ -135,44 +147,61 @@ px_base = 1000
 fontsize = int(16 * px_base/500)
 x_pix, y_pix = px_base, px_base
 cmaps = [color_scale]
-colorbar_x = [0.9]
-colorbar_dict=dict(lenmode='fraction', thicknessmode = 'fraction', len=0.25, thickness=0.02)
+#colorbar_x = [0.9]
+#colorbar_dict=dict(lenmode='fraction', thicknessmode = 'fraction', len=0.25, thickness=0.02)
 fig = go.Figure(layout={'width': x_pix, 'height': y_pix})
 fig = make_subplots(rows=1, cols=1, specs=[[{'is_3d': True},]], subplot_titles=field_names, horizontal_spacing=0.025)
 scene_dict = {          'xaxis': {'showbackground':False, 'tickvals':[], 'title':''},
                         'yaxis': {'showbackground':False, 'tickvals':[], 'title':''},
-                        'zaxis': {'showbackground':False, 'tickvals':[], 'title':''} }
+                        'zaxis': {'showbackground':False, 'tickvals':[], 'title':''},
+                        #normalized from 0 or -1 to 1; not actually in data x, y, z units.
+                        'camera_eye' : {'x' : 2*1.1, 'y': 0.4*1.1, 'z' : 0.5*1.1},
+        }
 fig.update_layout(scene = scene_dict,
                       margin={'l':0, 'r': 0, 'b':0, 't':0, 'pad':0},
                       font={'size' : fontsize, 'family' : 'Times New Roman'},
                       annotations={'font' : {'size' : fontsize, 'family' : 'Times New Roman'}})
 
+mplfig = plt.figure(figsize=(4, 4))
+ax1 = mplfig.add_axes([0.00, 0.0, 1.00, 1.00])
+cax1 = mplfig.add_axes([0.1, 0.03, 0.85, 0.06])
+
+
 field_bases = ['{}_x_side', '{}_x_mid', '{}_y_side', '{}_y_mid', '{}_z_2.5', '{}_z_0.5']
 fields = [st.format(data_field) for st in field_bases]
 
 sim_times = []
+global_writeno = []
 good_write = []
 time_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write', global_comm=MPI.COMM_SELF )
 for fname in time_reader.reader.file_lists['profiles']:
     with h5py.File(fname, 'r') as f:
-        for t in f['scales/sim_time'][()]:
+        for i, t in enumerate(f['scales/sim_time'][()]):
             if len(sim_times) > 0:
                 back = 0
                 while t < sim_times[-1-back]:
                     good_write[-1-back] = False
                     back += 1
             sim_times.append(t)
+            global_writeno.append(f['scales/write_number'][i])
             good_write.append(True)
         z = f['scales/z/1.0'][()]
 sim_times = np.array(sim_times)
 good_write = np.array(good_write)
 
+if MPI.COMM_WORLD.rank == 0:
+    for i in range(len(sim_times)):
+        print(sim_times[i], good_write[i], global_writeno[i])
+
+
+
+#30 frames per second. So dt*30 = 1 second of movie.
 dense_dt = 1
 sparse_dt = 25
 start_dense = 130
-start_sparse = 730
+start_sparse = 1930 #1 min = 1800 frames 
 end_sparse   = 15030
-end_movie = 15630
+end_movie = 16830
 
 times1 = np.arange(start_dense, start_sparse, dense_dt)
 times2 = np.arange(start_sparse, end_sparse, sparse_dt)
@@ -183,7 +212,6 @@ movie_sim_times = []
 for t in movie_times:
     movie_sim_times.append(sim_times[good_write][np.argmin(np.abs(sim_times[good_write]-t))])
 write_numbers = np.arange(len(movie_sim_times)) + 1
-
 
 entrain_factors = np.ones_like(sim_times)
 entrain_factors[(sim_times > 100)*(sim_times < 200)] += (sim_times[(sim_times > 100)*(sim_times < 200)] - 100)/100
@@ -224,15 +252,20 @@ sys.stdout.flush()
 if not slice_reader.idle:
     while slice_reader.writes_remain():
         slice_dsets, plot_ind = slice_reader.get_dsets(fields)
+        write_no = slice_reader.current_file_handle['scales/write_number'][plot_ind]
         x = match_basis(slice_dsets[fields[-1]], 'x')
         y = match_basis(slice_dsets[fields[-1]], 'y')
         z = match_basis(slice_dsets[fields[0]], 'z')
         time_data = slice_dsets[fields[0]].dims[0]
-        if time_data['sim_time'][plot_ind] not in movie_sim_times:
-            continue
-        if time_data['sim_time'][plot_ind] not in sim_times[good_write]:
+        if not good_write[write_no - 1]:
+            print('skipping write {}, bad'.format(write_no))
+            sys.stdout.flush()
             continue
 
+        if time_data['sim_time'][plot_ind] not in movie_sim_times:
+#            print('skipping write {}, out of movie'.format(write_no))
+#            sys.stdout.flush()
+            continue
         yz_side_data=slice_dsets['{}_x_side'.format(data_field)][plot_ind,:].squeeze()
         yz_mid_data= slice_dsets['{}_x_mid'.format(data_field)][plot_ind,:].squeeze()
         xz_side_data=slice_dsets['{}_y_side'.format(data_field)][plot_ind,:].squeeze()
@@ -244,6 +277,7 @@ if not slice_reader.idle:
         stretch_min = stretch_min_vals[ind]
         stretch_max = stretch_max_vals[ind]
         stretch_max += max_boost*(stretch_max - stretch_min)
+        cbar_ticks = [0, stretch_min, stretch_max]
 
         now = entrain_times == time_data['sim_time'][plot_ind]
         yL_now = yL[now][0]
@@ -297,7 +331,7 @@ if not slice_reader.idle:
             top_ledoux_lines[-1]['x'] = line_vals[:,0]
             top_ledoux_lines[-1]['y'] = line_vals[:,1]
             top_ledoux_lines[-1]['z'] = line_vals[:,2]
-            top_ledoux_lines[-1]['line'] = {'color':c, 'width': 7}
+            top_ledoux_lines[-1]['line'] = {'color':c, 'width': 20}
 
         xy_side = construct_surface_dict(x, y, z_max, xy_side_data, x_bounds=(x_min, x_mid), y_bounds=(y_min, y_mid))
         xz_side = construct_surface_dict(x, y_max, z, xz_side_data, x_bounds=(x_min, x_mid), z_bounds=(z_min, z_mid))
@@ -334,19 +368,19 @@ if not slice_reader.idle:
             ticktext = ['{:.3f}'.format(t) for t in [0, stretch_min, stretch_max]]
             cmax = 1
 
-        colorbar_dict['tickvals'] = tickvals
-        colorbar_dict['ticktext'] = ticktext
-        colorbar_dict['outlinecolor'] = 'black'
-        colorbar_dict['xanchor'] = 'center'
-        colorbar_dict['x'] = colorbar_x[0]
-        colorbar_dict['y'] = 0.5
-        colorbar_dict['tickfont'] = {'family' : "Times New Roman"}
-        colorbar_dict['outlinecolor'] = 'black'
-        colorbar_dict['outlinewidth'] = 3
+#        colorbar_dict['tickvals'] = tickvals
+#        colorbar_dict['ticktext'] = ticktext
+#        colorbar_dict['outlinecolor'] = 'black'
+#        colorbar_dict['xanchor'] = 'center'
+#        colorbar_dict['x'] = colorbar_x[0]
+#        colorbar_dict['y'] = 0.5
+#        colorbar_dict['tickfont'] = {'family' : "Times New Roman"}
+#        colorbar_dict['outlinecolor'] = 'black'
+#        colorbar_dict['outlinewidth'] = 3
         for d in surface_dicts:
             d['cmin'] = cmin
             d['cmax'] = cmax
-            d['colorbar'] = colorbar_dict
+#            d['colorbar'] = colorbar_dict
             d['colorscale'] = cmaps[0]
             d['showscale'] = False
             d['lighting'] = {'ambient' : 1}
@@ -365,52 +399,36 @@ if not slice_reader.idle:
         for line_dict in top_ledoux_lines:
             fig.add_trace(go.Scatter3d(**line_dict, mode='lines', showlegend=False), 1, 1)
 
-    #        break
-    #    break
-
         #https://stackoverflow.com/questions/63386812/plotly-how-to-hide-axis-titles-in-a-plotly-express-figure-with-facets
         for anno in fig['layout']['annotations']:
             anno['text'] = ''
 
-        annotation_xvals = [colorbar_x[0] - 0.02]
-        for xv in annotation_xvals:
-            fig.add_annotation(
-                x=xv,
-                y=0.65,
-                text="$\huge{\mu}$",
-                showarrow=False,
-                font=dict(
-                    family="Times New Roman",
-                    size=int(1.5*fontsize),
-                    color="black"
-                    ),
-                align="center"
-                )
 
-        title_xvals = [0.5]
-        labels = ['sim time = {:.3e}'.format(time_data['sim_time'][plot_ind]),]
-        for xv, label in zip(title_xvals, labels):
-            fig.add_annotation(
-                x=xv,
-                y=0.85,
-                text=label,
-                showarrow=False,
-                font=dict(
-                    family="Times New Roman",
-                    size=int(1.5*fontsize),
-                    color="black"
-                    ),
-                align="center"
-                )
-
-        #normalized from 0 or -1 to 1; not actually in data x, y, z units.
-        viewpoint = {'camera_eye' : {'x' : 2*1.1, 'y': 0.4*1.1, 'z' : 0.5*1.1}
-                    }
-        fig.update_layout(scene = viewpoint)
         write_num = write_numbers[time_data['sim_time'] == movie_sim_times]
-        pio.write_image(fig, '{}/{}_{:06d}.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), width=x_pix, height=y_pix, format='png', engine='kaleido')
+        pio.write_image(fig, '{}/{}_{:06d}_tmp.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), width=x_pix, height=y_pix, format='png', engine='kaleido')
         fig.data = []
-##        print('completed write {} on {}'.format(time_data['write_number'][plot_ind], MPI.COMM_WORLD.rank))
-##        sys.stdout.flush()
+
+        #read into mpl to cut white space
+        img1 = mpimg.imread('{}/{}_{:06d}_tmp.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]))
+
+        #trim upper and lower
+        shape1 = img1.shape
+        img1 = img1[int(shape1[0]*0.27):int(shape1[0]*0.85), 0:int(shape1[1]*0.75)]
+        im1 = ax1.imshow(img1, rasterized=True)
+        ax1.set_xticks(())
+        ax1.set_yticks(())
+        ax1.axis('off')
+
+        cb1 = matplotlib.colorbar.ColorbarBase(cax1, cmap=matplotlib_cmap, orientation='horizontal')
+        cb1.set_ticks((0, 0.5, 1))
+        cb1.set_ticklabels(['0'] + ['{:.03f}'.format(t) for t in cbar_ticks[1:]])
+        cb1.ax.tick_params(labelsize=16)
+
+        cax1.text(x=-0.05, y=0.5, s=r'$\mu$', ha='center', va='center', transform=cax1.transAxes, fontsize=18)
+        cax1.text(x=0, y=1.15, s='$t$'+' = {:.3e}'.format(time_data['sim_time'][plot_ind]), ha='left', va='bottom', transform=cax1.transAxes, fontsize=16)
+        plt.subplots_adjust(wspace=0, hspace=0, right=1, top=1, bottom=0, left=0)
+        mplfig.savefig('{}/{}_{:06d}.png'.format(slice_reader.out_dir, fig_name, time_data['write_number'][plot_ind]), dpi=400, facecolor='white', bbox_inches='tight')
+        for ax in [ax1, cax1]:
+            ax.cla()
 print('finished ', MPI.COMM_WORLD.rank)
 sys.exit()
