@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex ms"] 1645808408 "ms.aux" "ms.bbl" "ms" 1645809178
+["bibtex ms"] 1645808408 "ms.aux" "ms.bbl" "ms" 1645813682
   "./aasjournal.bst" 1636064171 37930 c2368a73b82a7c192c7ab34d16c71a72 ""
   "biblio.bib" 1645570741 38364 260415bca76c44c9ee4be90f5d6c2256 ""
-  "ms.aux" 1645809178 8762 5037d1c4488820250d052f0c6eee93fe "pdflatex"
+  "ms.aux" 1645813682 8762 5037d1c4488820250d052f0c6eee93fe "pdflatex"
   (generated)
-  "ms.bbl"
   "ms.blg"
-["pdflatex"] 1645809177 "ms.tex" "ms.pdf" "ms" 1645809178
+  "ms.bbl"
+["pdflatex"] 1645813681 "ms.tex" "ms.pdf" "ms" 1645813682
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/helvetic/phvr.tfm" 1136768653 2504 ba6584b616b92101c768b6c4ffb32dd0 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -133,19 +133,19 @@
   "aastex631.cls" 1636064171 239479 b28688f0c3df5a7b8dca3f903804b0ef ""
   "appendix_model.tex" 1645738800 4273 b7f975d9539b974d1d52508d243b0023 ""
   "appendix_simulations.tex" 1645738858 1792 e374a26751c7685c3662c333dcc8b394 ""
-  "conclusions.tex" 1645809176 3551 5f4b54b7fb6dc0f34a088b7fc5c9b054 ""
+  "conclusions.tex" 1645809284 3294 9fd897622e54df22360fb366bda0545e ""
   "dynamics_figure.pdf" 1645640812 2037725 ebb015b93560be86fe9efe113df79f37 ""
   "fig2_profiles.pdf" 1645569496 30476 252d820eac4af31cdc1d7eeb7dfa4999 ""
   "intro.tex" 1645741687 3364 dac2f03639fa1fa85628d9224f902e5a ""
   "kippenhahn.pdf" 1645569496 1067536 fe41e8d1027d18d096ea71029ac869a6 ""
-  "ms.aux" 1645809178 8762 5037d1c4488820250d052f0c6eee93fe "pdflatex"
+  "ms.aux" 1645813682 8762 5037d1c4488820250d052f0c6eee93fe "pdflatex"
   "ms.bbl" 1645808408 9390 944a0b5a98b99a191e745a2fad80004d "bibtex ms"
-  "ms.out" 1645809178 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
+  "ms.out" 1645813682 350 95e5560c853649d0fce55ffb00a2db61 "pdflatex"
   "ms.tex" 1645736568 9497 41da79b68accb2547f760599146328b7 ""
-  "results.tex" 1645808593 5842 27a514b658c324b344d89b8203d45354 ""
-  "theory.tex" 1645802431 3427 ebd9e27614605f7fb643d8272b23d5b8 ""
+  "results.tex" 1645813680 5857 48b33380633eaabd4239792eb46e34f8 ""
+  "theory.tex" 1645813418 3418 6cb7873c47964449ccfdcdd83964a314 ""
   (generated)
+  "ms.pdf"
+  "ms.log"
   "ms.out"
   "ms.aux"
-  "ms.log"
-  "ms.pdf"
