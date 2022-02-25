@@ -93,15 +93,16 @@
 \email{evan.anders@northwestern.edu}
 
 \begin{abstract}
-    In one-dimensional stellar evolution models, convective boundaries are calculated using either the Schwarzschild or Ledoux criterion, but there remains confusion regarding which criterion to use.
-    In this letter, we present a 3D hydrodynamical simulation of a convection zone and adjacent radiative zone, including both thermal and compositional buoyancy forces.
+    Stellar evolution models calculate convective boundaries using either the Schwarzschild or Ledoux criterion, but confusion remains regarding which criterion to use.
+%    One-dimensional stellar evolution software instruments calculate convective boundaries using either the Schwarzschild or Ledoux criterion, but confusion remains regarding which criterion to use.
+    Here we present a 3D hydrodynamical simulation of a convection zone and adjacent radiative zone, including both thermal and compositional buoyancy forces.
     As expected, regions which are unstable according to the Ledoux criterion are convective.
     Initially, the radiative zone adjacent to the convection zone is Schwarzschild-unstable but Ledoux-stable due to a composition gradient.
     Over many convective overturn timescales the convection zone grows via entrainment.
-    The convection zone saturates at the size predicted by the Schwarzchild criterion, and in this final state the Schwarzschild and Ledoux criteria are equivalent.
-    Therefore, the size of stellar convection zones is determined by the Schwarzschild criterion, except possibly during short-lived stages in which entrainment persists.
+    The convection zone saturates at the size originally predicted by the Schwarzchild criterion, although in this final state the Schwarzschild and Ledoux criteria agree.
+    Therefore, the Schwarzschild criterion should be used to determine the size of stellar convection zones, except possibly during short-lived evolutionary stages in which entrainment persists.
 \end{abstract}
-\keywords{Stellar convection zones (301), Stellar physics (1621); Stellar evolutionary models (2046)}
+\keywords{Stellar convective zones (301), Stellar physics (1621); Stellar evolutionary models (2046)}
 
 
 
@@ -113,10 +114,10 @@
 \includegraphics[width=\textwidth]{dynamics_figure.pdf}
 \caption{
     Volume renderings of the composition $\mu$ at early (left) and late (right) times.
-    The change in color from white at the top of the box to dark purple at the top of the convection zone denotes a stable composition gradient.
-    The convection zone is well-mixed, so we expand the colorbar scaling there; black represents entrained low-$\mu$ fluid being mixed into the yellow high-$\mu$ convection zone.
-    The orange and purple horizontal lines respectively denote the heights at which $\yL = 0$ and $\yS = 0$.
-    The two criteria are equivalent in the right panel, so the orange line is not visible.
+    A stable composition gradient is denoted by the changing color from top of the box (white) to the top of the convection zone (dark purple).
+    The convection zone is well-mixed, so we expand the colorbar scaling there; black low-$\mu$ fluid is mixed into the yellow high-$\mu$ convection zone.
+    Orange and purple horizontal lines respectively denote the heights at which $\yL = 0$ and $\yS = 0$.
+    The Schwarzschild and Ledoux criteria are equivalent in the right panel, so the orange line is not visible.
     The simulation domain spans $z \in [0, 3]$, but we only plot $z \in [0, 2.5]$ here.
 \label{fig:dynamics}
 }
@@ -128,11 +129,11 @@
 \centering
 \includegraphics[width=\textwidth]{fig2_profiles.pdf}
 \caption{
-    Horizontally-averaged profiles of the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$ (bottom, Eqn.~\ref{eqn:fconv2}).
+    Horizontally-averaged profiles of the composition (top), the discriminants $\yS$ and $\yL$ (middle, Eqns.~\ref{eqn:yS} \& \ref{eqn:yL}), and important frequencies (bottom, the \brunt$\,$ frequency $N^2 = -\yL$ and the square convective frequency $f_{\rm{conv}}^2$, see Eqn.~\ref{eqn:fconv2}).
     Positive and negative values are respectively solid and dashed lines.
     We show the initial (left) and evolved (right, time-averaged over 100 convective overturn times) states.
     There are no motions in the initial state, so $f_{\rm{conv}}^2 = 0$ and does not appear.
-    The background color is orange in CZs, green in SZs, and purple in RZs per Section ~\ref{sec:theory}.
+    The background color is orange in the CZ, green in the SZ, and purple in the RZ.
     The lightly hashed background region in the evolved RZ is the mechanical overshoot zone.
 \label{fig:profiles}
 }
@@ -148,11 +149,11 @@
 \caption{
     A Kippenhahn-like diagram of the simulation evolution.
     The $y$-axis is simulation height and the $x$-axis is simulation time.
-    The orange line denotes the convective boundary according to the Ledoux criterion ($\yL = 0$); the CZ is below this and is colored orange.
-    The purple line denotes the convective boundary according to the Schwarzschild criterion ($\yS = 0$); the RZ is above this and is colored purple.
-    The semiconvective region between these boundaries is colored green.
-    The overshoot zone is hashed, and the black line denotes the top of this region.
-    The simulation has an ``entrainment phase'' while the CZ expands, and a pure ``overshoot phase'' where the convective boundary does not advance.
+    The orange line denotes the Ledoux convective boundary ($\yL = 0$); the CZ is below this and is colored orange.
+    The purple line denotes the Schwarzschild convective boundary ($\yS = 0$); the RZ is above this and is colored purple.
+    The SZ between these boundaries is colored green.
+    The black line denotes the top of the overshoot zone, which is hashed.
+    The simulation has an ``entrainment phase'', in which the CZ expands, and a pure ``overshoot phase'', in which the convective boundary remains stationary.
 \label{fig:kippenhahn}
 }
 \end{figure}

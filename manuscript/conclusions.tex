@@ -5,19 +5,18 @@ In this letter, we present a 3D simulation of a convection zone adjacent to a co
 This region is stable according to the Ledoux criterion, but unstable according to the Schwarzschild criterion.
 Overshooting convective motions entrain the entire Schwarzschild-unstable region until the Schwarzschild and Ledoux criteria both predict the same boundary of the convection zone.
 
-This simulation demonstrates that, while the Ledoux criterion \emph{instantaneously} predicts the location of the convective boundary, on evolutionary timescales the convective boundary is given by the Schwarzschild criterion (for $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$, see Sec.~\ref{sec:results}).
+This simulation demonstrates that the Ledoux criterion \emph{instantaneously} predicts the location of the convective boundary, but the Schwarzschild criterion correctly predicts its location on evolutionary timescales (for $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$, see Sec.~\ref{sec:results}).
 Our 3D simulation supports the claim that logically consistent implementations of mixing length theory \citep{gabriel_etal_2014, mesa4, mesa5} should have convective boundaries which are Schwarzschild-stable.
 E.g., the MESA software instrument's ``convective pre-mixing'' \citep[CPM,][]{mesa5} is consistent with our simulation.
 Given our results, the predictions made by 1D stellar evolution calculations should not depend on the choice of stability criterion used if/when convective boundary treatments are properly implemented and $t_{\rm{evol}} \gg (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}$.
 
-In stars, SZs should be often be unstable to oscillatory double-diffusive convection (ODDC).
+In stars, SZs should often be unstable to oscillatory double-diffusive convection (ODDC).
 \citet{mirouh_etal_2012} show that convective layers often emerge from ODDC, and thus mix composition gradients more rapidly than entrainment alone; ODDC is discussed thoroughly in \citet{garaud_2018}.
-\citet{moore_garaud_2016} apply ODDC to the regions outside core convection zones in main sequence stars, and their results suggest that ODDC formulations should be widely included in stellar models.
-Despite that, our simulation results demonstrate that entrainment should prevent ODDC-unstable SZs from forming at convective boundaries.
-%However, if they did, they would likely be rapidly mixed by a combination of ODDC and entrainment.
+\citet{moore_garaud_2016} apply ODDC to SZs which form outside core convection zones in main sequence stars, and their results suggest that ODDC should rapidly mix these regions.
+Our simulation demonstrates that entrainment should prevent SZs from ever forming at convective boundaries.
 
-For stages in stellar evolution where ${t_{\rm{evol}} \sim (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}}$, implementations of time-dependent convection \citep[TDC,][]{tdc_1986} are required to better capture convective dynamics.
-These evolutionary stages should also implement time-dependent entrainment models to properly advance convective boundaries \citep[e.g.,][]{turner_1968, fuentes_cumming_2020}.
+For stages in stellar evolution where ${t_{\rm{evol}} \sim (\delta h / \ell_{\rm{c}})^2\Ro^{-1}\mS t_{\rm{dyn}}}$, time-dependent convection \citep[TDC,][]{tdc_1986} implementations can be used to improve accuracy.
+These implementations should include time-dependent entrainment models to properly advance convective boundaries \citep[e.g.,][]{turner_1968, fuentes_cumming_2020}.
 
 \citet{anders_etal_2022} showed convective motions can extend significantly into the radiative zones of stars via ``penetrative convection.''
 In this work, we used parameters which do not have significant penetration.
@@ -27,4 +26,3 @@ We assume that the radiative conductivity and $\gradrad$ do not depend on $\mu$ 
 The nonlinear feedback between these effects should be studied in future work, but we expect that our conclusions are robust.
 
 In summary, we find that the Ledoux criterion provides the instantaneous location of the convective boundary, and the Schwarzschild criterion provides the location of the convective boundary in a statistically stationary state; in this final state, the Ledoux and Schwarzschild criteria agree.
-%1D stellar evolution software instruments should therefore use the Schwarzschild criterion to predict the boundary location of long-lived convective zones.

@@ -2,56 +2,57 @@
 \label{sec:results}
 
 In Fig.~\ref{fig:dynamics}, we visualize the composition field in our simulation near the initial state (left) and evolved state (right).
-Overplotted horizontal lines correspond to the convective boundaries via the Ledoux (orange, $\yL = 0$) and Schwarzschild (purple, $\yS=0$) criteria.
+Thick horizontal lines denote the convective boundaries per the Ledoux (orange, $\yL = 0$) and Schwarzschild (purple, $\yS=0$) criteria.
 Initially, the bottom third of the domain is a CZ, the middle third is an SZ, and the top third is an RZ.
 Convection motions extend beyond $\yL = 0$ at all times; we refer to these motions as overshoot \citep[which is discussed in][]{korre_etal_2019}.
 Overshoot occurs because the Ledoux boundary is not the location where convective velocity is zero, but rather the location where buoyant acceleration changes sign due to a sign change in the entropy gradient.
 
-The most obvious change from the left to the right panel is that the CZ has consumed the SZ and fills the bottom two-thirds of the box.
+The difference between the left and right panels demonstrates that the CZ consumes the SZ.
 Overshooting convective motions entrain low-composition material into the CZ where it is homogenized.
 This process increases the size of the CZ and repeats over thousands of convective overturn times until the Ledoux and Schwarzschild criteria predict the same convective boundary.
-After this ``entrainment'' phase, the convective boundary stops moving.
-The boundary is stable because the radiative flux renews and reinforces the stable temperature gradient; there is no analogous process to reinforce the composition gradient\footnote{Nuclear timescales are generally much longer than dynamical timescales and can be neglected as a source of composition.}.
+After this entrainment phase, the convective boundary stops moving.
+The boundary is stationary because the radiative flux renews the stable temperature gradient; there is no analogous process to reinforce the composition gradient\footnote{Nuclear timescales are generally much longer than dynamical timescales and can be neglected as a source of composition.}.
 
-Figure \ref{fig:profiles} displays vertical simulation profiles in the initial (left) and evolved (right) states.
-Shown are the composition $\mu$ (top), the discriminants $\yL$ and $\yS$ (middle), and the square \brunt$\,$ frequency (bottom) as well as the square convective frequency defined as
+In Fig.~\ref{fig:profiles}, we visualize vertical profiles in the initial state (left) and evolved state (right).
+Shown are the composition $\mu$ (top), the discriminants $\yL$ and $\yS$ (middle), and two important frequencies (bottom): the square \brunt$\,$ frequency $N^2$ and the square convective frequency,
 \begin{equation}
 f_{\rm{conv}}^2 = \frac{|\vec{u}|^2}{\ell_{\rm{conv}}^2},
 \label{eqn:fconv2}
 \end{equation}
-where $|\vec{u}|$ is the horizontally-averaged velocity magnitude and $\ell_{\rm{conv}}$ is the depth of the convectively unstable layer.
+with $|\vec{u}|$ the horizontally-averaged velocity magnitude and $\ell_{\rm{conv}}$ the depth of the Ledoux-unstable layer.
 
-Initially, the composition is uniform in the CZ ($z < 1$) and RZ ($z > 2$), but varies linearly in the SZ ($z \in [1, 2]$).
-We have $\yL(z=1) \approx 0$ but $\yS(z=3) \approx 0$.
-The \brunt$\,$ frequency $N^2$ is negative in a boundary layer at the base of the CZ which drives the instability.
-$N^2$ is stable for $z \gtrsim 1$, and is larger in the RZ than the SZ by an order of magnitude.
+The composition is initially uniform in the CZ ($z < 1$) and RZ ($z > 2$), but varies linearly in the SZ ($z \in [1, 2]$).
+We have $\yL(z\approx1) = 0$ but $\yS(z\approx2) = 0$.
+An unstable boundary layer at the base of the CZ drives the instability and has negative $N^2$.
+For $z \gtrsim 1$, we have positive $N^2$, which is larger in the RZ than the SZ.
 We found similar results in simulations where $N^2$ was constant across the RZ and SZ.
 
-In the evolved state (right panels), the composition profile (top) is constant in the CZ and overshoot zone (denoted as a transparent hashed region), but decreases abruptly at the top of the overshoot zone.
-The top of the hashed overshoot zone is taken to be the height where the horizontally-averaged kinetic energy falls below 10\% of its bulk-CZ value.
-The Schwarzschild and Ledoux criteria agree upon the location of the convective boundary (middle).
+In the evolved state (right panels), the composition (top) is well-mixed in the CZ and hashed overshoot zone, but decreases abruptly at the top of the overshoot zone.
+We take the height where the horizontally-averaged kinetic energy falls below 10\% of its bulk-CZ value to be the top of the overshoot zone.
+In this state, the Schwarzschild and Ledoux criteria agree upon the location of the convective boundary (middle).
 
-Furthermore, in the CZ, the convective frequency is roughly constant and $N^2 \lesssim 0$ (bottom).
-In the RZ, $f_{\rm{conv}}^2 \approx 0$ and $N^2 \gg 0$.
-We can compute the ``stiffness'' of the radiative-convective interface,
+The rate at which the CZ entrains the SZ depends on the stiffness of the radiative-convective interface,
 \begin{equation}
 \mS = \frac{N^2|_{\rm{RZ}}}{f_{\rm{conv}}^2|_{\rm{CZ}}},
 \label{eqn:stiffness}
 \end{equation}
-which is related to the Richardson number $\rm{Ri} = \sqrt{\mS}$.
-Convective boundaries in stars often have $\mS \gtrsim 10^6$.
-The time to entrain the SZ is roughly ${\tau_{\rm{entrain}} \sim (\delta h / \ell_{\rm{c}})^2 \rm{R}_{\rho}^{-1} \mS \tau_{\rm{dyn}}}$ \citep[per][eqn.~3]{fuentes_cumming_2020}, where $\delta h$ is the depth of the SZ, $\ell_{\rm{c}}$ is the characteristic convective length scale, $\Ro \in [0, 1]$ is the density ratio \citep[see][eqn.~7]{garaud_2018}, and $\tau_{\rm{dyn}}$ is the dynamical timescale which is equal to the convective overturn timescale.
-Our simulation has $\mS \sim 10^{4}$ in the entrainment phase, so it is in the same high-$\mS$ regime as stars.
-We set $\rm{R}_\rho = 1/10$.
-Since the relevant timescale of evolution on the main sequence is the nuclear time $\tau_{\rm{nuc}}$, and since $\tau_{\rm{nuc}}/\tau_{\rm{dyn}} \gg (\delta h/\ell_{\rm{c}})^2 \mS/\Ro$ even for $\mS \sim 10^6$, we expect CZs to entrain SZs during a typical stellar evolution timescale for any stage of evolution where convection reaches a steady state.
-Note also that the low values of $\Ro$ present in SZs in stars can lead to additional instabilities; we briefly discuss this in Sec.~\ref{sec:conclusions}.
+which is related to the Richardson number ${\rm{Ri} = \sqrt{\mS}}$.
+The time to entrain the SZ is roughly ${\tau_{\rm{entrain}} \sim (\delta h / \ell_{\rm{c}})^2 \rm{R}_{\rho}^{-1} \mS \tau_{\rm{dyn}}}$ \citep[per][eqn.~3]{fuentes_cumming_2020}, where $\delta h$ is the depth of the SZ, $\ell_{\rm{c}}$ is the characteristic convective length scale, $\Ro \in [0, 1]$ is the density ratio \citep[see][eqn.~7]{garaud_2018}, and $\tau_{\rm{dyn}}$ is the dynamical timescale which in our simulation is the convective overturn timescale.
+In Fig.~\ref{fig:profiles}, bottom right panel, we have $f_{\rm{conv}}^2|_{\rm{CZ}} \approx 3 \times 10^{-3}$ and $N^2|_{\rm{RZ}} \approx 10^2$, so $\mS \approx 3 \times 10^4$.
+Convective boundaries in stars often have $\mS \gtrsim 10^6$, so our simulation is in the same high-$\mS$ regime as stars.
+The value of $\mathrm{R}_{\rho}$ can vary greatly throughout the depth of an SZ in a star; we use $\rm{R}_\rho = 1/10$.
+The relevant evoluationary timescale during the main sequence is the nuclear time $\tau_{\rm{nuc}}$.
+Since $\tau_{\rm{nuc}}/\tau_{\rm{dyn}} \gg (\delta h/\ell_{\rm{c}})^2 \mS/\Ro$ even for $\mS \sim 10^6$, SZs should be immediately entrained by bordering CZs on the main sequence and during other evolutionary stages in which convection reaches a steady state.
+Note that while values of $\Ro \ll 1$ increase $\tau_{\rm{entrain}}$, they also support efficient mixing by ODDC (see Sec.~\ref{sec:conclusions}).
 
-Finally, Figure \ref{fig:kippenhahn} displays a Kippenhahn-like diagram of the simulation's evolution.
-This diagram demonstrates the evolution of the vertical extents of different dynamical regions.
+Finally, in Fig.~\ref{fig:kippenhahn} we display a Kippenhahn-like diagram of the simulation's evolution.
+This diagram demonstrates how the CZ, SZ, and RZ boundaries evolve.
 The convective boundary measurements are shown as orange ($\yL = 0$) and purple ($\yS = 0$) lines.
 The CZ is colored orange and fills the region below the Ledoux boundary, the RZ is colored purple and fills the region above the Schwarzschild boundary, and the SZ is colored green and fills the region between these boundaries.
-Convection motions overshoot above the Ledoux boundary; the hashed zone corresponds to the same overshoot extent displayed in Fig.~\ref{fig:profiles}.
-The \emph{top} of the overshoot zone, denoted by a black line, roughly correspond with the maximum of $\partial\mu/\partial z$ (Fig.~\ref{fig:profiles}, upper right), so this describes overshoot well.
-While the Schwarzschild and Ledoux boundaries start at different heights, 3D convective mixing causes them to converge on dynamical timescales.
+Convection motions overshoot beyond the Ledoux boundary into a hashed overshoot zone, which we define identically to the one displayed in Fig.~\ref{fig:profiles}.
+The top of the overshoot zone (black line) correspond with the edge of the well-mixed region (Fig.~\ref{fig:profiles}, upper right).
+While the Schwarzschild and Ledoux boundaries start at different heights, 3D convective mixing causes them to converge.
+
+We briefly note that we performed additional simulations with the same initial stratification as in Fig.~\ref{fig:profiles} (left), but with lower values of $\mS$, higher and lower values of $\Ro$, and less turbulence (lower Reynolds number), and the evolutionary trends described here are present in all simulations.
 
 
