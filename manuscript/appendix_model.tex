@@ -1,6 +1,6 @@
 \section{Model \& Initial Conditions}
 \label{app:model}
-We study incompressible, Boussinesq convection with both temperature $T$ and concentration $\mu$.
+We study incompressible, Boussinesq convection \editone{in which we evolve both} temperature $T$ and concentration $\mu$.
 The nondimensional equations of motion are
 \begin{align}
     &\grad\dot\vec{u} = 0 
@@ -23,7 +23,8 @@ The adiabatic temperature gradient is $\partial_z T_{\rm{ad}}$ and the nondimens
     \tau = \frac{\kappa_\mu}{\kappa_T},\qquad
 \end{split}
 \end{equation}
-where the nondimensional freefall velocity is $u_{\mathrm{ff}} = \sqrt{|\alpha|g h_{\rm{conv}}\Delta T}$ (with gravitational acceleration $g$), $h_{\rm{conv}}$ is the initial depth of the convection zone, $\Delta \mu$ is the composition change across the Ledoux stable region, $\Delta T = h_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the superadiabatic temperature scale of the convection zone, $\alpha$ and $\beta$ are respectively the coefficients of expansion for $T$ and $\mu$, the viscosity is $\nu$, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
+where the nondimensional freefall velocity is $u_{\mathrm{ff}} = \sqrt{|\alpha|g h_{\rm{conv}}\Delta T}$ (with gravitational acceleration $g$), $h_{\rm{conv}}$ is the initial depth of the convection zone, \editone{the constant} $\Delta \mu$ is the \editone{initial} composition change across the Ledoux stable region, \editone{the constant} $\Delta T = h_{\rm{conv}}(\partial_z T_{\rm{rad}} - \partial_z T_{\rm{ad}})$ is the \editone{initial} superadiabatic temperature scale of the convection zone, \editone{$\alpha \equiv (\partial \ln \rho / \partial T)|_{\mu}$ and $\beta \equiv (\partial \ln \rho / \partial \mu)|_{T}$} are respectively the coefficients of expansion for $T$ and $\mu$, the viscosity is $\nu$, $\kappa_T$ is the thermal diffusivity, and $\kappa_\mu$ is the compositional diffusivity.
+\editone{In stellar structure modeling, $\Ro = |N_{\rm{structure}}^2/N_{\rm{composition}}^2|$ is the ratio of respectively the thermal and compositional components of the \brunt$\,$frequency as measured in a semiconvection zone or thermohaline zone.}
 Eqns.~\ref{eqn:incompressible}-\ref{eqn:composition} are identical to Eqns.~2-5 in \citet{garaud_2018}, except we modify the diffusion coefficients acting on $\bar{T}$ ($\kappa_{T,0}$) and $\bar{\mu}$ ($\tau_0$).
 By doing this, we keep the turbulence (Pe) uniform throughout the domain while also allowing the radiative temperature gradient $\partial_z T_{\rm{rad}} = -\rm{Flux}/\kappa_{T,0}$ to vary with height.
 We furthermore reduce diffusion on $\bar{\mu}$ to ensure its evolution is due to advection.
@@ -54,9 +55,14 @@ We study a three-layer model with $z \in [0, 3]$,
     \label{eqn:initial_mu}
 \end{align}
 We set $(\partial T / \partial z)_{\rm{ad}} = -1 - 10\Ro^{-1}$.
-To obtain $\mu_0$, we numerically integrate Eqn.~\ref{eqn:initial_mu} with $\mu_0(z=0) = 0$.
 The intial temperature profile has $\partial_zT_0 = \partial_z T_{\rm{rad}}$ everywhere except between $z = [0.1, 1]$ where $\partial_zT_0 = \partial_z T_{\rm{ad}}$.
-To obtain $T_0$, we numerically this $\partial_z T_0$ profile with $T_0(z=3) = 1$.
+\editone{Step functions are not well represented in pseudospectral codes, so we use smooth heaviside functions (Eqn.~\ref{eqn:heaviside}) to construct these piecewise functions.}
+To obtain $T_0$, we numerically \editone{integrate the smooth} $\partial_z T_0$ profile with $T_0(z=3) = 1$.
+To obtain $\mu_0$, we numerically integrate \editone{the smooth} Eqn.~\ref{eqn:initial_mu} with $\mu_0(z=0) = 0$.
 
 For boundary conditions, we hold ${\partial_z T = \partial_z T_0}$ at $z = 0$, $T = T_0$ at $z = 3$, and we set ${\partial_z \mu = \hat{z}\dot\vec{u} = \hat{x}\dot\partial_z\vec{u} = \hat{y}\dot\partial_z\vec{u}(z=0) = \hat{y}\dot\partial_z\vec{u}(z=3) = 0}$ at $z = [0,3]$.
 The simulation in this work uses $\rm{Pe} = 3.2 \times 10^3$, $\Ro^{-1} = 10$, $\rm{Pr} = \tau = 0.5$, $\tau_0 = 1.5 \times 10^{-3}$, and ${\kappa_{T,0} = \rm{Pe}^{-1}[(\partial T/\partial z)_{\rm{rad}}|_{z=0}] / (\partial T/\partial z)_{\rm{rad}}}$
+\editone{
+    The convective cores of main sequence stars with $M_* \sim [2, 10]M_\odot$ have $\rm{Pe} = \mathcal{O}(10^6)$, $\tau \approx \rm{Pr} = \mathcal{O}(10^{-6})$, and stiffnesses of $\mS = \mathcal{O}(10^{6-7})$ (see Jermyn et al.~2022, ``An Atlas of Convection in Main-Sequence Stars'', in prep).
+    While our simulation is as turbulent as possible while also achieving the long-term entrainment of the Ledoux boundary, and is qualitatively in the same regime as stars ($\rm{Pe} \gg 1$, $\rm{Pr} < 1$, $\mS \gg 1$), stars are both more turbulent and have stiffer boundaries than can be simulated with current computational resources.
+}

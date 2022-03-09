@@ -196,12 +196,12 @@ INPUT ./dynamics_figure.pdf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx9.tfm
 INPUT theory.tex
 INPUT theory.tex
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmcsc10.tfm
 INPUT fig2_profiles.pdf
 INPUT ./fig2_profiles.pdf
 INPUT ./fig2_profiles.pdf
 INPUT results.tex
 INPUT results.tex
-INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmcsc10.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx7.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx5.tfm
 INPUT kippenhahn.pdf

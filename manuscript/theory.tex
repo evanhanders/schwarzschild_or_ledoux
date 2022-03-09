@@ -34,3 +34,9 @@ This approximation fully captures nonlinear advective mixing near the CZ-SZ boun
 Our simulations use a height-dependent $\gradrad$ and buoyancy is determined by a combination of the composition and the temperature stratification, so $\yS$ and $\yL$ are determined independently and self-consistently.
 Our simulation length scales are formally much smaller than a scale height, but a useful heuristic is to think of our 3D convection zone depth (initially 1/3 of the simulation domain) as being analogous to the mixing length in a 1D stellar evolution model.
 For details on our model setup and Dedalus \citep{burns_etal_2020} simulations, we refer the reader to appendices \ref{app:model} and \ref{app:simulation_details}.
+
+\editone{
+    While $\mu$ represents the mean molecular weight in stellar modeling (e.g., Eqn.~\ref{eqn:yL}), throughout the rest of this manuscript we will use $\mu$ to denote the composition field in our dynamical model. 
+    In stellar modeling, the quantity that determines convective stability \citep[the $B$ term in e.g.,][]{unno_etal_1989, mesa2} is obtained by accounting for the variation of pressure with composition in the full equation of state. 
+    In our simulation, we employ an ideal equation of state in which compositional stability is determined by the gradient of $\mu$.
+}
