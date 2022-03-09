@@ -133,7 +133,8 @@ def generate_custom_colorbar():
 color_scale, purples, matplotlib_cmap = generate_custom_colorbar()
 
 in_dir = '../publication_invR10/triLayer_model_Pe3.2e3_Pr5e-1_tau5e-1_tauk03e-3_invR10_N2B10_Lx4_192x192x512-64_stitched/'
-fig_name = 'long_volume_movie'
+fig_name = 'fig1_volume_movie'
+#fig_name = 'long_volume_movie'
 
 slice_reader = SingleTypeReader(in_dir, 'slices', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
 prof_reader = SingleTypeReader(in_dir, 'profiles', fig_name, start_file=0, n_files=np.inf, distribution='even-write')
@@ -199,9 +200,18 @@ if MPI.COMM_WORLD.rank == 0:
 dense_dt = 1
 sparse_dt = 25
 start_dense = 130
-start_sparse = 1930 #1 min = 1800 frames 
+start_sparse = 400 #1 min = 1800 frames 
 end_sparse   = 15030
-end_movie = 16830
+end_movie = 15630
+
+#Long
+#dense_dt = 1
+#sparse_dt = 25
+#start_dense = 130
+#start_sparse = 1930 #1 min = 1800 frames 
+#end_sparse   = 15030
+#end_movie = 16830
+
 
 times1 = np.arange(start_dense, start_sparse, dense_dt)
 times2 = np.arange(start_sparse, end_sparse, sparse_dt)
@@ -333,6 +343,38 @@ if not slice_reader.idle:
             top_ledoux_lines[-1]['z'] = line_vals[:,2]
             top_ledoux_lines[-1]['line'] = {'color':c, 'width': 20}
 
+        original_ledoux_line = {}
+        
+        for c, z_val in zip((brewer_dark3[1],), (yL[0],)):
+            vertices = ((x_max*1.002, y_min, z_val), (x_max*1.002, y_mid*1.004, z_val), (x_mid*1.004, y_mid*1.004, z_val), (x_mid*1.004, y_max*1.002, z_val))
+            plot_vertices = []
+            for i in range(len(vertices)-1):
+                start = vertices[i]
+                stop  = vertices[i+1]
+                if i == 1:
+                    N = 10
+                else:
+                    N = 20
+
+                x_vals = np.linspace(start[0], stop[0], N)
+                if i == 0:
+                    y_vals = np.linspace(start[1]+0.02*stop[1], stop[1], N)
+                elif i == len(vertices)-2:
+                    y_vals = np.linspace(start[1], stop[1]*0.99, N)
+                else:
+                    y_vals = np.linspace(start[1], stop[1], N)
+#                else:
+#                    y_vals = np.linspace(start[1], stop[1]*0.99, N)
+                for j in range(N):
+                    plot_vertices.append((x_vals[j], y_vals[j], z_val))
+            line_vals = np.array(plot_vertices)
+            original_ledoux_line['x'] = line_vals[:,0]
+            original_ledoux_line['y'] = line_vals[:,1]
+            original_ledoux_line['z'] = line_vals[:,2]
+            original_ledoux_line['marker'] = {'size': 2, 'color': c, 'symbol' : 'square'}
+#            original_ledoux_line['line'] = {'color':c, 'width': 20}
+
+
         xy_side = construct_surface_dict(x, y, z_max, xy_side_data, x_bounds=(x_min, x_mid), y_bounds=(y_min, y_mid))
         xz_side = construct_surface_dict(x, y_max, z, xz_side_data, x_bounds=(x_min, x_mid), z_bounds=(z_min, z_mid))
         yz_side = construct_surface_dict(x_max, y, z, yz_side_data, y_bounds=(y_min, y_mid), z_bounds=(z_min, z_mid))
@@ -398,6 +440,8 @@ if not slice_reader.idle:
 
         for line_dict in top_ledoux_lines:
             fig.add_trace(go.Scatter3d(**line_dict, mode='lines', showlegend=False), 1, 1)
+
+        fig.add_trace(go.Scatter3d(**original_ledoux_line, mode='markers', showlegend=False), 1, 1)
 
         #https://stackoverflow.com/questions/63386812/plotly-how-to-hide-axis-titles-in-a-plotly-express-figure-with-facets
         for anno in fig['layout']['annotations']:
