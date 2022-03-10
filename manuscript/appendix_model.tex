@@ -63,6 +63,7 @@ To obtain $\mu_0$, we numerically integrate \editone{the smooth} Eqn.~\ref{eqn:i
 For boundary conditions, we hold ${\partial_z T = \partial_z T_0}$ at $z = 0$, $T = T_0$ at $z = 3$, and we set ${\partial_z \mu = \hat{z}\dot\vec{u} = \hat{x}\dot\partial_z\vec{u} = \hat{y}\dot\partial_z\vec{u}(z=0) = \hat{y}\dot\partial_z\vec{u}(z=3) = 0}$ at $z = [0,3]$.
 The simulation in this work uses $\rm{Pe} = 3.2 \times 10^3$, $\Ro^{-1} = 10$, $\rm{Pr} = \tau = 0.5$, $\tau_0 = 1.5 \times 10^{-3}$, and ${\kappa_{T,0} = \rm{Pe}^{-1}[(\partial T/\partial z)_{\rm{rad}}|_{z=0}] / (\partial T/\partial z)_{\rm{rad}}}$
 \editone{
-    The convective cores of main sequence stars with $M_* \sim [2, 10]M_\odot$ have $\rm{Pe} = \mathcal{O}(10^6)$, $\tau \approx \rm{Pr} = \mathcal{O}(10^{-6})$, and stiffnesses of $\mS = \mathcal{O}(10^{6-7})$ (see Jermyn et al.~2022, ``An Atlas of Convection in Main-Sequence Stars'', in prep).
-    While our simulation is as turbulent as possible while also achieving the long-term entrainment of the Ledoux boundary, and is qualitatively in the same regime as stars ($\rm{Pe} \gg 1$, $\rm{Pr} < 1$, $\mS \gg 1$), stars are both more turbulent and have stiffer boundaries than can be simulated with current computational resources.
+    The convective cores of main sequence stars with ${2M_\odot \lesssim M_* \lesssim 10M_\odot}$ have $\rm{Pe} = \mathcal{O}(10^6)$, $\tau \approx \rm{Pr} = \mathcal{O}(10^{-6})$, and stiffnesses of $\mS = \mathcal{O}(10^{6-7})$ (see Jermyn et al.~2022, ``An Atlas of Convection in Main-Sequence Stars'', in prep).
+    Our simulation is as turbulent as possible while also achieving the long-term entrainment of the Ledoux boundary, and is qualitatively in the same regime as stars ($\rm{Pe} \gg 1$, $\rm{Pr} < 1$, $\mS \gg 1$).
+    Unfortunately, stars are both more turbulent and have stiffer boundaries than can be simulated with current computational resources.
 }
